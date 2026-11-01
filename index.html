@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Einkaufsliste</title>
+<meta name="theme-color" content="#f6f4ef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141614" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Einkauf">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --surface: #ffffff;
+    --ink: #1d1f1c;
+    --muted: #7a7d76;
+    --line: #e7e3da;
+    --accent: #2f6b4f;
+    --accent-ink: #ffffff;
+    --accent-soft: #e3efe7;
+    --danger: #b4432f;
+    --shadow: 0 1px 2px rgba(30, 30, 20, .05), 0 8px 24px rgba(30, 30, 20, .06);
+    --radius: 16px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141614;
+      --surface: #1d201d;
+      --ink: #ecebe6;
+      --muted: #9a9d96;
+      --line: #2c302c;
+      --accent: #6fbf8f;
+      --accent-ink: #0f1a13;
+      --accent-soft: #22332a;
+      --danger: #e2735f;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+  }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+
+  /* Kopf */
+  header {
+    position: sticky; top: 0; z-index: 5;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    padding-top: env(safe-area-inset-top);
+  }
+  .head { display: flex; align-items: center; justify-content: space-between; padding: 18px 0 14px; }
+  h1 { margin: 0; font-size: 30px; letter-spacing: -.02em; font-weight: 700; }
+  .sub { color: var(--muted); font-size: 14px; margin-top: 2px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; }
+  .dot.off { background: var(--danger); }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--surface); display: grid; place-items: center; font-size: 20px; line-height: 1;
+  }
+  .menu {
+    position: absolute; right: 16px; top: calc(env(safe-area-inset-top) + 64px);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow); padding: 6px; min-width: 220px; display: none;
+  }
+  .menu.open { display: block; }
+  .menu .who { padding: 10px 12px 8px; color: var(--muted); font-size: 14px; }
+  .menu button { display: block; width: 100%; text-align: left; padding: 10px 12px; border: 0; background: none; border-radius: 10px; }
+  .menu button:active { background: var(--accent-soft); }
+
+  main { padding-bottom: calc(190px + env(safe-area-inset-bottom)); }
+
+  /* Liste */
+  .group { margin-top: 18px; }
+  .group h2, h2.label {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    margin: 0 0 8px 4px; font-weight: 600; display: flex; gap: 6px; align-items: center;
+  }
+  ul { list-style: none; margin: 0; padding: 0; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 8px 12px 14px;
+    border-bottom: 1px solid var(--line); min-height: 56px; user-select: none;
+    transition: opacity .2s;
+  }
+  .item:last-child { border-bottom: 0; }
+  .check {
+    flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line);
+    background: none; padding: 0; display: grid; place-items: center; transition: all .15s;
+  }
+  .check svg { width: 14px; height: 14px; opacity: 0; transition: opacity .15s; }
+  .item.done .check { background: var(--accent); border-color: var(--accent); }
+  .item.done .check svg { opacity: 1; }
+  .text { flex: 1; min-width: 0; }
+  .name { font-size: 17px; font-weight: 500; overflow-wrap: anywhere; }
+  .qty { color: var(--accent); font-weight: 600; margin-left: 6px; font-size: 15px; }
+  .by { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+  .item.done .name { text-decoration: line-through; color: var(--muted); }
+  .item.done .qty { color: var(--muted); }
+  .del { flex: none; width: 36px; height: 36px; border: 0; background: none; color: var(--muted); font-size: 22px; border-radius: 10px; opacity: .55; }
+  .del:active { background: var(--accent-soft); opacity: 1; }
+
+  .empty { text-align: center; color: var(--muted); padding: 56px 20px 20px; }
+  .empty .big { font-size: 40px; margin-bottom: 8px; }
+  .empty strong { display: block; color: var(--ink); font-size: 18px; margin-bottom: 4px; }
+
+  .done-head { display: flex; justify-content: space-between; align-items: center; margin: 28px 0 8px 4px; }
+  .done-head h2 { margin: 0; }
+  .btn-soft {
+    border: 0; background: var(--accent-soft); color: var(--accent); font-weight: 600;
+    padding: 8px 14px; border-radius: 999px; font-size: 14px;
+  }
+
+  /* Eingabe unten */
+  .composer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-top: 1px solid var(--line);
+    padding: 10px 0 calc(12px + env(safe-area-inset-bottom));
+  }
+  .chips-label { font-size: 12px; color: var(--muted); margin: 0 0 6px 2px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+    padding: 7px 12px; font-size: 14px; white-space: nowrap; user-select: none; -webkit-user-select: none;
+  }
+  .chip:active { background: var(--accent-soft); }
+  .chip.del-mode { border-color: var(--danger); color: var(--danger); }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .field {
+    flex: 1; display: flex; align-items: center; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; min-width: 0; box-shadow: var(--shadow);
+  }
+  .field:focus-within { border-color: var(--accent); }
+  .cat {
+    position: relative; flex: none; width: 44px; height: 48px; display: grid; place-items: center; font-size: 20px;
+    border-right: 1px solid var(--line);
+  }
+  .cat select { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; }
+  .field input { border: 0; background: none; outline: none; padding: 0 12px; height: 48px; min-width: 0; font-size: 17px; }
+  #name { flex: 1; }
+  #qty { width: 72px; flex: none; border-left: 1px solid var(--line); text-align: center; font-size: 15px; }
+  .add {
+    flex: none; width: 48px; height: 48px; border-radius: 14px; border: 0;
+    background: var(--accent); color: var(--accent-ink); font-size: 26px; line-height: 1;
+    box-shadow: var(--shadow);
+  }
+  .add:disabled { opacity: .45; }
+
+  /* Login */
+  .login {
+    position: fixed; inset: 0; z-index: 20; background: var(--bg);
+    display: grid; place-items: center; padding: 24px 16px;
+  }
+  .login[hidden] { display: none; }
+  .card { width: 100%; max-width: 380px; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 28px 22px; }
+  .card .logo { width: 56px; height: 56px; border-radius: 16px; display: block; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 4px; font-size: 24px; letter-spacing: -.01em; }
+  .card p { margin: 0 0 20px; color: var(--muted); font-size: 15px; }
+  .card label { display: block; font-size: 13px; color: var(--muted); margin: 0 0 6px 2px; }
+  .card input {
+    width: 100%; height: 50px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg);
+    padding: 0 14px; font-size: 17px; margin-bottom: 14px; outline: none;
+  }
+  .card input:focus { border-color: var(--accent); }
+  .btn-main { width: 100%; height: 52px; border: 0; border-radius: 14px; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 17px; }
+  .err { color: var(--danger); font-size: 14px; min-height: 20px; margin-top: 10px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(150px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px;
+    opacity: 0; pointer-events: none; transition: all .25s; z-index: 30; max-width: calc(100% - 32px);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap head">
+    <div>
+      <h1>Einkauf</h1>
+      <div class="sub"><span class="dot" id="dot"></span><span id="count">–</span></div>
+    </div>
+    <button class="icon-btn" id="menuBtn" aria-label="Menü">⋯</button>
+  </div>
+  <div class="menu" id="menu">
+    <div class="who" id="who"></div>
+    <button id="reloadBtn">Neu laden</button>
+    <button id="logoutBtn">Abmelden</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="list"></div>
+  <div id="done"></div>
+</main>
+
+<form class="composer" id="addForm" autocomplete="off">
+  <div class="wrap">
+    <div class="chips-label" id="chipsLabel"></div>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <div class="field">
+        <div class="cat"><span id="catIcon">📦</span><select id="cat" aria-label="Kategorie"></select></div>
+        <input id="name" placeholder="Was fehlt?" enterkeyhint="done" maxlength="80">
+        <input id="qty" placeholder="Menge" maxlength="20">
+      </div>
+      <button class="add" id="addBtn" type="submit" aria-label="Hinzufügen" disabled>+</button>
+    </div>
+  </div>
+</form>
+
+<div class="login" id="login" hidden>
+  <form class="card" id="loginForm" autocomplete="on">
+    <img class="logo" src="icon.svg" alt="">
+    <h2>Unsere Einkaufsliste</h2>
+    <p>Einmal anmelden, danach bleibt dieses Handy angemeldet.</p>
+    <label for="loginName">Dein Name</label>
+    <input id="loginName" name="name" placeholder="z. B. Brian" maxlength="30" required>
+    <label for="loginPin">PIN</label>
+    <input id="loginPin" name="password" type="password" placeholder="mind. 4 Zeichen" required autocomplete="current-password">
+    <button class="btn-main" type="submit">Los geht's</button>
+    <div class="err" id="loginErr"></div>
+  </form>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.min.js"></script>
+<script>
+  // --- Konfiguration (Supabase → Project Settings → API) ---
+  const SUPABASE_URL = 'https://xzaanhidtjvicsbtbsvk.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_GBMxJjEZKvwsXL1T_ANSQQ_GLdFKxQs';
+
+  // Reihenfolge = Weg durch den Discounter
+  const CATS = [
+    { id: 'Obst & Gemüse', icon: '🥦', kw: ['apfel', 'äpfel', 'banane', 'birne', 'tomate', 'gurke', 'salat', 'paprika', 'zwiebel', 'kartoffel', 'möhre', 'karotte', 'zitrone', 'limette', 'orange', 'mandarine', 'beere', 'traube', 'avocado', 'knoblauch', 'pilz', 'champignon', 'zucchini', 'brokkoli', 'spinat', 'kräuter', 'petersilie', 'basilikum', 'ingwer', 'lauch', 'kohl', 'obst', 'gemüse', 'mango', 'kiwi', 'melone', 'aubergine', 'radieschen', 'rucola', 'sellerie', 'pflaume', 'pfirsich', 'nektarine', 'ananas'] },
+    { id: 'Brot & Backwaren', icon: '🥖', kw: ['brot', 'brötchen', 'toast', 'baguette', 'croissant', 'brezel', 'laugen', 'kuchen', 'wrap', 'tortilla', 'semmel', 'knäcke'] },
+    { id: 'Kühlregal', icon: '🧀', kw: ['milch', 'joghurt', 'jogurt', 'quark', 'käse', 'butter', 'sahne', 'eier', 'schmand', 'frischkäse', 'mozzarella', 'feta', 'skyr', 'margarine', 'pudding', 'hefe', 'tofu', 'hummus', 'gnocchi', 'aufback', 'kefir', 'buttermilch', 'creme fraiche', 'crème fraîche'] },
+    { id: 'Fleisch & Fisch', icon: '🥩', kw: ['fleisch', 'hack', 'hähnchen', 'huhn', 'pute', 'wurst', 'schinken', 'salami', 'steak', 'schnitzel', 'lachs', 'fisch', 'speck', 'würstchen', 'bacon', 'garnelen', 'thunfisch', 'aufschnitt', 'gyros', 'bratwurst'] },
+    { id: 'Vorrat', icon: '🥫', kw: ['nudeln', 'pasta', 'spaghetti', 'penne', 'reis', 'mehl', 'zucker', 'salz', 'öl', 'olivenöl', 'essig', 'konserve', 'dose', 'tomatenmark', 'passierte', 'dosentomaten', 'linsen', 'bohnen', 'mais', 'soße', 'sauce', 'ketchup', 'senf', 'mayo', 'brühe', 'gewürz', 'pfeffer', 'paprikapulver', 'pesto', 'backpulver', 'kokosmilch', 'kichererbsen', 'couscous', 'bulgur'] },
+    { id: 'Frühstück & Süßes', icon: '🍫', kw: ['müsli', 'cornflakes', 'haferflocken', 'marmelade', 'konfitüre', 'honig', 'nutella', 'schokolade', 'schoko', 'kekse', 'chips', 'gummibär', 'süßigkeit', 'riegel', 'kaffee', 'tee', 'kakao', 'nüsse', 'aufstrich', 'erdnuss', 'cracker', 'salzstangen', 'popcorn', 'bonbons'] },
+    { id: 'Getränke', icon: '🥤', kw: ['wasser', 'saft', 'bier', 'wein', 'cola', 'limo', 'sprudel', 'eistee', 'sekt', 'mate', 'smoothie', 'schorle', 'radler', 'energy', 'sirup', 'hafermilch', 'sojamilch', 'mandelmilch'] },
+    { id: 'Tiefkühl', icon: '🧊', kw: ['tk', 'tiefkühl', 'pizza', 'eis', 'pommes', 'fischstäbchen', 'kroketten', 'rahmspinat', 'eiswürfel'] },
+    { id: 'Drogerie & Haushalt', icon: '🧴', kw: ['klopapier', 'toilettenpapier', 'küchenrolle', 'küchenpapier', 'spüli', 'spülmittel', 'waschmittel', 'weichspüler', 'shampoo', 'duschgel', 'zahnpasta', 'zahnbürste', 'zahnseide', 'deo', 'seife', 'müllbeutel', 'müllsäcke', 'taschentücher', 'feuchttücher', 'windeln', 'schwamm', 'alufolie', 'frischhaltefolie', 'backpapier', 'batterien', 'creme', 'rasier', 'tabs', 'reiniger', 'tampons', 'binden', 'wattepads', 'gefrierbeutel', 'kerzen'] },
+    { id: 'Sonstiges', icon: '📦', kw: [] },
+  ];
+  const catOf = id => CATS.find(c => c.id === id) || CATS[CATS.length - 1];
+  const catIndex = id => { const i = CATS.findIndex(c => c.id === id); return i < 0 ? CATS.length - 1 : i; };
+
+  // Längster passender Begriff gewinnt ("Tomatenmark" → Vorrat, nicht Obst & Gemüse)
+  function guessCategory(name) {
+    const s = name.toLowerCase().trim();
+    if (!s) return null;
+    const fav = state.favorites.find(f => f.name.toLowerCase() === s);
+    if (fav) return fav.category;
+    const tokens = s.split(/[\s,.\-\/+]+/);
+    let best = null, bestLen = 0;
+    for (const c of CATS) for (const k of c.kw) {
+      const hit = k.length <= 3 ? tokens.includes(k) : s.includes(k);
+      if (hit && k.length > bestLen) { best = c.id; bestLen = k.length; }
+    }
+    return best;
+  }
+
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+  let pin = store.get('ek_pin');
+  let me = store.get('ek_name') || '';
+  let state = { items: [], favorites: [] };
+  let catTouched = false;
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
+
+  // --- Sync zwischen den Handys ---
+  const channel = sb.channel('einkaufsliste', { config: { broadcast: { self: false } } });
+  channel.on('broadcast', { event: 'changed' }, () => load()).subscribe();
+  const ping = () => channel.send({ type: 'broadcast', event: 'changed', payload: {} }).catch(() => {});
+
+  async function rpc(fn, args = {}) {
+    const { data, error } = await sb.rpc(fn, { p_pin: pin, ...args });
+    if (error) {
+      if (/invalid pin/.test(error.message)) logout('Die PIN stimmt nicht mehr. Bitte neu anmelden.');
+      throw error;
+    }
+    return data;
+  }
+
+  let loading = false, loadAgain = false;
+  async function load() {
+    if (!pin) return;
+    if (loading) { loadAgain = true; return; }
+    loading = true;
+    try {
+      state = await rpc('get_state');
+      setOnline(true);
+      render();
+    } catch (e) {
+      setOnline(false);
+    } finally {
+      loading = false;
+      if (loadAgain) { loadAgain = false; load(); }
+    }
+  }
+
+  async function mutate(fn, args, optimistic) {
+    if (optimistic) { optimistic(); render(); }
+    try {
+      await rpc(fn, args);
+      ping();
+    } catch (e) {
+      toast('Hat nicht geklappt – bitte nochmal versuchen.');
+    }
+    load();
+  }
+
+  function setOnline(ok) {
+    $('dot').classList.toggle('off', !ok);
+    $('dot').title = ok ? 'verbunden' : 'keine Verbindung';
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    $('toast').textContent = msg;
+    $('toast').classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => $('toast').classList.remove('show'), 2600);
+  }
+
+  // --- Darstellung ---
+  const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent-ink)"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+  function itemHtml(it) {
+    const by = it.added_by && it.added_by !== me ? `<span class="by">von ${esc(it.added_by)}</span>` : '';
+    return `<li class="item${it.checked ? ' done' : ''}" data-id="${esc(it.id)}">
+      <button class="check" aria-label="${it.checked ? 'Wieder offen' : 'Abhaken'}">${checkSvg}</button>
+      <div class="text"><span class="name">${esc(it.name)}</span>${it.qty ? `<span class="qty">${esc(it.qty)}</span>` : ''}${by}</div>
+      <button class="del" aria-label="Löschen">×</button>
+    </li>`;
+  }
+
+  function render() {
+    const open = state.items.filter(i => !i.checked);
+    const done = state.items.filter(i => i.checked)
+      .sort((a, b) => String(b.checked_at).localeCompare(String(a.checked_at)));
+
+    $('count').textContent = open.length === 0 ? 'nichts offen'
+      : open.length === 1 ? '1 Artikel offen' : `${open.length} Artikel offen`;
+
+    if (open.length === 0) {
+      $('list').innerHTML = `<div class="empty"><div class="big">${done.length ? '🎉' : '🛒'}</div>
+        <strong>${done.length ? 'Alles im Wagen!' : 'Die Liste ist leer'}</strong>
+        ${done.length ? 'Nach dem Einkauf unten auf „Woche fertig“ tippen.' : 'Unten eintippen oder einen häufigen Artikel antippen.'}</div>`;
+    } else {
+      const groups = new Map();
+      open.sort((a, b) => catIndex(a.category) - catIndex(b.category) || String(a.created_at).localeCompare(String(b.created_at)))
+        .forEach(i => {
+          const c = catOf(i.category).id;
+          if (!groups.has(c)) groups.set(c, []);
+          groups.get(c).push(i);
+        });
+      $('list').innerHTML = [...groups].map(([c, items]) =>
+        `<section class="group"><h2><span>${catOf(c).icon}</span>${esc(c)}</h2><ul>${items.map(itemHtml).join('')}</ul></section>`
+      ).join('');
+    }
+
+    $('done').innerHTML = done.length ? `<div class="done-head"><h2 class="label">✓ Im Wagen · ${done.length}</h2>
+      <button class="btn-soft" id="clearBtn">Woche fertig</button></div>
+      <ul>${done.map(itemHtml).join('')}</ul>` : '';
+
+    renderChips();
+  }
+
+  let delModeName = null;
+  function renderChips() {
+    const q = $('name').value.trim().toLowerCase();
+    const onList = new Set(state.items.filter(i => !i.checked).map(i => i.name.toLowerCase()));
+    let favs = state.favorites.filter(f => !onList.has(f.name.toLowerCase()));
+    if (q) favs = favs.filter(f => f.name.toLowerCase().includes(q) && f.name.toLowerCase() !== q)
+      .sort((a, b) => b.name.toLowerCase().startsWith(q) - a.name.toLowerCase().startsWith(q));
+    favs = favs.slice(0, q ? 8 : 14);
+    $('chipsLabel').textContent = favs.length ? (q ? 'Vorschläge' : 'Oft gekauft · gedrückt halten zum Entfernen') : '';
+    $('chips').innerHTML = favs.map(f =>
+      `<button type="button" class="chip${delModeName === f.name ? ' del-mode' : ''}" data-name="${esc(f.name)}">${delModeName === f.name ? '× entfernen' : catOf(f.category).icon + ' ' + esc(f.name)}</button>`
+    ).join('');
+    $('chips').style.display = favs.length ? '' : 'none';
+    $('chipsLabel').style.display = favs.length ? '' : 'none';
+  }
+
+  function setCat(id) {
+    $('cat').value = id;
+    $('catIcon').textContent = catOf(id).icon;
+  }
+
+  // --- Aktionen ---
+  function addItem(name, qty, category) {
+    name = cap(name.trim());
+    qty = (qty || '').trim();
+    if (!name) return;
+    category = category || guessCategory(name) || 'Sonstiges';
+    mutate('add_item', { p_name: name, p_qty: qty, p_category: category, p_by: me }, () => {
+      const ex = state.items.find(i => !i.checked && i.name.toLowerCase() === name.toLowerCase());
+      if (ex) { if (qty) ex.qty = qty; ex.category = category; }
+      else state.items.push({ id: 'tmp-' + Date.now(), name, qty, category, checked: false, added_by: me, created_at: new Date().toISOString() });
+    });
+  }
+
+  $('addForm').addEventListener('submit', e => {
+    e.preventDefault();
+    addItem($('name').value, $('qty').value, catTouched ? $('cat').value : null);
+    $('name').value = '';
+    $('qty').value = '';
+    catTouched = false;
+    setCat('Sonstiges');
+    $('addBtn').disabled = true;
+    renderChips();
+    $('name').focus();
+  });
+
+  $('name').addEventListener('input', () => {
+    const v = $('name').value;
+    $('addBtn').disabled = !v.trim();
+    if (!catTouched) setCat(guessCategory(v) || 'Sonstiges');
+    delModeName = null;
+    renderChips();
+  });
+  $('cat').addEventListener('change', () => { catTouched = true; setCat($('cat').value); });
+
+  // Chips: tippen = hinzufügen, gedrückt halten = Entfernen anbieten
+  let pressTimer = null, pressed = false;
+  $('chips').addEventListener('pointerdown', e => {
+    const chip = e.target.closest('.chip'); if (!chip) return;
+    pressed = false;
+    pressTimer = setTimeout(() => { pressed = true; delModeName = chip.dataset.name; renderChips(); navigator.vibrate?.(15); }, 550);
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach(t => $('chips').addEventListener(t, () => clearTimeout(pressTimer)));
+  $('chips').addEventListener('contextmenu', e => e.preventDefault());
+  $('chips').addEventListener('click', e => {
+    const chip = e.target.closest('.chip'); if (!chip) return;
+    if (pressed) { pressed = false; return; }
+    const name = chip.dataset.name;
+    if (delModeName === name) {
+      delModeName = null;
+      mutate('delete_favorite', { p_name: name }, () => { state.favorites = state.favorites.filter(f => f.name !== name); });
+      return;
+    }
+    delModeName = null;
+    const fav = state.favorites.find(f => f.name === name);
+    addItem(name, $('qty').value, fav?.category);
+    $('name').value = ''; $('qty').value = ''; $('addBtn').disabled = true;
+    catTouched = false; setCat('Sonstiges');
+  });
+
+  document.addEventListener('click', e => {
+    const row = e.target.closest('.item');
+    if (row) {
+      const id = row.dataset.id;
+      if (id.startsWith('tmp-')) return;
+      if (e.target.closest('.del')) {
+        const it = state.items.find(i => i.id === id);
+        mutate('delete_item', { p_id: id }, () => { state.items = state.items.filter(i => i.id !== id); });
+        if (it) toast(`„${it.name}“ gelöscht`);
+      } else {
+        navigator.vibrate?.(10);
+        mutate('toggle_item', { p_id: id }, () => {
+          const it = state.items.find(i => i.id === id);
+          if (it) { it.checked = !it.checked; it.checked_at = new Date().toISOString(); }
+        });
+      }
+      return;
+    }
+    if (e.target.id === 'clearBtn') {
+      const n = state.items.filter(i => i.checked).length;
+      mutate('clear_checked', {}, () => { state.items = state.items.filter(i => !i.checked); });
+      toast(`${n} erledigte Artikel weggeräumt`);
+      return;
+    }
+    if (e.target.id === 'menuBtn') { $('menu').classList.toggle('open'); return; }
+    if (!e.target.closest('.menu')) $('menu').classList.remove('open');
+    if (delModeName && !e.target.closest('.chip')) { delModeName = null; renderChips(); }
+  });
+
+  $('reloadBtn').addEventListener('click', () => { $('menu').classList.remove('open'); load(); });
+  $('logoutBtn').addEventListener('click', () => { $('menu').classList.remove('open'); logout(); });
+
+  // --- Anmeldung ---
+  function logout(msg) {
+    pin = null;
+    store.del('ek_pin');
+    $('loginName').value = me;
+    $('loginPin').value = '';
+    $('loginErr').textContent = msg || '';
+    $('login').hidden = false;
+  }
+
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = $('loginName').value.trim();
+    const p = $('loginPin').value;
+    $('loginErr').textContent = '';
+    if (p.length < 4) { $('loginErr').textContent = 'Die PIN braucht mindestens 4 Zeichen.'; return; }
+    const { data, error } = await sb.rpc('login', { p_pin: p });
+    if (error) {
+      $('loginErr').textContent = /invalid pin/.test(error.message) ? 'PIN stimmt nicht.' : 'Keine Verbindung – bitte nochmal versuchen.';
+      return;
+    }
+    pin = p; me = name;
+    store.set('ek_pin', p); store.set('ek_name', name);
+    $('who').textContent = `Angemeldet als ${me}`;
+    $('login').hidden = true;
+    if (data === 'created') toast('PIN festgelegt – gib sie deiner Freundin.');
+    load();
+  });
+
+  // --- Start ---
+  $('cat').innerHTML = CATS.map(c => `<option value="${esc(c.id)}">${c.icon} ${esc(c.id)}</option>`).join('');
+  setCat('Sonstiges');
+
+  if (pin) { $('who').textContent = `Angemeldet als ${me}`; load(); }
+  else logout();
+
+  setInterval(() => { if (!document.hidden) load(); }, 15000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+  window.addEventListener('focus', load);
+</script>
+</body>
+</html>
