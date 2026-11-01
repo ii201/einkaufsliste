@@ -1,0 +1,51 @@
+name: Cookidoo
+
+on:
+  schedule:
+    - cron: "0 17 * * 6"   # Samstag 18/19 Uhr: Vorschläge holen
+    - cron: "0 9 * * 0"    # Sonntag 10/11 Uhr: Erinnerung schicken
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Was tun?"
+        type: choice
+        options: [check, sync, force, push]
+        default: check
+
+permissions:
+  contents: read
+
+concurrency: cookidoo
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: sync/requirements.txt
+      - run: pip install -r sync/requirements.txt
+      - name: Modus bestimmen
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then m="${{ inputs.mode }}"
+          elif [ "${{ github.event.schedule }}" = "0 9 * * 0" ]; then m=push
+          else m=sync; fi
+          echo "mode=$m" >> "$GITHUB_OUTPUT"
+      - run: |
+          case "${{ steps.mode.outputs.mode }}" in
+            check) python sync/cookidoo_sync.py --check ;;
+            sync)  python sync/cookidoo_sync.py ;;
+            force) python sync/cookidoo_sync.py --force ;;
+            push)  python sync/cookidoo_sync.py --push ;;
+          esac
+        env:
+          COOKIDOO_EMAIL: ${{ secrets.COOKIDOO_EMAIL }}
+          COOKIDOO_PASSWORD: ${{ secrets.COOKIDOO_PASSWORD }}
+          SUPABASE_URL: https://xzaanhidtjvicsbtbsvk.supabase.co
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
