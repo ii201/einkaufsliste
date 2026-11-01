@@ -227,28 +227,26 @@ def push() -> None:
 
 
 async def probe() -> None:
-    """Zeigt nur Feldnamen und Zahlen der Rohdaten, keine Inhalte."""
-    def shape(o, depth=0):
-        if isinstance(o, dict):
-            return {k: shape(v, depth + 1) for k, v in o.items()} if depth < 3 else "{…}"
-        if isinstance(o, list):
-            return [shape(o[0], depth + 1)] if o else []
-        if isinstance(o, (int, float, bool)) or o is None:
-            return o
-        return "str"
-
+    """Zeigt Kategorie- und Schlagwort-Namen öffentlicher Rezepte (keine Kontodaten)."""
     async with aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True)) as session:
         api = await connect(session)
         await api._ensure_endpoints()
         url = api.api_endpoint / api._path("search:home").format(locale="de")
-        raw = await api._request_json("get", url, "probe", params={"query": "Curry", "languages": "de", "ratings": "5", "pageSize": "3"})
-        print("SUCHE:", json.dumps(shape(raw), ensure_ascii=False))
-        hit = (raw.get("data") or raw.get("recipes") or [{}])[0]
-        rurl = api.api_endpoint / api._path("recipe:details").format(**api._cfg.localization.__dict__, id=hit.get("id"))
-        det = await api._request_json("get", rurl, "probe")
-        keys = {k: shape(v, 1) for k, v in det.items() if k not in ("recipeStepGroups", "recipeIngredientGroups", "nutritionGroups")}
-        print("DETAILS:", json.dumps(keys, ensure_ascii=False)[:3000])
-        print("KATEGORIEN-ANZAHL:", len(det.get("categories", [])))
+        cats, tags, countries = {}, {}, {}
+        for q in ("vegetarisch", "Hähnchen", "Lachs", "Pasta"):
+            raw = await api._request_json("get", url, "probe", params={"query": q, "languages": "de", "ratings": "5", "pageSize": "5"})
+            for hit in raw.get("data", []):
+                rurl = api.api_endpoint / api._path("recipe:details").format(**api._cfg.localization.__dict__, id=hit["id"])
+                det = await api._request_json("get", rurl, "probe")
+                for c in det.get("categories", []):
+                    cats[c.get("title")] = cats.get(c.get("title"), 0) + 1
+                for t in det.get("tags", []):
+                    tags[t.get("name")] = tags.get(t.get("name"), 0) + 1
+                for c in det.get("targetCountries", []):
+                    countries[c] = countries.get(c, 0) + 1
+        print("KATEGORIEN:", json.dumps(cats, ensure_ascii=False))
+        print("TAGS:", json.dumps(dict(sorted(tags.items(), key=lambda x: -x[1])[:40]), ensure_ascii=False))
+        print("LAENDER:", json.dumps(countries))
 
 
 if __name__ == "__main__":
