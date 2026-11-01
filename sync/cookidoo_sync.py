@@ -27,22 +27,16 @@ from cookidoo_api.helpers import (
 MIN_RATING = 4.5
 MIN_RATINGS = 30
 MAX_TOTAL_TIME = 100 * 60
-CATALOG_SIZE = 450
-NEW_PER_RUN = 450  # Details-Abrufe pro Lauf (danach nur noch Neuzugänge)
 
-SEARCH_TERMS = [
-    "Pasta", "Nudeln", "Spaghetti", "Lasagne", "Gnocchi", "Spätzle", "Maultaschen",
-    "Auflauf", "Gratin", "Überbacken",
-    "Curry", "Asiatisch", "Thai", "Wok", "Indisch", "Dal",
-    "Suppe", "Eintopf", "Chili", "Gulasch",
-    "Hähnchen", "Hackfleisch", "Rind", "Schwein", "Pute", "Geschnetzeltes", "Frikadellen",
-    "Lachs", "Fisch", "Garnelen",
-    "Risotto", "Reis", "Bowl", "Kartoffeln", "Ofengemüse", "Vegetarisch", "Linsen", "Kichererbsen",
-    "Burger", "Wrap", "Quiche", "Flammkuchen", "Pfanne", "Schnell",
-]
-
-# Nur Hauptgerichte (Cookidoo-Kategorien), keine Beilagen, Desserts, Saucen, Grundrezepte
-MAIN_DISH = re.compile(r"^haupt|nudel- und reis|pasta- und reis|suppen|eintöpfe", re.I)
+# Cookidoo-Kategorien für Hauptgerichte und wie viele davon in den Katalog kommen
+MAIN_CATEGORIES = {
+    "VrkNavCategory-RPF-004": ("Fleisch", 150),           # Hauptgerichte mit Fleisch
+    "VrkNavCategory-RPF-006": ("Vegetarisch", 110),       # Hauptgerichte, vegetarisch
+    "VrkNavCategory-RPF-003": ("Nudel und Reis", 90),     # Nudel- und Reisgerichte
+    "VrkNavCategory-RPF-005": ("Fisch", 50),              # Hauptgerichte mit Fisch
+    "VrkNavCategory-RPF-002": ("Suppe", 50),              # Suppen
+}
+PAGES_PER_CATEGORY = 15  # à 100 Treffer
 
 # Eigene Filter-Chips in der App
 CHIPS = {
@@ -103,28 +97,27 @@ async def connect(session: aiohttp.ClientSession) -> Cookidoo:
 
 
 async def search_top(api: Cookidoo) -> dict[str, dict]:
-    """Alle Suchbegriffe durchgehen und nur sehr gut bewertete Treffer behalten."""
+    """Pro Hauptgericht-Kategorie die beliebtesten Rezepte ab 4,5 Sternen."""
     url = api.api_endpoint / api._path("search:home").format(locale="de")
     hits: dict[str, dict] = {}
-    seen_raw: set[str] = set()
-    for term in SEARCH_TERMS:
-        # Kein "ratings"-Filter: der lässt nur glatte 5 Sterne durch. Die 4,5er-Grenze prüfen wir selbst.
-        prev: list[str] = []
-        for page in range(5):
+    for cat, (label, quota) in MAIN_CATEGORIES.items():
+        found: dict[str, dict] = {}
+        for page in range(PAGES_PER_CATEGORY):
             raw = await api._request_json("get", url, "search", params={
-                "query": term, "languages": "de", "limit": "100", "page": str(page),
+                "categories": cat, "languages": "de", "limit": "100", "page": str(page),
             })
             data = (raw or {}).get("data") or []
-            ids = [h.get("id") for h in data]
-            if not data or ids == prev:  # Ende erreicht oder Seite wird ignoriert
+            for h in data:
+                if (h.get("rating") or 0) >= MIN_RATING and (h.get("numberOfRatings") or 0) >= MIN_RATINGS \
+                        and (h.get("totalTime") or 0) <= MAX_TOTAL_TIME:
+                    found.setdefault(h["id"], {"rating": h["rating"], "count": h["numberOfRatings"], "cat": label})
+            if len(data) < 100:
                 break
-            prev = ids
-            for h in (h for h in data if h.get("id") not in seen_raw):
-                seen_raw.add(h.get("id"))
-                if (h.get("rating") or 0) >= MIN_RATING and (h.get("numberOfRatings") or 0) >= MIN_RATINGS:
-                    if (h.get("totalTime") or 0) <= MAX_TOTAL_TIME:
-                        hits.setdefault(h["id"], {"rating": h["rating"], "count": h["numberOfRatings"]})
-    print(f"Suchtreffer gesamt: {len(seen_raw)}, davon Top: {len(hits)}")
+        # Beliebteste zuerst: viele gute Bewertungen sagen mehr als eine einzelne 5
+        top = sorted(found, key=lambda i: found[i]["count"], reverse=True)[:quota]
+        for rid in top:
+            hits.setdefault(rid, found[rid])
+        print(f"{label}: {len(found)} Top-Rezepte, {len(top)} übernommen")
     return hits
 
 
@@ -166,19 +159,19 @@ def reject(reason: str) -> None:
 def catalog_row(rid: str, hit: dict, raw: dict, d: Details) -> dict | None:
     categories = [c.get("title", "") for c in raw.get("categories", [])]
     tags = [t.get("name", "").lower() for t in raw.get("tags", [])]
-    if not any(MAIN_DISH.search(c) for c in categories):
-        reject("kein Hauptgericht")
-        return None
     if not d.name or len(d.ingredients) < 3:
         reject("unvollständig")
         return None
     text = " ".join([d.name] + categories)
     chips = [name for name, rx in CHIPS.items() if rx.search(text)]
-    if any("fleisch" in c.lower() or "geflügel" in c.lower() for c in categories):
+    if hit["cat"] == "Suppe" and "Suppe & Eintopf" not in chips:
+        chips.append("Suppe & Eintopf")
+    if hit["cat"] == "Fleisch" or any("fleisch" in c.lower() or "geflügel" in c.lower() for c in categories):
         chips.append("Fleisch")
-    if any("fisch" in c.lower() for c in categories):
+    if hit["cat"] == "Fisch" or any("fisch" in c.lower() for c in categories):
         chips.append("Fisch")
-    veg = "vegetarisch" in tags or "vegan" in tags or any("vegetarisch" in c.lower() for c in categories)
+    veg = hit["cat"] == "Vegetarisch" or "vegetarisch" in tags or "vegan" in tags \
+        or any("vegetarisch" in c.lower() for c in categories)
     return {
         "id": rid,
         "name": d.name,
@@ -210,20 +203,11 @@ async def catalog() -> None:
     async with aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True)) as session:
         api = await connect(session)
         hits = await search_top(api)
-        print(f"Top-Treffer aus der Suche: {len(hits)}")
 
-        # Beliebteste zuerst, damit der Katalog bei Begrenzung die besten enthält
-        ranked = sorted(hits, key=lambda i: (hits[i]["rating"], hits[i]["count"]), reverse=True)
-        new_rows, updates, rejected, fetched = [], [], 0, 0
-        for rid in ranked:
-            if len(new_rows) + len(updates) >= CATALOG_SIZE:
-                break
+        new_rows, rejected = [], 0
+        for rid in hits:
             if known.get(rid):
-                updates.append(rid)  # schon im Katalog
-                continue
-            if fetched >= NEW_PER_RUN:
-                continue
-            fetched += 1
+                continue  # schon im Katalog, nur Bewertung auffrischen
             res = await details(api, rid)
             await asyncio.sleep(0.1)
             if not res:
@@ -235,10 +219,15 @@ async def catalog() -> None:
                 rejected += 1
 
     db.upsert("recipes", new_rows)
-    for rid in updates:
-        db.patch("recipes", {"rating": hits[rid]["rating"], "rating_count": hits[rid]["count"]}, id=f"eq.{rid}")
+    for rid, h in hits.items():
+        if known.get(rid):
+            db.patch("recipes", {"rating": h["rating"], "rating_count": h["count"]}, id=f"eq.{rid}")
+    # Was nicht mehr zu den Top gehört, fliegt aus dem Katalog (bleibt aber für alte Vorschläge erhalten)
+    stale = [rid for rid, inc in known.items() if inc and rid not in hits]
+    for rid in stale:
+        db.patch("recipes", {"in_catalog": False}, id=f"eq.{rid}")
     total = len(db.get("recipes", select="id", in_catalog="is.true"))
-    print(f"Katalog: {total} Rezepte ({len(new_rows)} neu, {rejected} aussortiert: {REJECTED})")
+    print(f"Katalog: {total} Rezepte ({len(new_rows)} neu, {len(stale)} raus, {rejected} aussortiert: {REJECTED})")
 
 
 def push() -> None:
