@@ -288,38 +288,69 @@
   body.mode-kochen main { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
 
   /* ---------- Kochen ---------- */
-  .deck-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; color: var(--muted); margin: 4px 2px 10px; }
-  .deck { position: relative; height: min(122vw, 540px); max-height: calc(100dvh - 330px); min-height: 340px; }
-  .rcard {
-    position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden;
-    background: var(--surface); border-radius: 26px; box-shadow: var(--shadow-lg);
-    touch-action: none; user-select: none; -webkit-user-select: none; will-change: transform;
+  .subtabs { display: flex; gap: 8px; margin: 2px 0 6px; }
+  .subtab {
+    border: 0; padding: 9px 16px; border-radius: 99px; font-weight: 700; font-size: 14px; color: var(--muted);
+    background: color-mix(in srgb, var(--ink) 6%, transparent); display: inline-flex; align-items: center; gap: 7px;
   }
-  .rcard.behind { transform: scale(.94) translateY(16px); opacity: .6; pointer-events: none; }
-  .rcard .rimg { flex: 1; min-height: 0; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; }
-  .rinfo { padding: 14px 18px 18px; }
-  .rinfo h3 { margin: 0 0 9px; font-size: 21px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
-  .rmeta { display: flex; flex-wrap: wrap; gap: 6px; }
-  .pill { font-size: 12.5px; font-weight: 700; padding: 4px 10px; border-radius: 99px; color: var(--muted); background: color-mix(in srgb, var(--ink) 7%, transparent); }
-  .pill.neu { color: color-mix(in srgb, #d0559a 80%, var(--ink)); background: color-mix(in srgb, #d0559a var(--tint-strong), var(--surface)); }
-  .pill.sammlung { color: color-mix(in srgb, #3f9d4b 80%, var(--ink)); background: color-mix(in srgb, #3f9d4b var(--tint-strong), var(--surface)); }
-  .stamp {
-    position: absolute; top: 24px; padding: 4px 14px; border: 4px solid; border-radius: 12px; opacity: 0;
-    font-size: 28px; font-weight: 800; letter-spacing: .05em; background: color-mix(in srgb, var(--surface) 75%, transparent);
+  .subtab.active { color: var(--accent-ink); background: var(--ink); }
+
+  /* Entscheiden */
+  .dcard { background: var(--surface); border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; transition: transform .3s, opacity .3s; }
+  .dcard + .dcard { margin-top: 14px; }
+  .dcard .dimg { aspect-ratio: 16 / 10; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; display: block; }
+  .dcard .dbody { padding: 14px 16px 16px; }
+  .dcard h3 { margin: 0 0 6px; font-size: 19px; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; }
+  .dcard h3 a { color: inherit; text-decoration: none; }
+  .dmeta { color: var(--muted); font-size: 13.5px; font-weight: 600; margin-bottom: 14px; }
+  .dbtns { display: flex; gap: 10px; }
+  .dbtns button { flex: 1; height: 48px; border: 0; border-radius: 15px; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .dbtns .nein { background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink); }
+  .dbtns .ja { color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--accent) 80%, transparent); }
+  .dcard.out-yes { transform: translateX(110%) rotate(6deg); opacity: 0; }
+  .dcard.out-no { transform: translateX(-110%) rotate(-6deg); opacity: 0; }
+
+  /* Stöbern */
+  .search {
+    display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 14px; margin-top: 6px;
+    background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-sm); border: 1.5px solid transparent;
   }
-  .stamp.yes { left: 20px; color: #22a35a; border-color: #22a35a; transform: rotate(-14deg); }
-  .stamp.no { right: 20px; color: var(--danger); border-color: var(--danger); transform: rotate(14deg); }
-  .deck-actions { display: flex; justify-content: center; align-items: center; gap: 20px; margin: 18px 0 4px; }
-  .round {
-    width: 66px; height: 66px; border-radius: 50%; border: 0; display: grid; place-items: center;
-    background: var(--surface); box-shadow: var(--shadow); font-size: 28px; line-height: 1; transition: transform .12s;
+  .search:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+  .search svg { color: var(--muted); flex: none; }
+  .search input { flex: 1; min-width: 0; border: 0; outline: none; background: none; font-size: 17px; font-weight: 600; }
+  .search input::placeholder { color: var(--muted); font-weight: 500; }
+  .fchips { display: flex; gap: 7px; overflow-x: auto; padding: 12px 2px 4px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; scrollbar-width: none; }
+  .fchips::-webkit-scrollbar { display: none; }
+  .fchip {
+    flex: none; border: 0; border-radius: 99px; padding: 8px 13px; font-size: 14px; font-weight: 700; white-space: nowrap;
+    color: var(--muted); background: color-mix(in srgb, var(--ink) 6%, transparent); transition: background .15s, color .15s;
   }
-  .round:active { transform: scale(.9); }
-  a.round { color: var(--muted); text-decoration: none; }
-  .round.no { color: var(--danger); }
-  .round.yes { color: #fff; background: linear-gradient(135deg, #ff7a93, #ff3d6e); box-shadow: 0 10px 22px -10px #ff3d6e; }
-  .round.small { width: 46px; height: 46px; font-size: 19px; color: var(--muted); }
-  .round.small:disabled { opacity: .35; }
+  .fchip.on { color: var(--accent-ink); background: var(--accent); }
+  .fchip.sep { margin-left: 6px; }
+  .rcount { color: var(--muted); font-size: 13px; font-weight: 600; margin: 10px 2px 10px; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .gcard { position: relative; background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+  .gcard a { color: inherit; text-decoration: none; }
+  .gimg { display: block; aspect-ratio: 1 / 1; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; }
+  .gbody { padding: 9px 11px 12px; }
+  .gbody b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 14.5px; line-height: 1.25; font-weight: 700; min-height: 2.5em; }
+  .gmeta { margin-top: 5px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .star { color: #e8a317; }
+  .heart {
+    position: absolute; top: 9px; right: 9px; width: 40px; height: 40px; border-radius: 50%; border: 0;
+    display: grid; place-items: center; font-size: 19px; color: #ff3d6e;
+    background: color-mix(in srgb, var(--surface) 88%, transparent); box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: transform .15s;
+  }
+  .heart:active { transform: scale(.88); }
+  .heart.on { color: #fff; background: linear-gradient(135deg, #ff7a93, #ff3d6e); }
+  .heart.plan { color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .heart.pop { animation: tick .35s cubic-bezier(.3, 1.6, .5, 1); }
+  .ribbon {
+    position: absolute; top: 12px; left: 9px; right: 56px; padding: 4px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 800;
+    color: #fff; background: linear-gradient(135deg, #ff7a93, #ff3d6e); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: fit-content; max-width: calc(100% - 65px);
+  }
+  .more { display: block; width: 100%; margin-top: 14px; height: 48px; border: 0; border-radius: 15px; font-weight: 700; background: color-mix(in srgb, var(--ink) 7%, transparent); }
 
   .section-title { margin: 30px 2px 10px; font-size: 19px; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
   .section-sub { margin: -6px 2px 12px; color: var(--muted); font-size: 14px; }
@@ -856,13 +887,28 @@
     })(t0);
   }
 
-  // --- Kochen: Rezept-Vorschläge aus Cookidoo ---
+  // --- Kochen: Katalog, Vorschläge, Entscheidungen ---
   const VAPID_PUBLIC = 'BDKR9kdRMhrtplhm700Zvft5Tz1dgMBJYXdHA180i4DpEyRAWL7-fWdpXzpYzwEFbyAfonVxAW3EzS4dwaP1NAw';
+  const CHIP_FILTERS = ['Alle', 'Pasta', 'Auflauf', 'Curry & Asiatisch', 'Suppe & Eintopf', 'Fleisch', 'Fisch'];
+  const PAGE = 24;
   let tab = 'liste';
-  let cook = null;
-  let cookBusy = false;
-  const undoStack = [];
-  let undoneId = null;
+  let cookView = 'planen';
+  let kochen = null;   // { open, plan, pantry }
+  let catalog = null;  // Top-Rezepte zum Stöbern
+  const filter = { q: '', chip: 'Alle', veg: false, time: 0 };
+  let shown = PAGE;
+
+  const svg = (d, w = 2.6, fill = 'none') => `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="${fill}" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const ICONS = {
+    no: svg('<path d="M6 6l12 12M18 6L6 18"/>', 3),
+    yes: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 3),
+    heart: svg('<path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 3.7 4.5 7.1 4.5c2.1 0 3.6 1.2 4.9 3 1.3-1.8 2.8-3 4.9-3 3.4 0 5.5 3.3 4.3 6.7-1.7 4.7-9.2 9.3-9.2 9.3z"/>', 2.2),
+    heartFull: svg('<path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 3.7 4.5 7.1 4.5c2.1 0 3.6 1.2 4.9 3 1.3-1.8 2.8-3 4.9-3 3.4 0 5.5 3.3 4.3 6.7-1.7 4.7-9.2 9.3-9.2 9.3z"/>', 0, 'currentColor'),
+    search: svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>', 2.4),
+  };
+
+  const isMine = p => p.proposed_by.toLowerCase() === me.toLowerCase();
+  const toDecide = () => kochen ? kochen.open.filter(p => !isMine(p)) : [];
 
   function setTab(t) {
     tab = t;
@@ -870,43 +916,44 @@
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
     history.replaceState(null, '', t === 'kochen' ? '#kochen' : location.pathname + location.search);
     window.scrollTo(0, 0);
-    if (t === 'kochen') { renderCook(); loadCook(); }
+    if (t === 'kochen') { renderCook(); loadCook(); loadCatalog(); }
   }
 
   const seen = {
-    get() { try { return JSON.parse(store.get('ek_seen') || 'null'); } catch { return null; } },
-    add(id) { const s = this.get() || []; if (!s.includes(id)) { s.push(id); store.set('ek_seen', JSON.stringify(s.slice(-60))); } },
+    get() { try { return JSON.parse(store.get('ek_seen2') || 'null'); } catch { return null; } },
+    add(id) { const s = this.get() || []; if (!s.includes(id)) { s.push(id); store.set('ek_seen2', JSON.stringify(s.slice(-100))); } },
   };
 
+  let cookLoading = false;
   async function loadCook() {
-    if (!pin || cookBusy) return;
+    if (!pin || cookLoading) return;
+    cookLoading = true;
     try {
-      const fresh = await rpc('get_cooking', { p_person: me });
-      if (cookBusy) return;
+      const fresh = await rpc('get_kochen');
+      // Neues vom Gegenüber kurz melden
       const known = seen.get();
-      const matched = fresh.recipes.filter(r => r.matched);
-      if (known === null) store.set('ek_seen', JSON.stringify(matched.map(r => r.id)));
-      else matched.filter(r => !known.includes(r.id)).forEach(r => { seen.add(r.id); toast(`Neuer Treffer: ${r.name} 💚`); });
-      cook = fresh;
+      const news = [
+        ...fresh.open.filter(p => !isMine(p)).map(p => [p.id + ':o', `${p.proposed_by} schlägt vor: ${p.name} 💌`]),
+        ...fresh.plan.filter(p => isMine(p) && p.decided_by).map(p => [p.id + ':j', `${p.decided_by} will auch: ${p.name} 💚`]),
+      ];
+      if (known === null) store.set('ek_seen2', JSON.stringify(news.map(n => n[0])));
+      else news.filter(([k]) => !known.includes(k)).forEach(([k, msg]) => { seen.add(k); toast(msg); });
+      kochen = fresh;
       updateBadge();
       if (tab === 'kochen') renderCook();
+    } catch {} finally { cookLoading = false; }
+  }
+
+  async function loadCatalog() {
+    if (!pin || catalog) return;
+    try {
+      catalog = await rpc('get_catalog');
+      if (tab === 'kochen' && cookView === 'stoebern') renderCook();
     } catch {}
   }
 
-  const svg = (d, w = 2.6, fill = 'none') => `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="${fill}" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-  const ICONS = {
-    no: svg('<path d="M6 6l12 12M18 6L6 18"/>', 3),
-    yes: svg('<path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 3.7 4.5 7.1 4.5c2.1 0 3.6 1.2 4.9 3 1.3-1.8 2.8-3 4.9-3 3.4 0 5.5 3.3 4.3 6.7-1.7 4.7-9.2 9.3-9.2 9.3z"/>', 0, 'currentColor'),
-    undo: svg('<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
-    open: svg('<path d="M7 17L17 7M8 7h9v9"/>'),
-  };
-
-  const deckOf = () => !cook ? [] : cook.recipes
-    .filter(r => r.my_vote === null && !r.matched)
-    .sort((a, b) => (b.id === undoneId) - (a.id === undoneId));
-
   function updateBadge() {
-    const n = deckOf().length;
+    const n = toDecide().length;
     $('cookBadge').hidden = n === 0;
     $('cookBadge').textContent = n;
   }
@@ -917,143 +964,147 @@
     return m < 60 ? `${m} Min` : `${Math.floor(m / 60)} Std${m % 60 ? ` ${m % 60} Min` : ''}`;
   }
   const bg = url => url ? `style="background-image:url('${esc(url)}')"` : '';
+  const ratingText = r => r.rating ? `<span class="star">★</span> ${Number(r.rating).toFixed(1).replace('.', ',')}${r.rating_count ? ` (${r.rating_count.toLocaleString('de-DE')})` : ''}` : '';
+  const metaLine = r => [ratingText(r), minutes(r.total_time)].filter(Boolean).join(' · ');
 
   function renderCook() {
     const el = $('cook');
-    if (!cook) { el.innerHTML = `<div class="cook-empty"><div class="big">🍳</div><strong>Lädt …</strong></div>`; return; }
+    const n = toDecide().length;
+    let html = `<div class="subtabs">
+      <button class="subtab ${cookView === 'planen' ? 'active' : ''}" data-act="view" data-v="planen">Planen${n ? ` <span class="tab-badge">${n}</span>` : ''}</button>
+      <button class="subtab ${cookView === 'stoebern' ? 'active' : ''}" data-act="view" data-v="stoebern">Stöbern</button>
+    </div>`;
+    html += cookView === 'planen' ? planHtml() : browseHtml();
+    el.innerHTML = html;
+    if (cookView === 'stoebern') renderGrid();
+    else renderPushState();
+  }
+
+  function planHtml() {
+    if (!kochen) return `<div class="cook-empty"><div class="big">🍳</div><strong>Lädt …</strong></div>`;
     let html = '';
-    if (!cook.week || !cook.recipes.length) {
-      html += `<div class="cook-empty"><div class="big">🍳</div><strong>Noch keine Vorschläge</strong>
-        Jeden Samstagabend kommen neue Rezepte aus eurem Cookidoo.</div>`;
-    } else {
-      const deck = deckOf();
-      const total = cook.recipes.length;
-      if (deck.length) {
-        const [top, next] = deck;
-        html += `<div class="deck-meta"><span>Woche ab ${new Date(cook.week).toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })}</span><span>${total - deck.length + 1} von ${total}</span></div>
-          <div class="deck">
-            ${next ? recipeCard(next, 'behind') : ''}
-            ${recipeCard(top, 'top')}
+    const decide = toDecide();
+    if (decide.length) {
+      const who = [...new Set(decide.map(p => p.proposed_by))].join(' & ');
+      html += `<div class="section-title">💌 ${esc(who)} schlägt vor</div>
+        <div class="section-sub">Kochen wir das diese Woche?</div>
+        ${decide.map(p => `
+        <div class="dcard" data-pid="${esc(p.id)}">
+          <a class="dimg" href="${esc(p.url)}" target="_blank" rel="noopener" ${bg(p.image)}></a>
+          <div class="dbody">
+            <h3><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a></h3>
+            <div class="dmeta">${metaLine(p)}</div>
+            <div class="dbtns">
+              <button class="nein" data-act="decide-no" data-id="${esc(p.id)}">${ICONS.no} Lieber nicht</button>
+              <button class="ja" data-act="decide-yes" data-id="${esc(p.id)}">${ICONS.yes} Kochen wir</button>
+            </div>
           </div>
-          <div class="deck-actions">
-            <button class="round small" data-act="undo" aria-label="Zurück" ${undoStack.length ? '' : 'disabled'}>${ICONS.undo}</button>
-            <button class="round no" data-act="no" aria-label="Nein">${ICONS.no}</button>
-            <button class="round yes" data-act="yes" aria-label="Ja">${ICONS.yes}</button>
-            <a class="round small" href="${esc(top.url)}" target="_blank" rel="noopener" aria-label="Rezept ansehen">${ICONS.open}</a>
-          </div>`;
-      } else {
-        html += `<div class="cook-empty"><div class="big">👏</div><strong>Alles durchgewischt</strong>
-          Sobald ihr beide gewischt habt, stehen eure Treffer hier.</div>`;
-      }
+        </div>`).join('')}`;
+    }
 
-      const matches = cook.recipes.filter(r => r.matched);
-      if (matches.length) {
-        html += `<div class="section-title">💚 Diese Woche kochen wir</div><div class="mlist">${matches.map(r => `
-          <div class="mrow">
-            <div class="mthumb" ${bg(r.image)}></div>
-            <div class="mt"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a><span>${minutes(r.total_time)}${r.total_time ? ' · ' : ''}${r.ingredients.length} Zutaten</span></div>
-            <button class="mbtn" data-act="readd" data-id="${esc(r.id)}" aria-label="Zutaten nochmal auf die Liste">🛒</button>
-            <button class="mbtn x" data-act="unmatch" data-id="${esc(r.id)}" aria-label="Entfernen">✕</button>
-          </div>`).join('')}</div>`;
-      }
+    html += `<div class="section-title">🍽️ Wir kochen</div>`;
+    if (kochen.plan.length) {
+      html += `<div class="mlist">${kochen.plan.map(p => `
+        <div class="mrow">
+          <div class="mthumb" ${bg(p.thumb)}></div>
+          <div class="mt"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a><span>${minutes(p.total_time) || '&nbsp;'}</span></div>
+          <button class="mbtn go" data-act="cooked" data-id="${esc(p.id)}" aria-label="Gekocht">✓</button>
+          <button class="mbtn" data-act="readd" data-id="${esc(p.id)}" aria-label="Zutaten nochmal auf die Liste">🛒</button>
+          <button class="mbtn x" data-act="unplan" data-id="${esc(p.id)}" aria-label="Vom Plan nehmen">✕</button>
+        </div>`).join('')}</div>
+        <div class="section-sub" style="margin-top:8px">✓ = gekocht · 🛒 = Zutaten nochmal auf die Liste</div>`;
+    } else {
+      html += `<div class="scard" style="text-align:center"><p style="margin:0 0 12px">Noch nichts geplant. Stöbert durch die Top-Rezepte und schlagt euch gegenseitig was vor.</p>
+        <button class="btn-line go" data-act="view" data-v="stoebern">Jetzt stöbern</button></div>`;
+    }
 
-      const mine = cook.recipes.filter(r => r.my_vote === true && !r.matched);
-      if (mine.length) {
-        html += `<div class="section-title">♥ Nur du hast Lust</div>
-          <div class="section-sub">Wartet noch auf die zweite Stimme.</div>
-          <div class="mlist">${mine.map(r => `
-          <div class="mrow">
-            <div class="mthumb" ${bg(r.image)}></div>
-            <div class="mt"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a><span>${minutes(r.total_time)}</span></div>
-            <button class="mbtn go" data-act="force" data-id="${esc(r.id)}">Trotzdem kochen</button>
-          </div>`).join('')}</div>`;
-      }
+    const mine = kochen.open.filter(isMine);
+    if (mine.length) {
+      html += `<div class="section-title">⏳ Deine Vorschläge</div><div class="section-sub">Warten auf eine Entscheidung.</div>
+        <div class="mlist">${mine.map(p => `
+        <div class="mrow">
+          <div class="mthumb" ${bg(p.thumb)}></div>
+          <div class="mt"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a><span>${metaLine(p)}</span></div>
+          <button class="mbtn x" data-act="withdraw" data-id="${esc(p.id)}" aria-label="Zurückziehen">✕</button>
+        </div>`).join('')}</div>`;
     }
 
     html += `<div class="section-title">⚙️ Einstellungen</div>
       <div class="scard">
         <h4>Immer im Haus</h4>
         <p>Diese Zutaten kommen nicht auf die Einkaufsliste.</p>
-        <div class="pantry">${(cook.pantry || []).map(p => `<button class="chip" data-act="pantry-del" data-name="${esc(p)}">${esc(p)} ×</button>`).join('')}</div>
-        <form class="pantry-add" data-act="pantry-add"><input id="pantryInput" placeholder="z. B. Knoblauch" maxlength="40"><button class="btn-line">Dazu</button></form>
+        <div class="pantry">${(kochen.pantry || []).map(p => `<button class="chip" data-act="pantry-del" data-name="${esc(p)}">${esc(p)} ×</button>`).join('')}</div>
+        <form class="pantry-add"><input id="pantryInput" placeholder="z. B. Knoblauch" maxlength="40"><button class="btn-line">Dazu</button></form>
       </div>
       <div class="scard">
         <h4>Sonntags-Erinnerung</h4>
-        <p>Eine Mitteilung, wenn neue Rezepte da sind.</p>
+        <p>Eine Mitteilung am Sonntag, damit ihr die Woche plant.</p>
         <div id="pushState"></div>
       </div>`;
-    el.innerHTML = html;
-    renderPushState();
-    const topCard = el.querySelector('.rcard.top');
-    if (topCard) bindCard(topCard, deckOf()[0]);
+    return html;
   }
 
-  function recipeCard(r, cls) {
-    const src = r.source === 'sammlung' ? '<span class="pill sammlung">Aus euren Sammlungen</span>' : '<span class="pill neu">Neu entdecken</span>';
-    return `<div class="rcard ${cls}" data-id="${esc(r.id)}">
-      <div class="rimg" ${bg(r.image)}></div>
-      <div class="stamp yes">LECKER</div><div class="stamp no">NÖ</div>
-      <div class="rinfo"><h3>${esc(r.name)}</h3>
-        <div class="rmeta">${src}${r.total_time ? `<span class="pill">⏱ ${minutes(r.total_time)}</span>` : ''}<span class="pill">${r.ingredients.length} Zutaten</span></div>
+  function browseHtml() {
+    const chip = (label, on, act, extra = '') => `<button class="fchip ${on ? 'on' : ''} ${extra}" data-act="${act}" data-v="${esc(label)}">${esc(label)}</button>`;
+    return `<label class="search">${ICONS.search}<input id="catSearch" type="search" placeholder="Suchen, z. B. Lasagne" value="${esc(filter.q)}" autocomplete="off"></label>
+      <div class="fchips">
+        ${CHIP_FILTERS.map(c => chip(c, filter.chip === c, 'fchip')).join('')}
+        ${chip('🌱 Vegetarisch', filter.veg, 'fveg', 'sep')}
+        ${chip('⏱ bis 30 Min', filter.time === 30, 'ftime')}
+        ${chip('⏱ bis 45 Min', filter.time === 45, 'ftime')}
       </div>
-    </div>`;
+      <div class="rcount" id="rcount"></div>
+      <div class="grid" id="grid"></div>
+      <button class="more" id="moreBtn" data-act="more" hidden>Mehr anzeigen</button>`;
   }
 
-  function bindCard(card, r) {
-    let x0 = 0, y0 = 0, dx = 0, dy = 0, dragging = false;
-    const yes = card.querySelector('.stamp.yes'), no = card.querySelector('.stamp.no');
-    card.addEventListener('pointerdown', e => {
-      if (e.button > 0 || cookBusy) return;
-      dragging = true; x0 = e.clientX; y0 = e.clientY; dx = dy = 0;
-      card.setPointerCapture(e.pointerId);
-      card.style.transition = 'none';
-    });
-    card.addEventListener('pointermove', e => {
-      if (!dragging) return;
-      dx = e.clientX - x0; dy = e.clientY - y0;
-      card.style.transform = `translate(${dx}px, ${dy * .3}px) rotate(${dx / 18}deg)`;
-      yes.style.opacity = Math.max(0, Math.min(1, dx / 90));
-      no.style.opacity = Math.max(0, Math.min(1, -dx / 90));
-    });
-    const end = () => {
-      if (!dragging) return;
-      dragging = false;
-      if (Math.abs(dx) > 100) { swipe(r, dx > 0, card); return; }
-      card.style.transition = 'transform .3s cubic-bezier(.2, .9, .3, 1.2)';
-      card.style.transform = '';
-      yes.style.opacity = no.style.opacity = 0;
-    };
-    card.addEventListener('pointerup', end);
-    card.addEventListener('pointercancel', end);
+  function filtered() {
+    if (!catalog) return [];
+    const q = filter.q.trim().toLowerCase();
+    return catalog.filter(r =>
+      (!q || r.name.toLowerCase().includes(q)) &&
+      (filter.chip === 'Alle' || (r.chips || []).includes(filter.chip)) &&
+      (!filter.veg || r.veg) &&
+      (!filter.time || (r.total_time && r.total_time <= filter.time * 60)));
   }
 
-  function swipe(r, liked, card) {
-    card = card || $('cook').querySelector('.rcard.top');
-    if (!card || !r || cookBusy) return;
-    cookBusy = true;
-    navigator.vibrate?.(liked ? [8, 40, 8] : 8);
-    card.querySelector(liked ? '.stamp.yes' : '.stamp.no').style.opacity = 1;
-    card.style.transition = 'transform .32s ease-in, opacity .32s ease-in';
-    card.style.transform = `translate(${(liked ? 1 : -1) * Math.round(innerWidth * 1.3)}px, 40px) rotate(${liked ? 24 : -24}deg)`;
-    card.style.opacity = '0';
-    setTimeout(async () => {
-      r.my_vote = liked;
-      undoStack.push(r.id);
-      if (undoneId === r.id) undoneId = null;
-      cookBusy = false;
-      renderCook();
-      updateBadge();
-      try {
-        const res = await rpc('vote', { p_person: me, p_recipe: r.id, p_liked: liked });
-        ping();
-        if (res && res.new_match) await onMatch(r, 'Ihr habt beide Lust drauf.');
-      } catch {
-        r.my_vote = null;
-        renderCook();
-        toast('Stimme nicht gespeichert – bitte nochmal.');
-      }
-    }, 300);
+  // Zustand eines Rezepts aus Sicht des Herz-Knopfs
+  function stateOf(id) {
+    if (!kochen) return {};
+    const plan = kochen.plan.find(p => p.recipe_id === id);
+    if (plan) return { plan };
+    const open = kochen.open.find(p => p.recipe_id === id);
+    if (open) return isMine(open) ? { mine: open } : { theirs: open };
+    return {};
   }
+
+  function renderGrid() {
+    const grid = $('grid');
+    if (!grid) return;
+    if (!catalog) { grid.innerHTML = ''; $('rcount').textContent = 'Lädt Rezepte …'; return; }
+    const list = filtered();
+    $('rcount').textContent = list.length === 1 ? '1 Rezept' : `${list.length} Rezepte`;
+    grid.innerHTML = list.slice(0, shown).map(r => {
+      const s = stateOf(r.id);
+      const cls = s.plan ? 'plan' : s.mine ? 'on' : '';
+      const icon = s.plan ? ICONS.yes : s.mine ? ICONS.heartFull : ICONS.heart;
+      const label = s.plan ? 'Steht auf dem Plan' : s.mine ? 'Vorschlag zurückziehen' : 'Vorschlagen';
+      return `<div class="gcard">
+        <a class="gimg" href="${esc(r.url)}" target="_blank" rel="noopener" ${bg(r.thumb)}></a>
+        ${s.theirs ? `<span class="ribbon">${esc(s.theirs.proposed_by)} will das!</span>` : ''}
+        <button class="heart ${cls}" data-act="heart" data-id="${esc(r.id)}" aria-label="${label}">${icon}</button>
+        <a class="gbody" href="${esc(r.url)}" target="_blank" rel="noopener"><b>${esc(r.name)}</b><div class="gmeta">${metaLine(r)}</div></a>
+      </div>`;
+    }).join('') || `<div class="cook-empty" style="grid-column:1/-1"><strong>Nichts gefunden</strong>Probier einen anderen Begriff oder Filter.</div>`;
+    $('moreBtn').hidden = list.length <= shown;
+  }
+
+  $('cook').addEventListener('input', e => {
+    if (e.target.id !== 'catSearch') return;
+    filter.q = e.target.value;
+    shown = PAGE;
+    renderGrid();
+  });
 
   // Cookidoo liefert "0.25 TL", "1 - 2 Prisen", "200 g" … – für den Einkauf zählen nur echte Mengen
   function shoppingQty(d) {
@@ -1074,7 +1125,7 @@
   }
 
   function ingredientItems(r) {
-    const pantry = (cook.pantry || []).map(p => p.toLowerCase());
+    const pantry = (kochen?.pantry || []).map(p => p.toLowerCase());
     const byName = new Map();
     for (const i of r.ingredients || []) {
       // "Öl" deckt Olivenöl/Rapsöl ab, "Pfeffer" auch "Pfeffer, schwarz" – aber "Salz" nicht "Salzstangen"
@@ -1089,73 +1140,130 @@
     }));
   }
 
-  async function addIngredients(r) {
-    const items = ingredientItems(r);
+  async function addIngredients(p) {
+    const items = ingredientItems(p);
     if (items.length) {
       await rpc('add_items_bulk', { p_items: items, p_by: me });
-      ping();
       load();
     }
     return items.length;
   }
 
-  async function onMatch(r, why) {
-    r.matched = true;
-    seen.add(r.id);
+  // Ab auf den Plan: Zutaten auf die Liste, kleine Feier
+  async function planned(p, kicker, why) {
+    seen.add(p.id + ':j');
     let n = 0;
-    try { n = await addIngredients(r); } catch { toast('Zutaten konnten nicht auf die Liste.'); }
-    renderCook();
-    updateBadge();
+    try { n = await addIngredients(p); } catch { toast('Zutaten konnten nicht auf die Liste.'); }
+    ping();
+    loadCook();
     confetti();
     const o = document.createElement('div');
     o.className = 'match-overlay';
     o.innerHTML = `<div class="match-card">
-      <div class="mimg" ${bg(r.image)}></div>
+      <div class="mimg" ${bg(p.image)}></div>
       <div class="mc">
-        <div class="match-kicker">💚 Treffer!</div>
-        <h2>${esc(r.name)}</h2>
+        <div class="match-kicker">${esc(kicker)}</div>
+        <h2>${esc(p.name)}</h2>
         <p>${esc(why)} ${n ? `${n} Zutaten stehen jetzt auf der Einkaufsliste.` : 'Alle Zutaten habt ihr schon im Haus.'}</p>
-        <button class="btn-main" type="button">Weiter wischen</button>
-        <a class="link" href="${esc(r.url)}" target="_blank" rel="noopener">Rezept in Cookidoo ansehen</a>
+        <button class="btn-main" type="button">Super</button>
+        <a class="link" href="${esc(p.url)}" target="_blank" rel="noopener">Rezept in Cookidoo ansehen</a>
       </div></div>`;
     o.addEventListener('click', e => { if (e.target === o || e.target.closest('.btn-main')) o.remove(); });
     document.body.append(o);
   }
 
   async function cookAction(act, t) {
-    const r = t.dataset.id && cook?.recipes.find(x => x.id === t.dataset.id);
-    const top = deckOf()[0];
-    if (act === 'yes' || act === 'no') return swipe(top, act === 'yes');
-    if (act === 'undo') {
-      const id = undoStack.pop();
-      const u = cook.recipes.find(x => x.id === id);
-      if (u && !u.matched) { u.my_vote = null; undoneId = id; }
-      renderCook(); updateBadge();
+    const id = t.dataset.id;
+    const prop = id && kochen && [...kochen.open, ...kochen.plan].find(p => p.id === id);
+
+    if (act === 'view') { cookView = t.dataset.v; window.scrollTo(0, 0); renderCook(); if (cookView === 'stoebern') loadCatalog(); return; }
+    if (act === 'fchip') { filter.chip = t.dataset.v; shown = PAGE; renderCook(); return; }
+    if (act === 'fveg') { filter.veg = !filter.veg; shown = PAGE; renderCook(); return; }
+    if (act === 'ftime') { const m = t.dataset.v.includes('30') ? 30 : 45; filter.time = filter.time === m ? 0 : m; shown = PAGE; renderCook(); return; }
+    if (act === 'more') { shown += PAGE; renderGrid(); return; }
+
+    if (act === 'heart') {
+      const s = stateOf(id);
+      const r = catalog.find(x => x.id === id);
+      if (s.plan) { toast('Steht schon auf dem Plan 🍽️'); return; }
+      if (s.mine) {
+        kochen.open = kochen.open.filter(p => p !== s.mine);
+        renderGrid();
+        await rpc('withdraw', { p_person: me, p_id: s.mine.id });
+        ping();
+        toast('Vorschlag zurückgezogen');
+        return;
+      }
+      navigator.vibrate?.(10);
+      t.classList.add('on', 'pop');
+      t.innerHTML = ICONS.heartFull;
+      const res = await rpc('propose', { p_person: me, p_recipe: id });
+      if (res.result === 'match') {
+        kochen.open = kochen.open.filter(p => p.id !== res.proposal.id);
+        kochen.plan.push(res.proposal);
+        renderGrid();
+        await planned(res.proposal, '💚 Ihr wollt beide!', `${res.proposal.proposed_by} hatte das auch vorgeschlagen.`);
+      } else {
+        if (res.result === 'proposed') kochen.open.unshift(res.proposal);
+        renderGrid();
+        ping();
+        toast(`Vorgeschlagen 💌 ${r ? '„' + r.name + '“' : ''}`);
+      }
       return;
     }
-    if (act === 'force' && r) {
-      const res = await rpc('force_match', { p_recipe: r.id });
+
+    if ((act === 'decide-yes' || act === 'decide-no') && prop) {
+      const yes = act === 'decide-yes';
+      const card = t.closest('.dcard');
+      card?.classList.add(yes ? 'out-yes' : 'out-no');
+      navigator.vibrate?.(yes ? [8, 40, 8] : 8);
+      kochen.open = kochen.open.filter(p => p.id !== id);
+      updateBadge();
+      const res = await rpc('decide', { p_person: me, p_id: id, p_yes: yes });
+      setTimeout(renderCook, 280);
+      if (yes && res) {
+        kochen.plan.push(res);
+        await planned(res, '🍽️ Kommt auf den Plan', 'Gute Wahl!');
+      } else {
+        ping();
+        if (!yes) toast('Okay, diesmal nicht');
+      }
+      return;
+    }
+
+    if (act === 'withdraw' && prop) {
+      kochen.open = kochen.open.filter(p => p.id !== id);
+      renderCook();
+      await rpc('withdraw', { p_person: me, p_id: id });
       ping();
-      if (res && res.new_match) await onMatch(r, 'Kommt auf den Plan.');
       return;
     }
-    if (act === 'readd' && r) {
-      const n = await addIngredients(r);
+    if (act === 'cooked' && prop) {
+      kochen.plan = kochen.plan.filter(p => p.id !== id);
+      renderCook();
+      await rpc('mark_cooked', { p_id: id });
+      ping();
+      toast(`Lecker! „${prop.name}“ ist abgehakt`);
+      return;
+    }
+    if (act === 'unplan' && prop) {
+      kochen.plan = kochen.plan.filter(p => p.id !== id);
+      renderCook();
+      await rpc('unplan', { p_id: id });
+      ping();
+      toast(`„${prop.name}“ vom Plan genommen`);
+      return;
+    }
+    if (act === 'readd' && prop) {
+      const n = await addIngredients(prop);
+      ping();
       toast(n ? `${n} Zutaten auf die Liste gesetzt` : 'Alles schon im Haus');
       return;
     }
-    if (act === 'unmatch' && r) {
-      r.matched = false;
-      renderCook();
-      await rpc('remove_match', { p_recipe: r.id });
-      ping();
-      toast(`„${r.name}“ vom Plan genommen`);
-      return;
-    }
     if (act === 'pantry-del') {
-      const names = cook.pantry.filter(p => p !== t.dataset.name);
-      cook.pantry = names; renderCook();
-      await rpc('set_pantry', { p_names: names });
+      kochen.pantry = kochen.pantry.filter(p => p !== t.dataset.name);
+      renderCook();
+      await rpc('set_pantry', { p_names: kochen.pantry });
       return;
     }
     if (act === 'push') return enablePush();
@@ -1163,11 +1271,11 @@
 
   $('cook').addEventListener('submit', async e => {
     e.preventDefault();
-    const v = cap($('pantryInput').value.trim());
-    if (!v || cook.pantry.some(p => p.toLowerCase() === v.toLowerCase())) return;
-    cook.pantry = [...cook.pantry, v].sort((a, b) => a.localeCompare(b, 'de'));
+    const v = cap(($('pantryInput')?.value || '').trim());
+    if (!v || kochen.pantry.some(p => p.toLowerCase() === v.toLowerCase())) return;
+    kochen.pantry = [...kochen.pantry, v].sort((a, b) => a.localeCompare(b, 'de'));
     renderCook();
-    await rpc('set_pantry', { p_names: cook.pantry });
+    await rpc('set_pantry', { p_names: kochen.pantry });
   });
 
   // --- Push ---
