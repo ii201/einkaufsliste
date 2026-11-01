@@ -2,15 +2,15 @@ name: Cookidoo
 
 on:
   schedule:
-    - cron: "0 17 * * 6"   # Samstag 18/19 Uhr: Vorschläge holen
+    - cron: "0 17 * * 6"   # Samstag 18/19 Uhr: Katalog auffrischen
     - cron: "0 9 * * 0"    # Sonntag 10/11 Uhr: Erinnerung schicken
   workflow_dispatch:
     inputs:
       mode:
         description: "Was tun?"
         type: choice
-        options: [check, sync, force, push, probe]
-        default: check
+        options: [check, sync, push]
+        default: sync
 
 permissions:
   contents: read
@@ -20,7 +20,7 @@ concurrency: cookidoo
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -40,9 +40,7 @@ jobs:
           case "${{ steps.mode.outputs.mode }}" in
             check) python sync/cookidoo_sync.py --check ;;
             sync)  python sync/cookidoo_sync.py ;;
-            force) python sync/cookidoo_sync.py --force ;;
             push)  python sync/cookidoo_sync.py --push ;;
-            probe) python sync/cookidoo_sync.py --probe ;;
           esac
         env:
           COOKIDOO_EMAIL: ${{ secrets.COOKIDOO_EMAIL }}
