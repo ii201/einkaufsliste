@@ -15,6 +15,7 @@ import datetime as dt
 import json
 import os
 import random
+import re
 import sys
 
 import aiohttp
@@ -25,6 +26,9 @@ FROM_COLLECTIONS = 10
 FROM_SEARCH = 5
 COOLDOWN_WEEKS = 4  # gekochte und abgelehnte Rezepte so lange nicht wieder vorschlagen
 MAX_TOTAL_TIME = 100 * 60  # keine Festtags-Projekte unter der Woche
+# Grundrezepte und Beilagen sind kein Abendessen
+# ("Pasta- und Pizzasauce" raus, "Lachs mit Dillsauce" bleibt)
+NOT_A_MEAL = re.compile(r"^menü|^(?!.*\bmit\b).*(sauce|soße|dip|pesto|dressing|gewürz\w*|paste|marinade|brühe|fond)$", re.I)
 SEARCH_TERMS = [
     "Abendessen", "Hauptgericht", "Pasta", "Curry", "Auflauf", "Suppe", "Risotto",
     "Hähnchen", "vegetarisch", "Reis", "Ofengemüse", "Eintopf", "Lachs", "Gnocchi",
@@ -99,7 +103,7 @@ async def search_recipe_ids(api: Cookidoo, exclude: set[str], wanted: int) -> li
     found: list[str] = []
     terms = random.sample(SEARCH_TERMS, k=min(4, len(SEARCH_TERMS)))
     for term in terms:
-        res = await api.search_recipes(term, ratings="5,4", page_size=30, page=random.randint(0, 3))
+        res = await api.search_recipes(term, languages="de", ratings="5,4", page_size=30, page=random.randint(0, 3))
         hits = [h.id for h in res.recipes if h.id not in exclude and h.id not in found]
         random.shuffle(hits)
         found.extend(hits[: max(1, wanted // len(terms) + 1)])
@@ -176,7 +180,7 @@ async def sync(force: bool) -> None:
             except Exception as e:  # einzelne kaputte Rezepte überspringen
                 print(f"Rezept übersprungen ({type(e).__name__})")
                 continue
-            if (d.total_time or 0) > MAX_TOTAL_TIME or d.name.lower().startswith("menü"):
+            if (d.total_time or 0) > MAX_TOTAL_TIME or NOT_A_MEAL.search(d.name) or len(d.ingredients) < 5:
                 # zu aufwendig: durch ein anderes neues Rezept ersetzen
                 if rid not in from_collections and replacements < 10:
                     replacements += 1
