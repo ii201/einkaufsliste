@@ -226,8 +226,35 @@ def push() -> None:
     print(f"Push an {sent} von {len(subs)} Geräten verschickt")
 
 
+async def probe() -> None:
+    """Zeigt nur Feldnamen und Zahlen der Rohdaten, keine Inhalte."""
+    def shape(o, depth=0):
+        if isinstance(o, dict):
+            return {k: shape(v, depth + 1) for k, v in o.items()} if depth < 3 else "{…}"
+        if isinstance(o, list):
+            return [shape(o[0], depth + 1)] if o else []
+        if isinstance(o, (int, float, bool)) or o is None:
+            return o
+        return "str"
+
+    async with aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True)) as session:
+        api = await connect(session)
+        await api._ensure_endpoints()
+        url = api.api_endpoint / api._path("search:home").format(locale="de")
+        raw = await api._request_json("get", url, "probe", params={"query": "Curry", "languages": "de", "ratings": "5", "pageSize": "3"})
+        print("SUCHE:", json.dumps(shape(raw), ensure_ascii=False))
+        hit = (raw.get("data") or raw.get("recipes") or [{}])[0]
+        rurl = api.api_endpoint / api._path("recipe:details").format(**api._cfg.localization.__dict__, id=hit.get("id"))
+        det = await api._request_json("get", rurl, "probe")
+        keys = {k: shape(v, 1) for k, v in det.items() if k not in ("recipeStepGroups", "recipeIngredientGroups", "nutritionGroups")}
+        print("DETAILS:", json.dumps(keys, ensure_ascii=False)[:3000])
+        print("KATEGORIEN-ANZAHL:", len(det.get("categories", [])))
+
+
 if __name__ == "__main__":
-    if "--check" in sys.argv:
+    if "--probe" in sys.argv:
+        asyncio.run(probe())
+    elif "--check" in sys.argv:
         asyncio.run(check())
     elif "--push" in sys.argv:
         push()

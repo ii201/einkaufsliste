@@ -9,7 +9,7 @@ on:
       mode:
         description: "Was tun?"
         type: choice
-        options: [check, sync, force, push]
+        options: [check, sync, force, push, probe]
         default: check
 
 permissions:
@@ -42,6 +42,7 @@ jobs:
             sync)  python sync/cookidoo_sync.py ;;
             force) python sync/cookidoo_sync.py --force ;;
             push)  python sync/cookidoo_sync.py --push ;;
+            probe) python sync/cookidoo_sync.py --probe ;;
           esac
         env:
           COOKIDOO_EMAIL: ${{ secrets.COOKIDOO_EMAIL }}
