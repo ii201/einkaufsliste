@@ -273,6 +273,97 @@
   }
   .err { color: var(--danger); font-size: 14px; font-weight: 600; min-height: 20px; margin-top: 12px; text-align: center; }
 
+  /* ---------- Tabs ---------- */
+  .tabs-wrap { padding-bottom: 14px; }
+  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 15px; background: color-mix(in srgb, var(--ink) 6%, transparent); }
+  .tab {
+    flex: 1; height: 38px; border: 0; background: none; border-radius: 11px; font-weight: 700; font-size: 15px; color: var(--muted);
+    display: flex; align-items: center; justify-content: center; gap: 7px; transition: background .2s, color .2s;
+  }
+  .tab.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+  .tab-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: #ff3d6e; color: #fff; font-size: 12px; display: inline-grid; place-items: center; }
+  .tab-badge[hidden] { display: none; }
+  body.mode-kochen #progress, body.mode-kochen #list, body.mode-kochen #done, body.mode-kochen .composer { display: none !important; }
+  body:not(.mode-kochen) #cook { display: none; }
+  body.mode-kochen main { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+
+  /* ---------- Kochen ---------- */
+  .deck-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; color: var(--muted); margin: 4px 2px 10px; }
+  .deck { position: relative; height: min(122vw, 540px); max-height: calc(100dvh - 330px); min-height: 340px; }
+  .rcard {
+    position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden;
+    background: var(--surface); border-radius: 26px; box-shadow: var(--shadow-lg);
+    touch-action: none; user-select: none; -webkit-user-select: none; will-change: transform;
+  }
+  .rcard.behind { transform: scale(.94) translateY(16px); opacity: .6; pointer-events: none; }
+  .rcard .rimg { flex: 1; min-height: 0; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; }
+  .rinfo { padding: 14px 18px 18px; }
+  .rinfo h3 { margin: 0 0 9px; font-size: 21px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; }
+  .rmeta { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill { font-size: 12.5px; font-weight: 700; padding: 4px 10px; border-radius: 99px; color: var(--muted); background: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .pill.neu { color: color-mix(in srgb, #d0559a 80%, var(--ink)); background: color-mix(in srgb, #d0559a var(--tint-strong), var(--surface)); }
+  .pill.sammlung { color: color-mix(in srgb, #3f9d4b 80%, var(--ink)); background: color-mix(in srgb, #3f9d4b var(--tint-strong), var(--surface)); }
+  .stamp {
+    position: absolute; top: 24px; padding: 4px 14px; border: 4px solid; border-radius: 12px; opacity: 0;
+    font-size: 28px; font-weight: 800; letter-spacing: .05em; background: color-mix(in srgb, var(--surface) 75%, transparent);
+  }
+  .stamp.yes { left: 20px; color: #22a35a; border-color: #22a35a; transform: rotate(-14deg); }
+  .stamp.no { right: 20px; color: var(--danger); border-color: var(--danger); transform: rotate(14deg); }
+  .deck-actions { display: flex; justify-content: center; align-items: center; gap: 20px; margin: 18px 0 4px; }
+  .round {
+    width: 66px; height: 66px; border-radius: 50%; border: 0; display: grid; place-items: center;
+    background: var(--surface); box-shadow: var(--shadow); font-size: 28px; line-height: 1; transition: transform .12s;
+  }
+  .round:active { transform: scale(.9); }
+  a.round { color: var(--muted); text-decoration: none; }
+  .round.no { color: var(--danger); }
+  .round.yes { color: #fff; background: linear-gradient(135deg, #ff7a93, #ff3d6e); box-shadow: 0 10px 22px -10px #ff3d6e; }
+  .round.small { width: 46px; height: 46px; font-size: 19px; color: var(--muted); }
+  .round.small:disabled { opacity: .35; }
+
+  .section-title { margin: 30px 2px 10px; font-size: 19px; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
+  .section-sub { margin: -6px 2px 12px; color: var(--muted); font-size: 14px; }
+  .mlist { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; }
+  .mrow { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 10px; }
+  .mrow + .mrow { border-top: 1px solid var(--line); }
+  .mthumb { flex: none; width: 62px; height: 62px; border-radius: 15px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; }
+  .mt { flex: 1; min-width: 0; }
+  .mt a { color: inherit; text-decoration: none; font-weight: 700; font-size: 15.5px; line-height: 1.25; display: block; }
+  .mt span { display: block; color: var(--muted); font-size: 12.5px; font-weight: 600; margin-top: 2px; }
+  .mbtn { flex: none; border: 0; border-radius: 12px; padding: 9px 11px; font-size: 13px; font-weight: 700; background: color-mix(in srgb, var(--ink) 6%, transparent); }
+  .mbtn.go { color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .mbtn.x { padding: 9px 12px; color: var(--muted); }
+
+  .cook-empty { text-align: center; padding: 40px 20px 8px; color: var(--muted); }
+  .cook-empty .big { width: 88px; height: 88px; border-radius: 30px; margin: 0 auto 16px; display: grid; place-items: center; font-size: 42px; background: var(--surface); box-shadow: var(--shadow); }
+  .cook-empty strong { display: block; color: var(--ink); font-size: 20px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 4px; }
+
+  .scard { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 16px; }
+  .scard + .scard { margin-top: 12px; }
+  .scard h4 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
+  .scard p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+  .pantry { display: flex; flex-wrap: wrap; gap: 7px; }
+  .pantry .chip { --c: #8a8a80; }
+  .pantry-add { display: flex; gap: 8px; margin-top: 12px; }
+  .pantry-add input { flex: 1; min-width: 0; height: 44px; border: 1.5px solid transparent; border-radius: 14px; background: var(--bg); padding: 0 14px; font-size: 16px; font-weight: 600; outline: none; }
+  .pantry-add input:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+  .btn-line { border: 0; border-radius: 14px; padding: 0 16px; height: 44px; font-weight: 700; background: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .btn-line.go { color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .ok-line { color: var(--accent); font-weight: 700; font-size: 15px; }
+
+  .match-overlay {
+    position: fixed; inset: 0; z-index: 35; display: grid; place-items: center; padding: 24px 16px;
+    background: color-mix(in srgb, var(--bg) 60%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    animation: pop .25s ease-out;
+  }
+  .match-card { width: 100%; max-width: 360px; background: var(--surface); border-radius: 28px; box-shadow: var(--shadow-lg); overflow: hidden; text-align: center; }
+  .match-card .mimg { height: 210px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; }
+  .match-card .mc { padding: 18px 20px 20px; }
+  .match-kicker { display: inline-block; padding: 5px 12px; border-radius: 99px; font-weight: 800; font-size: 13px; color: #fff; background: linear-gradient(135deg, #ff7a93, #ff3d6e); margin-bottom: 10px; }
+  .match-card h2 { margin: 0 0 6px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
+  .match-card p { margin: 0 0 16px; color: var(--muted); font-size: 15px; }
+  .match-card .link { display: block; margin-top: 12px; color: var(--muted); font-size: 14px; font-weight: 600; }
+
   /* ---------- Toast & Konfetti ---------- */
   .toast {
     position: fixed; left: 50%; bottom: calc(165px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(16px);
@@ -303,6 +394,12 @@
     </div>
     <button class="icon-btn" id="menuBtn" aria-label="Menü">⋯</button>
   </div>
+  <div class="wrap tabs-wrap">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="liste" role="tab">🛒 Liste</button>
+      <button class="tab" data-tab="kochen" role="tab">🍳 Kochen <span class="tab-badge" id="cookBadge" hidden></span></button>
+    </div>
+  </div>
   <div class="wrap progress" id="progress" hidden>
     <div class="progress-top"><span id="count"></span><span id="ratio"></span></div>
     <div class="bar"><i id="barFill"></i></div>
@@ -317,6 +414,7 @@
 <main class="wrap">
   <div id="list"></div>
   <div id="done"></div>
+  <div id="cook"></div>
 </main>
 
 <form class="composer" id="addForm" autocomplete="off">
@@ -364,7 +462,7 @@
   const CATS = [
     { id: 'Obst & Gemüse', icon: '🥦', color: '#3f9d4b', kw: ['apfel', 'äpfel', 'banane', 'birne', 'tomate', 'gurke', 'salat', 'paprika', 'zwiebel', 'kartoffel', 'möhre', 'karotte', 'zitrone', 'limette', 'orange', 'mandarine', 'beere', 'traube', 'avocado', 'knoblauch', 'pilz', 'champignon', 'zucchini', 'brokkoli', 'spinat', 'kräuter', 'petersilie', 'basilikum', 'ingwer', 'lauch', 'kohl', 'obst', 'gemüse', 'mango', 'kiwi', 'melone', 'aubergine', 'radieschen', 'rucola', 'sellerie', 'pflaume', 'pfirsich', 'nektarine', 'ananas'] },
     { id: 'Brot & Backwaren', icon: '🥖', color: '#d08a26', kw: ['brot', 'brötchen', 'toast', 'baguette', 'croissant', 'brezel', 'laugen', 'kuchen', 'wrap', 'tortilla', 'semmel', 'knäcke'] },
-    { id: 'Kühlregal', icon: '🧀', color: '#3b88c9', kw: ['milch', 'joghurt', 'jogurt', 'quark', 'käse', 'butter', 'sahne', 'eier', 'schmand', 'frischkäse', 'mozzarella', 'feta', 'skyr', 'margarine', 'pudding', 'hefe', 'tofu', 'hummus', 'gnocchi', 'aufback', 'kefir', 'buttermilch', 'creme fraiche', 'crème fraîche'] },
+    { id: 'Kühlregal', icon: '🧀', color: '#3b88c9', kw: ['milch', 'joghurt', 'jogurt', 'quark', 'käse', 'butter', 'sahne', 'eier', 'schmand', 'frischkäse', 'mozzarella', 'feta', 'skyr', 'margarine', 'pudding', 'hefe', 'tofu', 'hummus', 'gnocchi', 'aufback', 'kefir', 'buttermilch', 'creme fraiche', 'crème fraîche', 'parmesan', 'gouda', 'emmentaler', 'ricotta', 'mascarpone', 'burrata', 'halloumi', 'cheddar', 'bergkäse', 'blätterteig', 'pizzateig'] },
     { id: 'Fleisch & Fisch', icon: '🥩', color: '#d4564a', kw: ['fleisch', 'hack', 'hähnchen', 'huhn', 'pute', 'wurst', 'schinken', 'salami', 'steak', 'schnitzel', 'lachs', 'fisch', 'speck', 'würstchen', 'bacon', 'garnelen', 'thunfisch', 'aufschnitt', 'gyros', 'bratwurst'] },
     { id: 'Vorrat', icon: '🥫', color: '#e07a2e', kw: ['nudeln', 'pasta', 'spaghetti', 'penne', 'reis', 'mehl', 'zucker', 'salz', 'öl', 'olivenöl', 'essig', 'konserve', 'dose', 'tomatenmark', 'passierte', 'dosentomaten', 'linsen', 'bohnen', 'mais', 'soße', 'sauce', 'ketchup', 'senf', 'mayo', 'brühe', 'gewürz', 'pfeffer', 'paprikapulver', 'pesto', 'backpulver', 'kokosmilch', 'kichererbsen', 'couscous', 'bulgur'] },
     { id: 'Frühstück & Süßes', icon: '🍫', color: '#d0559a', kw: ['müsli', 'cornflakes', 'haferflocken', 'marmelade', 'konfitüre', 'honig', 'nutella', 'schokolade', 'schoko', 'kekse', 'chips', 'gummibär', 'süßigkeit', 'riegel', 'kaffee', 'tee', 'kakao', 'nüsse', 'aufstrich', 'erdnuss', 'cracker', 'salzstangen', 'popcorn', 'bonbons'] },
@@ -412,7 +510,7 @@
 
   // --- Sync zwischen den Handys ---
   const channel = sb.channel('einkaufsliste', { config: { broadcast: { self: false } } });
-  channel.on('broadcast', { event: 'changed' }, () => load()).subscribe();
+  channel.on('broadcast', { event: 'changed' }, () => { load(); loadCook(); }).subscribe();
   const ping = () => channel.send({ type: 'broadcast', event: 'changed', payload: {} }).catch(() => {});
 
   async function rpc(fn, args = {}) {
@@ -473,7 +571,8 @@
 
   function itemHtml(it) {
     const c = catOf(it.category);
-    const by = it.added_by && it.added_by !== me ? `<span class="by">von ${esc(it.added_by)}</span>` : '';
+    const by = it.source_recipe ? `<span class="by">für ${esc(it.source_recipe)}</span>`
+      : it.added_by && it.added_by !== me ? `<span class="by">von ${esc(it.added_by)}</span>` : '';
     const enter = justAdded.has(it.name.toLowerCase()) && !it.checked ? ' enter' : '';
     return `<li class="item${it.checked ? ' done' : ''}${enter}" data-id="${esc(it.id)}" style="--c:${c.color}">
       <div class="swipe-bg">Löschen</div>
@@ -690,6 +789,13 @@
 
   document.addEventListener('click', e => {
     if (suppressClick) return;
+    const tabBtn = e.target.closest('.tab');
+    if (tabBtn) { setTab(tabBtn.dataset.tab); return; }
+    const act = e.target.closest('[data-act]');
+    if (act && act.tagName !== 'FORM' && act.closest('#cook')) {
+      cookAction(act.dataset.act, act).catch(() => toast('Hat nicht geklappt – bitte nochmal versuchen.'));
+      return;
+    }
     const row = e.target.closest('.item');
     if (row) {
       const id = row.dataset.id;
@@ -750,6 +856,337 @@
     })(t0);
   }
 
+  // --- Kochen: Rezept-Vorschläge aus Cookidoo ---
+  const VAPID_PUBLIC = 'BDKR9kdRMhrtplhm700Zvft5Tz1dgMBJYXdHA180i4DpEyRAWL7-fWdpXzpYzwEFbyAfonVxAW3EzS4dwaP1NAw';
+  let tab = 'liste';
+  let cook = null;
+  let cookBusy = false;
+  const undoStack = [];
+  let undoneId = null;
+
+  function setTab(t) {
+    tab = t;
+    document.body.classList.toggle('mode-kochen', t === 'kochen');
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+    history.replaceState(null, '', t === 'kochen' ? '#kochen' : location.pathname + location.search);
+    window.scrollTo(0, 0);
+    if (t === 'kochen') { renderCook(); loadCook(); }
+  }
+
+  const seen = {
+    get() { try { return JSON.parse(store.get('ek_seen') || 'null'); } catch { return null; } },
+    add(id) { const s = this.get() || []; if (!s.includes(id)) { s.push(id); store.set('ek_seen', JSON.stringify(s.slice(-60))); } },
+  };
+
+  async function loadCook() {
+    if (!pin || cookBusy) return;
+    try {
+      const fresh = await rpc('get_cooking', { p_person: me });
+      if (cookBusy) return;
+      const known = seen.get();
+      const matched = fresh.recipes.filter(r => r.matched);
+      if (known === null) store.set('ek_seen', JSON.stringify(matched.map(r => r.id)));
+      else matched.filter(r => !known.includes(r.id)).forEach(r => { seen.add(r.id); toast(`Neuer Treffer: ${r.name} 💚`); });
+      cook = fresh;
+      updateBadge();
+      if (tab === 'kochen') renderCook();
+    } catch {}
+  }
+
+  const svg = (d, w = 2.6, fill = 'none') => `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="${fill}" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const ICONS = {
+    no: svg('<path d="M6 6l12 12M18 6L6 18"/>', 3),
+    yes: svg('<path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 3.7 4.5 7.1 4.5c2.1 0 3.6 1.2 4.9 3 1.3-1.8 2.8-3 4.9-3 3.4 0 5.5 3.3 4.3 6.7-1.7 4.7-9.2 9.3-9.2 9.3z"/>', 0, 'currentColor'),
+    undo: svg('<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
+    open: svg('<path d="M7 17L17 7M8 7h9v9"/>'),
+  };
+
+  const deckOf = () => !cook ? [] : cook.recipes
+    .filter(r => r.my_vote === null && !r.matched)
+    .sort((a, b) => (b.id === undoneId) - (a.id === undoneId));
+
+  function updateBadge() {
+    const n = deckOf().length;
+    $('cookBadge').hidden = n === 0;
+    $('cookBadge').textContent = n;
+  }
+
+  function minutes(s) {
+    if (!s) return '';
+    const m = Math.round(s / 60);
+    return m < 60 ? `${m} Min` : `${Math.floor(m / 60)} Std${m % 60 ? ` ${m % 60} Min` : ''}`;
+  }
+  const bg = url => url ? `style="background-image:url('${esc(url)}')"` : '';
+
+  function renderCook() {
+    const el = $('cook');
+    if (!cook) { el.innerHTML = `<div class="cook-empty"><div class="big">🍳</div><strong>Lädt …</strong></div>`; return; }
+    let html = '';
+    if (!cook.week || !cook.recipes.length) {
+      html += `<div class="cook-empty"><div class="big">🍳</div><strong>Noch keine Vorschläge</strong>
+        Jeden Samstagabend kommen neue Rezepte aus eurem Cookidoo.</div>`;
+    } else {
+      const deck = deckOf();
+      const total = cook.recipes.length;
+      if (deck.length) {
+        const [top, next] = deck;
+        html += `<div class="deck-meta"><span>Woche ab ${new Date(cook.week).toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })}</span><span>${total - deck.length + 1} von ${total}</span></div>
+          <div class="deck">
+            ${next ? recipeCard(next, 'behind') : ''}
+            ${recipeCard(top, 'top')}
+          </div>
+          <div class="deck-actions">
+            <button class="round small" data-act="undo" aria-label="Zurück" ${undoStack.length ? '' : 'disabled'}>${ICONS.undo}</button>
+            <button class="round no" data-act="no" aria-label="Nein">${ICONS.no}</button>
+            <button class="round yes" data-act="yes" aria-label="Ja">${ICONS.yes}</button>
+            <a class="round small" href="${esc(top.url)}" target="_blank" rel="noopener" aria-label="Rezept ansehen">${ICONS.open}</a>
+          </div>`;
+      } else {
+        html += `<div class="cook-empty"><div class="big">👏</div><strong>Alles durchgewischt</strong>
+          Sobald ihr beide gewischt habt, stehen eure Treffer hier.</div>`;
+      }
+
+      const matches = cook.recipes.filter(r => r.matched);
+      if (matches.length) {
+        html += `<div class="section-title">💚 Diese Woche kochen wir</div><div class="mlist">${matches.map(r => `
+          <div class="mrow">
+            <div class="mthumb" ${bg(r.image)}></div>
+            <div class="mt"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a><span>${minutes(r.total_time)}${r.total_time ? ' · ' : ''}${r.ingredients.length} Zutaten</span></div>
+            <button class="mbtn" data-act="readd" data-id="${esc(r.id)}" aria-label="Zutaten nochmal auf die Liste">🛒</button>
+            <button class="mbtn x" data-act="unmatch" data-id="${esc(r.id)}" aria-label="Entfernen">✕</button>
+          </div>`).join('')}</div>`;
+      }
+
+      const mine = cook.recipes.filter(r => r.my_vote === true && !r.matched);
+      if (mine.length) {
+        html += `<div class="section-title">♥ Nur du hast Lust</div>
+          <div class="section-sub">Wartet noch auf die zweite Stimme.</div>
+          <div class="mlist">${mine.map(r => `
+          <div class="mrow">
+            <div class="mthumb" ${bg(r.image)}></div>
+            <div class="mt"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a><span>${minutes(r.total_time)}</span></div>
+            <button class="mbtn go" data-act="force" data-id="${esc(r.id)}">Trotzdem kochen</button>
+          </div>`).join('')}</div>`;
+      }
+    }
+
+    html += `<div class="section-title">⚙️ Einstellungen</div>
+      <div class="scard">
+        <h4>Immer im Haus</h4>
+        <p>Diese Zutaten kommen nicht auf die Einkaufsliste.</p>
+        <div class="pantry">${(cook.pantry || []).map(p => `<button class="chip" data-act="pantry-del" data-name="${esc(p)}">${esc(p)} ×</button>`).join('')}</div>
+        <form class="pantry-add" data-act="pantry-add"><input id="pantryInput" placeholder="z. B. Knoblauch" maxlength="40"><button class="btn-line">Dazu</button></form>
+      </div>
+      <div class="scard">
+        <h4>Sonntags-Erinnerung</h4>
+        <p>Eine Mitteilung, wenn neue Rezepte da sind.</p>
+        <div id="pushState"></div>
+      </div>`;
+    el.innerHTML = html;
+    renderPushState();
+    const topCard = el.querySelector('.rcard.top');
+    if (topCard) bindCard(topCard, deckOf()[0]);
+  }
+
+  function recipeCard(r, cls) {
+    const src = r.source === 'sammlung' ? '<span class="pill sammlung">Aus euren Sammlungen</span>' : '<span class="pill neu">Neu entdecken</span>';
+    return `<div class="rcard ${cls}" data-id="${esc(r.id)}">
+      <div class="rimg" ${bg(r.image)}></div>
+      <div class="stamp yes">LECKER</div><div class="stamp no">NÖ</div>
+      <div class="rinfo"><h3>${esc(r.name)}</h3>
+        <div class="rmeta">${src}${r.total_time ? `<span class="pill">⏱ ${minutes(r.total_time)}</span>` : ''}<span class="pill">${r.ingredients.length} Zutaten</span></div>
+      </div>
+    </div>`;
+  }
+
+  function bindCard(card, r) {
+    let x0 = 0, y0 = 0, dx = 0, dy = 0, dragging = false;
+    const yes = card.querySelector('.stamp.yes'), no = card.querySelector('.stamp.no');
+    card.addEventListener('pointerdown', e => {
+      if (e.button > 0 || cookBusy) return;
+      dragging = true; x0 = e.clientX; y0 = e.clientY; dx = dy = 0;
+      card.setPointerCapture(e.pointerId);
+      card.style.transition = 'none';
+    });
+    card.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      dx = e.clientX - x0; dy = e.clientY - y0;
+      card.style.transform = `translate(${dx}px, ${dy * .3}px) rotate(${dx / 18}deg)`;
+      yes.style.opacity = Math.max(0, Math.min(1, dx / 90));
+      no.style.opacity = Math.max(0, Math.min(1, -dx / 90));
+    });
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      if (Math.abs(dx) > 100) { swipe(r, dx > 0, card); return; }
+      card.style.transition = 'transform .3s cubic-bezier(.2, .9, .3, 1.2)';
+      card.style.transform = '';
+      yes.style.opacity = no.style.opacity = 0;
+    };
+    card.addEventListener('pointerup', end);
+    card.addEventListener('pointercancel', end);
+  }
+
+  function swipe(r, liked, card) {
+    card = card || $('cook').querySelector('.rcard.top');
+    if (!card || !r || cookBusy) return;
+    cookBusy = true;
+    navigator.vibrate?.(liked ? [8, 40, 8] : 8);
+    card.querySelector(liked ? '.stamp.yes' : '.stamp.no').style.opacity = 1;
+    card.style.transition = 'transform .32s ease-in, opacity .32s ease-in';
+    card.style.transform = `translate(${(liked ? 1 : -1) * Math.round(innerWidth * 1.3)}px, 40px) rotate(${liked ? 24 : -24}deg)`;
+    card.style.opacity = '0';
+    setTimeout(async () => {
+      r.my_vote = liked;
+      undoStack.push(r.id);
+      if (undoneId === r.id) undoneId = null;
+      cookBusy = false;
+      renderCook();
+      updateBadge();
+      try {
+        const res = await rpc('vote', { p_person: me, p_recipe: r.id, p_liked: liked });
+        ping();
+        if (res && res.new_match) await onMatch(r, 'Ihr habt beide Lust drauf.');
+      } catch {
+        r.my_vote = null;
+        renderCook();
+        toast('Stimme nicht gespeichert – bitte nochmal.');
+      }
+    }, 300);
+  }
+
+  function ingredientItems(r) {
+    const pantry = (cook.pantry || []).map(p => p.toLowerCase());
+    return (r.ingredients || [])
+      .filter(i => {
+        // "Öl" deckt Olivenöl/Rapsöl ab, "Pfeffer" auch "Pfeffer, schwarz" – aber "Salz" nicht "Salzstangen"
+        const n = i.name.toLowerCase().trim();
+        const words = n.split(/[\s,]+/);
+        return !pantry.some(p => words.includes(p) || n.endsWith(p));
+      })
+      .map(i => {
+        let q = (i.description || '').trim();
+        if (q.length > 24) q = q.split(',')[0].slice(0, 24);
+        return { name: cap(i.name.trim()), qty: q, category: guessCategory(i.name) || 'Sonstiges', recipe: r.name };
+      });
+  }
+
+  async function addIngredients(r) {
+    const items = ingredientItems(r);
+    if (items.length) {
+      await rpc('add_items_bulk', { p_items: items, p_by: me });
+      ping();
+      load();
+    }
+    return items.length;
+  }
+
+  async function onMatch(r, why) {
+    r.matched = true;
+    seen.add(r.id);
+    let n = 0;
+    try { n = await addIngredients(r); } catch { toast('Zutaten konnten nicht auf die Liste.'); }
+    renderCook();
+    updateBadge();
+    confetti();
+    const o = document.createElement('div');
+    o.className = 'match-overlay';
+    o.innerHTML = `<div class="match-card">
+      <div class="mimg" ${bg(r.image)}></div>
+      <div class="mc">
+        <div class="match-kicker">💚 Treffer!</div>
+        <h2>${esc(r.name)}</h2>
+        <p>${esc(why)} ${n ? `${n} Zutaten stehen jetzt auf der Einkaufsliste.` : 'Alle Zutaten habt ihr schon im Haus.'}</p>
+        <button class="btn-main" type="button">Weiter wischen</button>
+        <a class="link" href="${esc(r.url)}" target="_blank" rel="noopener">Rezept in Cookidoo ansehen</a>
+      </div></div>`;
+    o.addEventListener('click', e => { if (e.target === o || e.target.closest('.btn-main')) o.remove(); });
+    document.body.append(o);
+  }
+
+  async function cookAction(act, t) {
+    const r = t.dataset.id && cook?.recipes.find(x => x.id === t.dataset.id);
+    const top = deckOf()[0];
+    if (act === 'yes' || act === 'no') return swipe(top, act === 'yes');
+    if (act === 'undo') {
+      const id = undoStack.pop();
+      const u = cook.recipes.find(x => x.id === id);
+      if (u && !u.matched) { u.my_vote = null; undoneId = id; }
+      renderCook(); updateBadge();
+      return;
+    }
+    if (act === 'force' && r) {
+      const res = await rpc('force_match', { p_recipe: r.id });
+      ping();
+      if (res && res.new_match) await onMatch(r, 'Kommt auf den Plan.');
+      return;
+    }
+    if (act === 'readd' && r) {
+      const n = await addIngredients(r);
+      toast(n ? `${n} Zutaten auf die Liste gesetzt` : 'Alles schon im Haus');
+      return;
+    }
+    if (act === 'unmatch' && r) {
+      r.matched = false;
+      renderCook();
+      await rpc('remove_match', { p_recipe: r.id });
+      ping();
+      toast(`„${r.name}“ vom Plan genommen`);
+      return;
+    }
+    if (act === 'pantry-del') {
+      const names = cook.pantry.filter(p => p !== t.dataset.name);
+      cook.pantry = names; renderCook();
+      await rpc('set_pantry', { p_names: names });
+      return;
+    }
+    if (act === 'push') return enablePush();
+  }
+
+  $('cook').addEventListener('submit', async e => {
+    e.preventDefault();
+    const v = cap($('pantryInput').value.trim());
+    if (!v || cook.pantry.some(p => p.toLowerCase() === v.toLowerCase())) return;
+    cook.pantry = [...cook.pantry, v].sort((a, b) => a.localeCompare(b, 'de'));
+    renderCook();
+    await rpc('set_pantry', { p_names: cook.pantry });
+  });
+
+  // --- Push ---
+  const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+  async function renderPushState() {
+    const el = $('pushState');
+    if (!el) return;
+    if (!pushSupported()) {
+      el.innerHTML = `<p style="margin:0">${/iPhone|iPad/.test(navigator.userAgent) && !isStandalone()
+        ? 'Auf dem iPhone geht das nur, wenn die App auf dem Home-Bildschirm liegt: Teilen → „Zum Home-Bildschirm“, dann von dort öffnen.'
+        : 'Dieser Browser kann keine Mitteilungen.'}</p>`;
+      return;
+    }
+    let on = false;
+    try { on = Notification.permission === 'granted' && !!(await (await navigator.serviceWorker.ready).pushManager.getSubscription()); } catch {}
+    el.innerHTML = on ? '<span class="ok-line">✓ Ist eingeschaltet</span>'
+      : Notification.permission === 'denied' ? '<p style="margin:0">Mitteilungen sind blockiert. Erlaube sie in den Einstellungen deines Handys für diese App.</p>'
+      : '<button class="btn-line go" data-act="push">Erinnerung einschalten</button>';
+  }
+
+  async function enablePush() {
+    try {
+      if (await Notification.requestPermission() !== 'granted') { renderPushState(); return; }
+      const reg = await navigator.serviceWorker.ready;
+      const key = Uint8Array.from(atob(VAPID_PUBLIC.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+      const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+      const j = sub.toJSON();
+      await rpc('save_push', { p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_person: me });
+      toast('Erinnerung ist an 🔔');
+    } catch {
+      toast('Hat nicht geklappt – bitte nochmal versuchen.');
+    }
+    renderPushState();
+  }
+
   // --- Anmeldung ---
   function logout(msg) {
     pin = null;
@@ -777,6 +1214,7 @@
     $('login').hidden = true;
     if (data === 'created') toast('PIN festgelegt – gib sie deiner Freundin.');
     load();
+    loadCook();
   });
 
   // --- Start ---
@@ -784,12 +1222,16 @@
   $('cat').innerHTML = CATS.map(c => `<option value="${esc(c.id)}">${c.icon} ${esc(c.id)}</option>`).join('');
   setCat('Sonstiges');
 
-  if (pin) { $('who').textContent = `Angemeldet als ${me}`; load(); }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if (location.hash === '#kochen') setTab('kochen');
+
+  if (pin) { $('who').textContent = `Angemeldet als ${me}`; load(); loadCook(); }
   else logout();
 
-  setInterval(() => { if (!document.hidden) load(); }, 15000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
-  window.addEventListener('focus', load);
+  const refresh = () => { if (!document.hidden) { load(); loadCook(); } };
+  setInterval(refresh, 15000);
+  document.addEventListener('visibilitychange', refresh);
+  window.addEventListener('focus', refresh);
 </script>
 </body>
 </html>
