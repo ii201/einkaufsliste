@@ -18,7 +18,11 @@ import sys
 import aiohttp
 import httpx
 from cookidoo_api import Cookidoo, CookidooConfig, get_localization_options
-from cookidoo_api.helpers import cookidoo_recipe_details_from_json
+from cookidoo_api.helpers import (
+    _construct_recipe_url,
+    _extract_images_from_descriptive_assets,
+    cookidoo_ingredient_from_json,
+)
 
 MIN_RATING = 4.5
 MIN_RATINGS = 30
@@ -102,6 +106,7 @@ async def search_top(api: Cookidoo) -> dict[str, dict]:
     """Alle Suchbegriffe durchgehen und nur sehr gut bewertete Treffer behalten."""
     url = api.api_endpoint / api._path("search:home").format(locale="de")
     hits: dict[str, dict] = {}
+    seen_raw: set[str] = set()
     for term in SEARCH_TERMS:
         for page in range(3):
             raw = await api._request_json("get", url, "search", params={
@@ -109,29 +114,59 @@ async def search_top(api: Cookidoo) -> dict[str, dict]:
             })
             data = (raw or {}).get("data") or []
             for h in data:
+                seen_raw.add(h.get("id"))
                 if (h.get("rating") or 0) >= MIN_RATING and (h.get("numberOfRatings") or 0) >= MIN_RATINGS:
                     if (h.get("totalTime") or 0) <= MAX_TOTAL_TIME:
                         hits.setdefault(h["id"], {"rating": h["rating"], "count": h["numberOfRatings"]})
             if len(data) < 40:
                 break
+    print(f"Suchtreffer gesamt: {len(seen_raw)}, davon Top: {len(hits)}")
     return hits
 
 
-async def details(api: Cookidoo, rid: str) -> tuple[dict, object] | None:
+class Details:
+    """Nur was wir brauchen – tolerant gegenüber fehlenden Feldern (der Bibliotheks-Parser ist strenger)."""
+
+    def __init__(self, raw: dict, url: str) -> None:
+        self.name = raw.get("title") or ""
+        self.url = url
+        self.thumbnail, self.image = _extract_images_from_descriptive_assets(raw.get("descriptiveAssets") or [])
+        self.total_time = next(
+            (t.get("quantity", {}).get("value") for t in raw.get("times", []) if t.get("type") == "totalTime"), None
+        )
+        self.ingredients = []
+        for group in raw.get("recipeIngredientGroups", []):
+            for ing in group.get("recipeIngredients", []):
+                try:
+                    self.ingredients.append(cookidoo_ingredient_from_json(ing))
+                except Exception:
+                    pass
+
+
+async def details(api: Cookidoo, rid: str) -> tuple[dict, Details] | None:
     url = api.api_endpoint / api._path("recipe:details").format(**api._cfg.localization.__dict__, id=rid)
     try:
         raw = await api._request_json("get", url, "recipe details")
-        return raw, cookidoo_recipe_details_from_json(raw, api._cfg.localization)
     except Exception:
         return None
+    return raw, Details(raw, _construct_recipe_url(api._cfg.localization, rid))
 
 
-def catalog_row(rid: str, hit: dict, raw: dict, d) -> dict | None:
+REJECTED: dict[str, int] = {}
+
+
+def reject(reason: str) -> None:
+    REJECTED[reason] = REJECTED.get(reason, 0) + 1
+
+
+def catalog_row(rid: str, hit: dict, raw: dict, d: Details) -> dict | None:
     categories = [c.get("title", "") for c in raw.get("categories", [])]
     tags = [t.get("name", "").lower() for t in raw.get("tags", [])]
     if not any(MAIN_DISH.search(c) for c in categories):
+        reject("kein Hauptgericht")
         return None
-    if "de" not in raw.get("targetCountries", ["de"]):
+    if not d.name or len(d.ingredients) < 3:
+        reject("unvollständig")
         return None
     text = " ".join([d.name] + categories)
     chips = [name for name, rx in CHIPS.items() if rx.search(text)]
@@ -187,6 +222,8 @@ async def catalog() -> None:
             fetched += 1
             res = await details(api, rid)
             await asyncio.sleep(0.1)
+            if not res:
+                reject("Abruf fehlgeschlagen")
             row = catalog_row(rid, hits[rid], *res) if res else None
             if row:
                 new_rows.append(row)
@@ -197,7 +234,7 @@ async def catalog() -> None:
     for rid in updates:
         db.patch("recipes", {"rating": hits[rid]["rating"], "rating_count": hits[rid]["count"]}, id=f"eq.{rid}")
     total = len(db.get("recipes", select="id", in_catalog="is.true"))
-    print(f"Katalog: {total} Rezepte ({len(new_rows)} neu, {rejected} aussortiert)")
+    print(f"Katalog: {total} Rezepte ({len(new_rows)} neu, {rejected} aussortiert: {REJECTED})")
 
 
 def push() -> None:
