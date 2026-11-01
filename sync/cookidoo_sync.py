@@ -108,18 +108,22 @@ async def search_top(api: Cookidoo) -> dict[str, dict]:
     hits: dict[str, dict] = {}
     seen_raw: set[str] = set()
     for term in SEARCH_TERMS:
-        for page in range(3):
+        # Kein "ratings"-Filter: der lässt nur glatte 5 Sterne durch. Die 4,5er-Grenze prüfen wir selbst.
+        prev: list[str] = []
+        for page in range(5):
             raw = await api._request_json("get", url, "search", params={
-                "query": term, "languages": "de", "ratings": "5", "pageSize": "40", "page": str(page),
+                "query": term, "languages": "de", "limit": "100", "page": str(page),
             })
             data = (raw or {}).get("data") or []
-            for h in data:
+            ids = [h.get("id") for h in data]
+            if not data or ids == prev:  # Ende erreicht oder Seite wird ignoriert
+                break
+            prev = ids
+            for h in (h for h in data if h.get("id") not in seen_raw):
                 seen_raw.add(h.get("id"))
                 if (h.get("rating") or 0) >= MIN_RATING and (h.get("numberOfRatings") or 0) >= MIN_RATINGS:
                     if (h.get("totalTime") or 0) <= MAX_TOTAL_TIME:
                         hits.setdefault(h["id"], {"rating": h["rating"], "count": h["numberOfRatings"]})
-            if len(data) < 40:
-                break
     print(f"Suchtreffer gesamt: {len(seen_raw)}, davon Top: {len(hits)}")
     return hits
 
