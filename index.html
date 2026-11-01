@@ -1055,20 +1055,38 @@
     }, 300);
   }
 
+  // Cookidoo liefert "0.25 TL", "1 - 2 Prisen", "200 g" … – für den Einkauf zählen nur echte Mengen
+  function shoppingQty(d) {
+    d = (d || '').trim().replace(/(\d)\.(\d)/g, '$1,$2');
+    const unit = (d.match(/^[\d,\s\-–]+(.*)$/) || [, ''])[1].trim();
+    if (/^(geh\.\s*)?(TL|EL)$|^Prisen?$|^Msp\.?$|^Spritzer$|^Stängel$/i.test(unit)) return '';
+    return d.slice(0, 24);
+  }
+
+  // Gleiche Zutat mehrfach im Rezept: gleiche Einheit wird addiert, sonst aneinandergehängt
+  function mergeQty(list) {
+    const parsed = list.filter(Boolean).map(q => q.match(/^(\d+(?:,\d+)?)\s*(.*)$/));
+    if (parsed.length && parsed.every(m => m && m[2] === parsed[0][2])) {
+      const sum = parsed.reduce((s, m) => s + parseFloat(m[1].replace(',', '.')), 0);
+      return `${String(Math.round(sum * 100) / 100).replace('.', ',')} ${parsed[0][2]}`.trim();
+    }
+    return [...new Set(list.filter(Boolean))].join(' + ');
+  }
+
   function ingredientItems(r) {
     const pantry = (cook.pantry || []).map(p => p.toLowerCase());
-    return (r.ingredients || [])
-      .filter(i => {
-        // "Öl" deckt Olivenöl/Rapsöl ab, "Pfeffer" auch "Pfeffer, schwarz" – aber "Salz" nicht "Salzstangen"
-        const n = i.name.toLowerCase().trim();
-        const words = n.split(/[\s,]+/);
-        return !pantry.some(p => words.includes(p) || n.endsWith(p));
-      })
-      .map(i => {
-        let q = (i.description || '').trim();
-        if (q.length > 24) q = q.split(',')[0].slice(0, 24);
-        return { name: cap(i.name.trim()), qty: q, category: guessCategory(i.name) || 'Sonstiges', recipe: r.name };
-      });
+    const byName = new Map();
+    for (const i of r.ingredients || []) {
+      // "Öl" deckt Olivenöl/Rapsöl ab, "Pfeffer" auch "Pfeffer, schwarz" – aber "Salz" nicht "Salzstangen"
+      const n = i.name.toLowerCase().trim();
+      const words = n.split(/[\s,]+/);
+      if (pantry.some(p => n === p || words.includes(p) || n.endsWith(p))) continue;
+      if (!byName.has(n)) byName.set(n, { name: cap(i.name.trim()), qtys: [] });
+      byName.get(n).qtys.push(shoppingQty(i.description));
+    }
+    return [...byName.values()].map(x => ({
+      name: x.name, qty: mergeQty(x.qtys), category: guessCategory(x.name) || 'Sonstiges', recipe: r.name,
+    }));
   }
 
   async function addIngredients(r) {

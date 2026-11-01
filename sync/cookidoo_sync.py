@@ -24,6 +24,7 @@ from cookidoo_api import Cookidoo, CookidooConfig, get_localization_options
 FROM_COLLECTIONS = 10
 FROM_SEARCH = 5
 COOLDOWN_WEEKS = 4  # gekochte und abgelehnte Rezepte so lange nicht wieder vorschlagen
+MAX_TOTAL_TIME = 100 * 60  # keine Festtags-Projekte unter der Woche
 SEARCH_TERMS = [
     "Abendessen", "Hauptgericht", "Pasta", "Curry", "Auflauf", "Suppe", "Risotto",
     "Hähnchen", "vegetarisch", "Reis", "Ofengemüse", "Eintopf", "Lachs", "Gnocchi",
@@ -166,11 +167,21 @@ async def sync(force: bool) -> None:
         picked += await search_recipe_ids(api, blocked | from_collections, wanted_new)
 
         rows = []
-        for rid in picked:
+        tried = set(picked)
+        replacements = 0
+        while picked:
+            rid = picked.pop(0)
             try:
                 d = await api.get_recipe_details(rid)
             except Exception as e:  # einzelne kaputte Rezepte überspringen
                 print(f"Rezept übersprungen ({type(e).__name__})")
+                continue
+            if (d.total_time or 0) > MAX_TOTAL_TIME or d.name.lower().startswith("menü"):
+                # zu aufwendig: durch ein anderes neues Rezept ersetzen
+                if rid not in from_collections and replacements < 10:
+                    replacements += 1
+                    picked += await search_recipe_ids(api, blocked | tried, 1)
+                    tried.update(picked)
                 continue
             rows.append(recipe_row(d, "sammlung" if rid in from_collections else "neu"))
 

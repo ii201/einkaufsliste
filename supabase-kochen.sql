@@ -46,7 +46,9 @@ create table if not exists public.cooked (
 create table if not exists public.pantry (name text primary key);
 insert into public.pantry (name) values
   ('Salz'), ('Pfeffer'), ('Wasser'), ('Öl'), ('Zucker'), ('Mehl'),
-  ('Gewürzpaste'), ('Paprikapulver'), ('Muskat'), ('Essig'), ('Brühe')
+  ('Gewürzpaste'), ('Paprikapulver'), ('Muskat'), ('Muskatnuss'), ('Essig'), ('Brühe'),
+  ('Paprika edelsüß'), ('Paprika rosenscharf'), ('Speisestärke'), ('Kräuter der Provence'),
+  ('Thymian'), ('Majoran'), ('Lorbeerblatt'), ('Kurkuma'), ('Zimt'), ('Chiliflocken')
 on conflict do nothing;
 
 create table if not exists public.push_subs (
