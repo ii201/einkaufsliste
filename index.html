@@ -425,6 +425,32 @@
   .edit-actions .go { flex: 1; height: 52px; font-size: 16px; }
   .edit-actions .del-btn { height: 52px; color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent); }
 
+  /* ---------- Liebe Sprüche ---------- */
+  .menu button[hidden] { display: none; }
+  .love-card {
+    position: relative; width: 100%; max-width: 340px; border-radius: 30px; padding: 34px 24px 22px; text-align: center; overflow: hidden;
+    color: #fff; background: linear-gradient(160deg, #ff8fa8, #ff4f7b 55%, #d6336c);
+    box-shadow: 0 26px 60px -20px rgba(214, 51, 108, .65); animation: pop .4s cubic-bezier(.2, 1.4, .4, 1);
+  }
+  .love-hearts { position: absolute; inset: 0; pointer-events: none; }
+  .love-hearts i { position: absolute; bottom: -30px; font-style: normal; color: rgba(255, 255, 255, .3); animation: floatUp linear infinite; }
+  .love-card > :not(.love-hearts) { position: relative; }
+  .love-big { font-size: 64px; line-height: 1; animation: beat 1.4s ease-in-out infinite; }
+  .love-hi { margin: 16px 0 6px; font-size: 15px; font-weight: 700; opacity: .85; }
+  .love-text { margin: 0 0 10px; font-size: 23px; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; overflow-wrap: anywhere; }
+  .love-by { margin: 0 0 22px; font-weight: 600; opacity: .85; }
+  .love-card .btn-main { background: #fff; color: #d6336c; box-shadow: none; }
+  .notes-hint { margin: -6px 4px 16px; color: var(--muted); font-size: 14px; }
+  .edit-sheet textarea {
+    width: 100%; border: 1.5px solid transparent; border-radius: 16px; background: var(--bg); color: var(--ink);
+    padding: 12px 14px; font: inherit; font-size: 16px; font-weight: 600; resize: none; outline: none;
+  }
+  .edit-sheet textarea:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+  .notes-list { max-height: 34vh; overflow-y: auto; margin-top: 16px; }
+  .notes-list h3 { margin: 0 4px 8px; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .note-row { display: flex; align-items: center; gap: 10px; padding: 8px 4px 8px 12px; border-radius: 14px; background: var(--bg); margin-bottom: 6px; font-size: 15px; font-weight: 600; }
+  .note-row span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+
   /* ---------- Toast & Konfetti ---------- */
   .toast {
     position: fixed; left: 50%; bottom: calc(165px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(16px);
@@ -442,6 +468,8 @@
   @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: none; opacity: 1; } }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+  @keyframes beat { 0%, 50%, 100% { transform: scale(1); } 12% { transform: scale(1.18); } 30% { transform: scale(1.1); } }
+  @keyframes floatUp { to { transform: translateY(-520px) rotate(25deg); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
@@ -469,6 +497,7 @@
   </div>
   <div class="menu" id="menu">
     <div class="who" id="who"></div>
+    <button id="notesBtn" hidden>💌 Sprüche für Karin</button>
     <button id="reloadBtn">Neu laden</button>
     <button id="logoutBtn">Abmelden</button>
   </div>
@@ -765,15 +794,31 @@
     });
   }
 
+  // Fenster, das von unten hochfährt
+  function openSheet(html) {
+    const o = document.createElement('div');
+    o.className = 'edit-overlay';
+    o.innerHTML = `<form class="edit-sheet" autocomplete="off"><div class="grab"></div>${html}</form>`;
+    const onKey = e => { if (e.key === 'Escape') close(); };
+    function close() {
+      document.removeEventListener('keydown', onKey);
+      document.activeElement?.blur();
+      if (reducedMotion) { o.remove(); return; }
+      o.classList.add('closing');
+      setTimeout(() => o.remove(), 180);
+    }
+    document.addEventListener('keydown', onKey);
+    o.addEventListener('click', e => { if (!e.target.closest('.edit-sheet')) close(); });
+    document.body.append(o);
+    return { o, f: o.querySelector('form'), close };
+  }
+
   // Gedrückt halten = Name, Menge und Kategorie ändern
   function openEdit(id) {
     const it = state.items.find(i => i.id === id);
     if (!it || document.querySelector('.edit-overlay')) return;
     let cat = catOf(it.category).id;
-    const o = document.createElement('div');
-    o.className = 'edit-overlay';
-    o.innerHTML = `<form class="edit-sheet" autocomplete="off">
-      <div class="grab"></div>
+    const { o, f, close } = openSheet(`
       <h2>Artikel bearbeiten</h2>
       <div class="edit-row">
         <label><span>Name</span><input name="name" value="${esc(it.name)}" maxlength="80" enterkeyhint="done"></label>
@@ -784,20 +829,8 @@
       <div class="edit-actions">
         <button type="button" class="btn-line del-btn">Löschen</button>
         <button type="submit" class="btn-line go">Speichern</button>
-      </div>
-    </form>`;
-    const f = o.querySelector('form');
-    const onKey = e => { if (e.key === 'Escape') close(); };
-    function close() {
-      document.removeEventListener('keydown', onKey);
-      document.activeElement?.blur();
-      if (reducedMotion) { o.remove(); return; }
-      o.classList.add('closing');
-      setTimeout(() => o.remove(), 180);
-    }
-    document.addEventListener('keydown', onKey);
+      </div>`);
     o.addEventListener('click', e => {
-      if (!e.target.closest('.edit-sheet')) { close(); return; }
       const chip = e.target.closest('[data-cat]');
       if (chip) {
         cat = chip.dataset.cat;
@@ -819,7 +852,6 @@
         if (fav) fav.category = cat;
       });
     });
-    document.body.append(o);
   }
 
   $('addForm').addEventListener('submit', e => {
@@ -1421,6 +1453,143 @@
     renderPushState();
   }
 
+  // --- Liebe Sprüche: Karin bekommt einmal am Tag einen ---
+  const LOVE_FOR = 'Karin', LOVE_FROM = 'Brian';
+  const LOVE_NOTES = [
+    'Ich lieb dich. Einfach so, an einem ganz normalen Tag.',
+    'Du bist mein Lieblingsmensch.',
+    'Mit dir ist sogar Einkaufen schön.',
+    'Ich bin so froh, dass es dich gibt.',
+    'Du machst jeden Tag ein bisschen heller.',
+    'Hab ich dir heute schon gesagt, wie toll du bist? Du bist toll.',
+    'Ich freu mich auf heute Abend mit dir.',
+    'Von allen Menschen auf der Welt such ich mir jeden Tag wieder dich aus.',
+    'Du bist das Beste auf jeder Liste.',
+    'Danke, dass du du bist.',
+    'Mein Herz macht immer noch Hüpfer, wenn ich an dich denke.',
+    'Du bist mein Zuhause.',
+    'Ich lieb dein Lachen. Und den Rest von dir auch.',
+    'Mit dir wird aus „irgendwas kochen“ ein schöner Abend.',
+    'Kleine Erinnerung: Du bist wunderbar.',
+    'Wenn du was brauchst: Ich bin da. Immer.',
+    'Ich würde dir den letzten Schokoriegel überlassen. Das ist wahre Liebe.',
+    'Du bist mein liebster Grund, nach Hause zu kommen.',
+    'Schön, dass wir ein Team sind.',
+    'Du bist süßer als alles im Süßigkeitenregal.',
+    'Ich denk gerade an dich. Ich mein, eigentlich ständig.',
+    'Mit dir ist alles leichter.',
+    'Ich bin stolz auf dich.',
+    'Egal wie dein Tag wird: Ich hab dich lieb.',
+    'Du + ich = meine Lieblingsrechnung.',
+    'Weißt du, was nie auf der Liste fehlen darf? Du.',
+    'Ich liebe unser kleines, gemeinsames Leben.',
+    'Danke für alles, was du jeden Tag machst, auch das, was keiner sieht.',
+    'Du bist mein Glück im Alltag.',
+    'Hey Schöne, ich vermiss dich jetzt schon.',
+    'Mit dir möchte ich alt und rund werden.',
+    'Wenn du lächelst, ist mein Tag gerettet.',
+    'Du bist mein Lieblingsplatz.',
+    'Ich lieb dich mehr als Käse. Und das heißt was.',
+    'Heute ist ein guter Tag, um dich zu drücken.',
+    'Du bist genau richtig, so wie du bist.',
+    'Ich hab echt Glück mit dir.',
+    'Auf dich ist immer Verlass. Auf mich hoffentlich auch.',
+    'Jeder Tag mit dir ist ein guter Tag.',
+    'Ich lieb dich. Bis zum Mond, zurück und noch einmal hin.',
+  ];
+  const isLoveFor = () => me.trim().toLowerCase().startsWith(LOVE_FOR.toLowerCase());
+
+  let loveBusy = false;
+  async function loveNote() {
+    if (!pin || !isLoveFor() || loveBusy || !$('login').hidden) return;
+    const today = new Date().toLocaleDateString('sv');
+    if (store.get('ek_love_day') === today) return;
+    loveBusy = true;
+    try {
+      // Selbst geschriebene Sprüche kommen zuerst, danach der Vorrat der Reihe nach
+      let note = await rpc('next_note', { p_person: me }).catch(() => null);
+      if (!note) {
+        const saved = store.get('ek_love_i');
+        const i = (saved === null ? Math.floor(Math.random() * LOVE_NOTES.length) : Number(saved)) % LOVE_NOTES.length;
+        store.set('ek_love_i', String(i + 1));
+        note = { text: LOVE_NOTES[i], by: LOVE_FROM };
+      }
+      store.set('ek_love_day', today);
+      showLove(note);
+    } finally {
+      loveBusy = false;
+    }
+  }
+
+  function showLove(note) {
+    const o = document.createElement('div');
+    o.className = 'match-overlay';
+    const hearts = Array.from({ length: 12 }, () =>
+      `<i style="left:${Math.random() * 92}%;font-size:${14 + Math.random() * 18}px;animation-duration:${4 + Math.random() * 4}s;animation-delay:${-Math.random() * 6}s">❤</i>`).join('');
+    o.innerHTML = `<div class="love-card">
+      <div class="love-hearts" aria-hidden="true">${hearts}</div>
+      <div class="love-big">❤️</div>
+      <p class="love-hi">Hey ${esc(cap(me.trim()))}!</p>
+      <p class="love-text">${esc(note.text)}</p>
+      <p class="love-by">– ${esc(note.by || LOVE_FROM)}</p>
+      <button class="btn-main">Ich dich auch 😘</button>
+    </div>`;
+    o.addEventListener('click', () => {
+      if (reducedMotion) { o.remove(); return; }
+      o.style.transition = 'opacity .2s'; o.style.opacity = '0';
+      setTimeout(() => o.remove(), 200);
+    });
+    document.body.append(o);
+    navigator.vibrate?.([20, 80, 20]);
+  }
+
+  // Für Brian: eigene Sprüche vormerken
+  async function openNotes() {
+    const { o, f } = openSheet(`
+      <h2>💌 Sprüche für ${LOVE_FOR}</h2>
+      <p class="notes-hint">${LOVE_FOR} sieht jeden Tag beim ersten Öffnen einen Spruch. Deine eigenen kommen vor den vorbereiteten dran.</p>
+      <label><span>Neuer Spruch</span><textarea name="text" maxlength="200" rows="3" placeholder="z. B. Du bist mein Lieblingsmensch"></textarea></label>
+      <div class="edit-actions"><button type="submit" class="btn-line go">Spruch speichern</button></div>
+      <div class="notes-list"></div>`);
+    const list = o.querySelector('.notes-list');
+    async function refreshList() {
+      const notes = await rpc('my_notes', { p_by: me }).catch(() => null);
+      if (!notes) { list.innerHTML = ''; return; }
+      list.innerHTML = notes.length
+        ? `<h3>Warten auf ${LOVE_FOR} · ${notes.length}</h3>` + notes.map(n =>
+          `<div class="note-row"><span>${esc(n.text)}</span><button type="button" class="mbtn x" data-note="${esc(n.id)}" aria-label="Entfernen">✕</button></div>`).join('')
+        : `<h3>Noch keine eigenen Sprüche in der Warteschlange</h3>`;
+    }
+    o.addEventListener('click', async e => {
+      const b = e.target.closest('[data-note]');
+      if (!b) return;
+      b.disabled = true;
+      await rpc('delete_note', { p_id: b.dataset.note }).catch(() => toast('Hat nicht geklappt – bitte nochmal versuchen.'));
+      refreshList();
+    });
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      const text = f.elements.text.value.trim();
+      if (!text) { f.elements.text.focus(); return; }
+      try {
+        await rpc('add_note', { p_text: text, p_by: me });
+        f.elements.text.value = '';
+        toast(`Gespeichert – ${LOVE_FOR} sieht ihn bald 💕`);
+        refreshList();
+      } catch {
+        toast('Hat nicht geklappt – bitte nochmal versuchen.');
+      }
+    });
+    refreshList();
+  }
+
+  function renderMenu() {
+    $('who').textContent = `Angemeldet als ${me}`;
+    $('notesBtn').hidden = isLoveFor();
+  }
+
+  $('notesBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openNotes(); });
+
   // --- Anmeldung ---
   function logout(msg) {
     pin = null;
@@ -1444,11 +1613,12 @@
     }
     pin = p; me = name;
     store.set('ek_pin', p); store.set('ek_name', name);
-    $('who').textContent = `Angemeldet als ${me}`;
+    renderMenu();
     $('login').hidden = true;
     if (data === 'created') toast('PIN festgelegt – gib sie deiner Freundin.');
     load();
     loadCook();
+    setTimeout(loveNote, 700);
   });
 
   // --- Start ---
@@ -1459,10 +1629,10 @@
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   if (location.hash === '#kochen') setTab('kochen');
 
-  if (pin) { $('who').textContent = `Angemeldet als ${me}`; load(); loadCook(); }
+  if (pin) { renderMenu(); load(); loadCook(); setTimeout(loveNote, 700); }
   else logout();
 
-  const refresh = () => { if (!document.hidden) { load(); loadCook(); } };
+  const refresh = () => { if (!document.hidden) { load(); loadCook(); loveNote(); } };
   setInterval(refresh, 15000);
   document.addEventListener('visibilitychange', refresh);
   window.addEventListener('focus', refresh);
