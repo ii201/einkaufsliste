@@ -149,7 +149,7 @@
   .item.armed .swipe-bg { background: var(--danger); }
   .inner {
     position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 8px 12px 14px; min-height: 58px;
-    background: var(--surface); user-select: none; -webkit-user-select: none; touch-action: pan-y;
+    background: var(--surface); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: pan-y;
   }
   .check {
     flex: none; width: 28px; height: 28px; border-radius: 50%; padding: 0;
@@ -395,6 +395,36 @@
   .match-card p { margin: 0 0 16px; color: var(--muted); font-size: 15px; }
   .match-card .link { display: block; margin-top: 12px; color: var(--muted); font-size: 14px; font-weight: 600; }
 
+  /* ---------- Artikel bearbeiten ---------- */
+  .edit-overlay {
+    position: fixed; inset: 0; z-index: 35; display: flex; align-items: flex-end; justify-content: center;
+    background: color-mix(in srgb, var(--bg) 55%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    animation: fade .2s ease-out;
+  }
+  .edit-overlay.closing { animation: fade .18s ease-in reverse forwards; }
+  .edit-sheet {
+    width: 100%; max-width: 560px; background: var(--surface); border-radius: 28px 28px 0 0; box-shadow: var(--shadow-lg);
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom)); animation: sheetUp .3s cubic-bezier(.2, .9, .3, 1);
+  }
+  .edit-overlay.closing .edit-sheet { animation: sheetUp .18s ease-in reverse forwards; }
+  .edit-sheet .grab { width: 40px; height: 5px; border-radius: 99px; background: var(--line); margin: 0 auto 14px; }
+  .edit-sheet h2 { margin: 0 0 16px 4px; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+  .edit-sheet label { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 0 14px; }
+  .edit-sheet label > span { display: block; margin: 0 0 6px 4px; }
+  .edit-sheet input {
+    width: 100%; height: 50px; border: 1.5px solid transparent; border-radius: 16px; background: var(--bg);
+    padding: 0 14px; font-size: 17px; font-weight: 600; color: var(--ink); outline: none;
+  }
+  .edit-sheet input:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+  .edit-row { display: flex; gap: 10px; }
+  .edit-row label:first-child { flex: 1; min-width: 0; }
+  .edit-row label.q { width: 112px; flex: none; }
+  .edit-cats { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 18px; }
+  .edit-cats .chip.on { background: var(--c); color: #fff; }
+  .edit-actions { display: flex; gap: 10px; }
+  .edit-actions .go { flex: 1; height: 52px; font-size: 16px; }
+  .edit-actions .del-btn { height: 52px; color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+
   /* ---------- Toast & Konfetti ---------- */
   .toast {
     position: fixed; left: 50%; bottom: calc(165px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(16px);
@@ -410,6 +440,8 @@
   @keyframes tick { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
   @keyframes slideIn { from { transform: translateY(-8px); opacity: 0; } to { transform: none; opacity: 1; } }
   @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
@@ -703,6 +735,10 @@
       if (ex) { if (qty) ex.qty = qty; ex.category = category; }
       else state.items.push({ id: 'tmp-' + Date.now(), name, qty, category, checked: false, added_by: me, created_at: new Date().toISOString() });
     });
+    if (!store.get('ek_tip_edit')) {
+      store.set('ek_tip_edit', '1');
+      setTimeout(() => toast('Tipp: Artikel gedrückt halten zum Bearbeiten'), 700);
+    }
   }
 
   function toggleItem(row, id) {
@@ -727,6 +763,63 @@
     toast(`„${it.name}“ gelöscht`, 'Rückgängig', () => {
       addItem(it.name, it.qty, it.category);
     });
+  }
+
+  // Gedrückt halten = Name, Menge und Kategorie ändern
+  function openEdit(id) {
+    const it = state.items.find(i => i.id === id);
+    if (!it || document.querySelector('.edit-overlay')) return;
+    let cat = catOf(it.category).id;
+    const o = document.createElement('div');
+    o.className = 'edit-overlay';
+    o.innerHTML = `<form class="edit-sheet" autocomplete="off">
+      <div class="grab"></div>
+      <h2>Artikel bearbeiten</h2>
+      <div class="edit-row">
+        <label><span>Name</span><input name="name" value="${esc(it.name)}" maxlength="80" enterkeyhint="done"></label>
+        <label class="q"><span>Menge</span><input name="qty" value="${esc(it.qty || '')}" maxlength="40" placeholder="z. B. 2" enterkeyhint="done"></label>
+      </div>
+      <label><span>Kategorie</span></label>
+      <div class="edit-cats">${CATS.map(c => `<button type="button" class="chip${c.id === cat ? ' on' : ''}" data-cat="${esc(c.id)}" style="--c:${c.color}">${c.icon} ${esc(c.id)}</button>`).join('')}</div>
+      <div class="edit-actions">
+        <button type="button" class="btn-line del-btn">Löschen</button>
+        <button type="submit" class="btn-line go">Speichern</button>
+      </div>
+    </form>`;
+    const f = o.querySelector('form');
+    const onKey = e => { if (e.key === 'Escape') close(); };
+    function close() {
+      document.removeEventListener('keydown', onKey);
+      document.activeElement?.blur();
+      if (reducedMotion) { o.remove(); return; }
+      o.classList.add('closing');
+      setTimeout(() => o.remove(), 180);
+    }
+    document.addEventListener('keydown', onKey);
+    o.addEventListener('click', e => {
+      if (!e.target.closest('.edit-sheet')) { close(); return; }
+      const chip = e.target.closest('[data-cat]');
+      if (chip) {
+        cat = chip.dataset.cat;
+        f.querySelectorAll('[data-cat]').forEach(b => b.classList.toggle('on', b === chip));
+        return;
+      }
+      if (e.target.closest('.del-btn')) { close(); deleteItem(id); }
+    });
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = cap(f.elements.name.value.trim()), qty = f.elements.qty.value.trim();
+      if (!name) { f.elements.name.focus(); return; }
+      close();
+      if (name === it.name && qty === (it.qty || '') && cat === catOf(it.category).id) return;
+      mutate('update_item', { p_id: id, p_name: name, p_qty: qty, p_category: cat }, () => {
+        const cur = state.items.find(i => i.id === id);
+        if (cur) Object.assign(cur, { name, qty, category: cat });
+        const fav = state.favorites.find(x => x.name.toLowerCase() === name.toLowerCase());
+        if (fav) fav.category = cat;
+      });
+    });
+    document.body.append(o);
   }
 
   $('addForm').addEventListener('submit', e => {
@@ -775,12 +868,26 @@
     catTouched = false; setCat('Sonstiges');
   });
 
-  // Nach links wischen = löschen
-  let sw = null, suppressClick = false;
+  // Nach links wischen = löschen, gedrückt halten = bearbeiten
+  let sw = null, suppressClick = false, holdTimer = null, held = false;
   document.addEventListener('pointerdown', e => {
+    held = false;
+    clearTimeout(holdTimer);
     const inner = e.target.closest('.item .inner');
     if (!inner || e.button > 0 || inner.parentElement.dataset.id.startsWith('tmp-')) return;
-    sw = { inner, row: inner.parentElement, x0: e.clientX, y0: e.clientY, dx: 0, active: false };
+    const s = sw = { inner, row: inner.parentElement, x0: e.clientX, y0: e.clientY, dx: 0, active: false };
+    holdTimer = setTimeout(() => {
+      if (sw !== s || s.active) return;  // inzwischen gescrollt, gewischt oder losgelassen
+      sw = null; held = true;
+      navigator.vibrate?.(15);
+      openEdit(s.row.dataset.id);
+    }, 500);
+  });
+  document.addEventListener('contextmenu', e => {
+    const row = e.target.closest('.item');
+    if (!row) return;
+    e.preventDefault();
+    if (!row.dataset.id.startsWith('tmp-')) { held = true; openEdit(row.dataset.id); }
   });
   document.addEventListener('pointermove', e => {
     if (!sw) return;
@@ -820,6 +927,7 @@
 
   document.addEventListener('click', e => {
     if (suppressClick) return;
+    if (held) { held = false; return; }
     const tabBtn = e.target.closest('.tab');
     if (tabBtn) { setTab(tabBtn.dataset.tab); return; }
     const act = e.target.closest('[data-act]');
