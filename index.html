@@ -424,14 +424,8 @@
   .ksum { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 14px 14px 12px; }
   .kstats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .kstats div { background: var(--bg); border-radius: 15px; padding: 9px 8px; min-width: 0; }
-  .kstats small, .kpeople small { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
+  .kstats small { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
   .kstats b { display: block; margin-top: 2px; font-size: 14px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .kpeople { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
-  .kpeople > div { border: 1.5px solid var(--line); border-radius: 15px; padding: 10px 11px; }
-  .kpeople h4 { margin: 0 0 6px; font-size: 15px; font-weight: 800; }
-  .kpeople p { margin: 0; display: flex; justify-content: space-between; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .kpeople p b { color: var(--ink); }
-  .kpeople p.res { margin-top: 5px; padding-top: 6px; border-top: 1px solid var(--line); }
   .plus { color: var(--accent) !important; }
   .minus { color: var(--danger) !important; }
   .klist .mt b { display: block; font-size: 15.5px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
@@ -441,6 +435,18 @@
     background: color-mix(in srgb, var(--ink) 6%, var(--surface));
   }
   .kicon.in { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+  .kright { flex: none; text-align: right; font-variant-numeric: tabular-nums; }
+  .kright b { display: block; font-size: 15.5px; font-weight: 800; }
+  .kright small { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  .kright .zero { color: var(--muted); }
+  .kcarry {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 14px;
+    background: color-mix(in srgb, var(--ink) 4%, var(--surface)); font-size: 14px; font-weight: 700; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .kcarry b { font-size: 15.5px; color: var(--ink); }
+  .kcarry.end { border-top: 1px solid var(--line); }
+  .kcarry + .mrow, .mrow + .kcarry, .kempty + .kcarry, .kcarry + .kempty { border-top: 1px solid var(--line); }
   .kamt { flex: none; font-weight: 800; font-size: 15.5px; font-variant-numeric: tabular-nums; }
   .kamt.in { color: var(--accent); }
   .kamt.tr { color: var(--muted); }
@@ -1706,7 +1712,11 @@
   }
 
   // Anteil, den eine Person trägt (Ausgabe) bzw. der ihr zusteht (Einnahme)
-  const shareOf = (e, p) => e.share === 'beide' ? cents(e) / 2 : e.share === p ? cents(e) : 0;
+  // Bei „je ½“ und ungeradem Betrag trägt, wer bezahlt hat, den übrigen Cent – so bleibt alles in ganzen Cent
+  const shareOf = (e, p) => {
+    const a = cents(e), h = Math.floor(a / 2);
+    return e.share === 'beide' ? (p === e.paid_by ? a - h : h) : e.share === p ? a : 0;
+  };
   const paidOf = (e, p) => e.paid_by === p ? cents(e) : 0;
   function effect(e) {
     const p = PEOPLE[0];
@@ -1736,68 +1746,63 @@
   function renderKasse() {
     const el = $('kasse');
     if (!money) { el.innerHTML = `<div class="cook-empty"><div class="big">💶</div><strong>Lädt …</strong></div>`; return; }
-    const [A, B] = PEOPLE;
     const bal = money.entries.reduce((s, e) => s + effect(e), 0);
     const even = Math.abs(bal) < 1;
-    const [creditor, debtor] = bal > 0 ? [A, B] : [B, A];
+    // Alles aus Sicht dessen, der gerade Guthaben hat
+    const P = even ? meP() : bal > 0 ? PEOPLE[0] : PEOPLE[1], O = other(P);
+    const sign = P === PEOPLE[0] ? 1 : -1;
+    const fmt = c => (c < -0.5 ? '−' : '') + euro(Math.abs(c));
+    const cls = c => c > 0.5 ? 'plus' : c < -0.5 ? 'minus' : 'zero';
 
-    const inMonth = money.entries.filter(e => ym(e.day) === ym(kMonth));
-    const costs = inMonth.filter(e => e.kind !== 'ausgleich');
-    const sum = k => costs.filter(e => e.kind === k).reduce((s, e) => s + cents(e), 0);
-    const out = sum('ausgabe'), inc = sum('einnahme');
-    const person = p => {
-      const paid = costs.reduce((s, e) => s + (e.kind === 'einnahme' ? -paidOf(e, p) : paidOf(e, p)), 0);
-      const part = costs.reduce((s, e) => s + (e.kind === 'einnahme' ? -shareOf(e, p) : shareOf(e, p)), 0);
-      const res = paid - part;
-      return `<div><h4>${esc(p)}</h4>
-        <p>Bezahlt <b>${euro(paid)}</b></p>
-        <p>Anteil <b>${euro(part)}</b></p>
-        <p class="res">Saldo <b class="${res > 0.5 ? 'plus' : res < -0.5 ? 'minus' : ''}">${res > 0.5 ? '+' : ''}${euro(res)}</b></p></div>`;
-    };
+    const chrono = [...money.entries].sort((a, b) => a.day.localeCompare(b.day) || String(a.created_at).localeCompare(String(b.created_at)));
+    const opening = sign * chrono.filter(e => e.day < kMonth).reduce((s, e) => s + effect(e), 0);
+    const inMonth = chrono.filter(e => ym(e.day) === ym(kMonth));
+    const sum = k => inMonth.filter(e => e.kind === k).reduce((s, e) => s + cents(e), 0);
+
+    let run = opening;
     const row = e => {
-      const sub = e.kind === 'ausgleich' ? `${esc(e.paid_by)} → ${esc(e.share)}`
-        : e.kind === 'einnahme' ? `${esc(e.paid_by)} hat bekommen · ${shareLabel(e.share)}`
-        : `${esc(e.paid_by)} hat bezahlt · ${shareLabel(e.share)}`;
-      const day = e.fixed_id ? '' : `${new Date(e.day + 'T12:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' })} · `;
-      const cls = e.kind === 'einnahme' ? 'in' : e.kind === 'ausgleich' ? 'tr' : '';
+      const d = sign * effect(e);
+      run += d;
+      const part = e.share === 'beide' ? 'je ½' : `nur ${esc(e.share)}`;
+      const what = e.kind === 'ausgleich' ? `Geldübergabe ${esc(e.paid_by)} → ${esc(e.share)}`
+        : `${euro(cents(e))} · ${esc(e.paid_by)} hat ${e.kind === 'einnahme' ? 'bekommen' : 'bezahlt'}, ${part}`;
+      const day = e.fixed_id ? '📌' : new Date(e.day + 'T12:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' }) + ' ·';
       return `<div class="mrow" data-k="entry" data-id="${esc(e.id)}">
-        <div class="kicon ${cls}">${micon(e)}</div>
-        <div class="mt"><b>${esc(e.title)}</b><span>${day}${sub}</span></div>
-        <div class="kamt ${cls}">${e.kind === 'einnahme' ? '+' : ''}${euro(cents(e))}</div></div>`;
+        <div class="kicon ${e.kind === 'einnahme' ? 'in' : ''}">${micon(e)}</div>
+        <div class="mt"><b>${esc(e.title)}</b><span>${day} ${what}</span></div>
+        <div class="kright"><b class="${cls(d)}">${Math.abs(d) < 0.5 ? '±0' : (d > 0 ? '+' : '') + fmt(d)}</b><small>${fmt(run)}</small></div></div>`;
     };
-    const list = (items, empty) => items.length
-      ? `<div class="mlist klist">${items.map(row).join('')}</div>` : `<div class="mlist"><div class="kempty">${empty}</div></div>`;
-    const fixedRows = inMonth.filter(e => e.fixed_id);
-    const varRows = inMonth.filter(e => !e.fixed_id);
+    const rows = inMonth.map(row).join('');
+    const isNow = kMonth === money.month;
     const fixedMonthly = money.fixed.filter(f => !f.until || f.until > money.month)
       .reduce((s, f) => s + (f.kind === 'einnahme' ? -1 : 1) * cents(f), 0);
 
     el.innerHTML = `
       <div class="kbal${even ? ' even' : ''}">
-        <small>Stand zwischen euch</small>
+        <small>${even ? 'Stand zwischen euch' : `Guthaben von ${esc(P)}`}</small>
         <span class="big">${even ? '0,00 €' : euro(Math.abs(bal))}</span>
-        <span class="who">${even ? 'Ihr seid quitt ✓' : `${esc(creditor)} bekommt das von ${esc(debtor)}`}</span>
-        ${even ? '' : `<br><button class="settle" data-k="settle">🤝 Ausgleichen</button>`}
+        <span class="who">${even ? 'Ihr seid quitt ✓' : `${esc(P)} hat das bei ${esc(O)} gut. ${esc(O)} verrechnet damit ${esc(P)}s Anteile.`}</span>
+        <br><button class="settle" data-k="settle">🤝 Geld übergeben</button>
       </div>
 
       <div class="kmonth">
         <button data-k="prev" aria-label="Vormonat">‹</button>
         <h2>${monthName(kMonth)}</h2>
-        <button data-k="next" aria-label="Nächster Monat" ${kMonth >= money.month ? 'disabled' : ''}>›</button>
+        <button data-k="next" aria-label="Nächster Monat" ${isNow ? 'disabled' : ''}>›</button>
       </div>
-      <div class="ksum">
-        <div class="kstats">
-          <div><small>Ausgaben</small><b>${euro(out)}</b></div>
-          <div><small>Einnahmen</small><b class="${inc ? 'plus' : ''}">${euro(inc)}</b></div>
-          <div><small>Netto</small><b>${euro(out - inc)}</b></div>
-        </div>
-        <div class="kpeople">${person(A)}${person(B)}</div>
-      </div>
+      <div class="ksum"><div class="kstats">
+        <div><small>Ausgaben</small><b>${euro(sum('ausgabe'))}</b></div>
+        <div><small>Einnahmen</small><b>${euro(sum('einnahme'))}</b></div>
+        <div><small>Übergeben</small><b>${euro(sum('ausgleich'))}</b></div>
+      </div></div>
 
-      <div class="section-title">📌 Fixkosten</div>
-      ${list(fixedRows, 'Noch keine Fixkosten. Beim Eintragen „Jeden Monat“ anhaken.')}
-      <div class="section-title">🧾 Weitere Einträge</div>
-      ${list(varRows, 'Noch nichts eingetragen in diesem Monat.')}
+      <div class="section-title">🧾 Kontoauszug</div>
+      <div class="section-sub">So ändert sich ${esc(P)}s Guthaben bei ${esc(O)}. Rechts steht der neue Stand nach jedem Eintrag.</div>
+      <div class="mlist klist">
+        <div class="kcarry"><span>Übertrag aus ${monthName(addMonths(kMonth, -1)).split(' ')[0]}</span><b class="${cls(opening)}">${fmt(opening)}</b></div>
+        ${rows || '<div class="kempty">Noch nichts eingetragen in diesem Monat.</div>'}
+        <div class="kcarry end"><span>${isNow ? 'Stand heute' : `Stand Ende ${monthName(kMonth).split(' ')[0]}`}</span><b class="${cls(run)}">${fmt(run)}</b></div>
+      </div>
 
       ${money.fixed.length ? `<div class="section-title">⚙️ Fixkosten verwalten</div>
       <div class="section-sub">Pro Monat ${euro(fixedMonthly)} · Änderungen gelten ab diesem Monat</div>
@@ -1925,13 +1930,15 @@
   function openSettleSheet(e) {
     if (document.querySelector('.edit-overlay')) return;
     const bal = money.entries.filter(x => x !== e).reduce((s, x) => s + effect(x), 0);
-    const from = e ? e.paid_by : bal > 0 ? PEOPLE[1] : PEOPLE[0];
-    const amt = e ? cents(e) : Math.round(Math.abs(bal));
+    const from = e ? e.paid_by : meP();
+    const amt = e ? cents(e) : 0;
+    const zeroFrom = bal > 0 ? PEOPLE[1] : PEOPLE[0];
     const { o, f, close } = openSheet(`
-      <h2>🤝 ${e ? 'Ausgleich ändern' : 'Ausgleichen'}</h2>
-      <p class="khint">Tragt hier ein, wenn einer dem anderen Geld überwiesen oder bar gegeben hat.</p>
+      <h2>🤝 ${e ? 'Geldübergabe ändern' : 'Geld übergeben'}</h2>
+      <p class="khint">Tragt hier ein, wenn einer dem anderen Geld überwiesen oder bar gegeben hat, z. B. als Guthaben für kommende Kosten.</p>
       ${seg('from', PEOPLE.map(p => [p, `${esc(p)} → ${esc(other(p))}`]), from)}
-      <label class="amount"><span>Betrag</span><input name="amount" inputmode="decimal" value="${amt ? (amt / 100).toFixed(2).replace('.', ',') : ''}"></label>
+      <label class="amount"><span>Betrag</span><input name="amount" inputmode="decimal" placeholder="0,00" value="${amt ? (amt / 100).toFixed(2).replace('.', ',') : ''}"></label>
+      ${!e && Math.abs(bal) >= 1 ? `<button type="button" class="link-del zero-btn" style="margin:-6px 0 14px">Alles ausgleichen: ${esc(zeroFrom)} gibt ${esc(other(zeroFrom))} ${euro(Math.abs(bal))}</button>` : ''}
       <label><span>Datum</span><input name="day" type="date" value="${esc(e ? e.day : todayIso())}"></label>
       <div class="edit-actions">
         ${e ? '<button type="button" class="btn-line del-btn">Löschen</button>' : ''}
@@ -1939,10 +1946,15 @@
       </div>`);
     segClicks(o);
     o.addEventListener('click', ev => {
+      if (ev.target.closest('.zero-btn')) {
+        o.querySelectorAll('[data-seg="from"] button').forEach(b => b.classList.toggle('on', b.dataset.v === zeroFrom));
+        f.elements.amount.value = (Math.round(Math.abs(bal)) / 100).toFixed(2).replace('.', ',');
+        return;
+      }
       if (!ev.target.closest('.del-btn')) return;
       close();
       moneyMutate('delete_entry', { p_id: e.id });
-      toast('Ausgleich gelöscht', 'Rückgängig', () => moneyMutate('delete_entry', { p_id: e.id, p_restore: true }));
+      toast('Geldübergabe gelöscht', 'Rückgängig', () => moneyMutate('delete_entry', { p_id: e.id, p_restore: true }));
     });
     f.addEventListener('submit', ev => {
       ev.preventDefault();
@@ -1950,7 +1962,7 @@
       if (!amount) { f.elements.amount.focus(); return; }
       const p = segVal(f, 'from');
       close();
-      moneyMutate('save_entry', { p_id: e ? e.id : null, p_kind: 'ausgleich', p_title: 'Ausgleich', p_amount: amount, p_paid_by: p, p_share: other(p), p_category: '', p_day: f.elements.day.value || null, p_by: me });
+      moneyMutate('save_entry', { p_id: e ? e.id : null, p_kind: 'ausgleich', p_title: `${p} gibt ${other(p)} Geld`, p_amount: amount, p_paid_by: p, p_share: other(p), p_category: '', p_day: f.elements.day.value || null, p_by: me });
       if (!e) toast(`🤝 ${p} hat ${other(p)} ${euro(amount * 100)} gegeben`);
     });
   }
