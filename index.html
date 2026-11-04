@@ -283,9 +283,11 @@
   .tab.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
   .tab-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: #ff3d6e; color: #fff; font-size: 12px; display: inline-grid; place-items: center; }
   .tab-badge[hidden] { display: none; }
-  body.mode-kochen #progress, body.mode-kochen #list, body.mode-kochen #done, body.mode-kochen .composer { display: none !important; }
+  body:is(.mode-kochen, .mode-kasse) :is(#progress, #list, #done, .composer) { display: none !important; }
   body:not(.mode-kochen) #cook { display: none; }
+  body:not(.mode-kasse) #kasse { display: none; }
   body.mode-kochen main { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+  body.mode-kasse main { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
 
   /* ---------- Kochen ---------- */
   .subtabs { display: flex; gap: 8px; margin: 2px 0 6px; }
@@ -395,6 +397,79 @@
   .match-card p { margin: 0 0 16px; color: var(--muted); font-size: 15px; }
   .match-card .link { display: block; margin-top: 12px; color: var(--muted); font-size: 14px; font-weight: 600; }
 
+  /* ---------- Kasse ---------- */
+  .kbal {
+    position: relative; overflow: hidden; border-radius: 26px; padding: 18px 18px 16px; color: #fff;
+    background: linear-gradient(150deg, #353b37, #1f2321); box-shadow: var(--shadow-lg);
+  }
+  .kbal::after {
+    content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, #4cc27a 45%, transparent), transparent 70%); pointer-events: none;
+  }
+  .kbal.even::after { background: radial-gradient(circle, color-mix(in srgb, #4cc27a 70%, transparent), transparent 70%); }
+  .kbal small { display: block; font-size: 13px; font-weight: 700; opacity: .6; }
+  .kbal .big { display: block; margin: 4px 0 2px; font-size: 36px; font-weight: 800; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .kbal .who { font-size: 15.5px; font-weight: 600; opacity: .9; }
+  .kbal .settle {
+    position: relative; z-index: 1; margin-top: 14px; border: 0; height: 42px; padding: 0 16px; border-radius: 13px;
+    font-weight: 700; font-size: 14.5px; color: #1f2321; background: #fff;
+  }
+  .kmonth { display: flex; align-items: center; gap: 8px; margin: 22px 0 10px; }
+  .kmonth h2 { flex: 1; margin: 0; text-align: center; font-size: 19px; font-weight: 800; letter-spacing: -.02em; }
+  .kmonth button {
+    width: 42px; height: 42px; border: 0; border-radius: 14px; font-size: 20px; font-weight: 700;
+    background: var(--surface); box-shadow: var(--shadow-sm); color: var(--ink);
+  }
+  .kmonth button:disabled { opacity: .3; box-shadow: none; }
+  .ksum { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 14px 14px 12px; }
+  .kstats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .kstats div { background: var(--bg); border-radius: 15px; padding: 9px 8px; min-width: 0; }
+  .kstats small, .kpeople small { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
+  .kstats b { display: block; margin-top: 2px; font-size: 14px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kpeople { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+  .kpeople > div { border: 1.5px solid var(--line); border-radius: 15px; padding: 10px 11px; }
+  .kpeople h4 { margin: 0 0 6px; font-size: 15px; font-weight: 800; }
+  .kpeople p { margin: 0; display: flex; justify-content: space-between; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .kpeople p b { color: var(--ink); }
+  .kpeople p.res { margin-top: 5px; padding-top: 6px; border-top: 1px solid var(--line); }
+  .plus { color: var(--accent) !important; }
+  .minus { color: var(--danger) !important; }
+  .klist .mt b { display: block; font-size: 15.5px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+  .klist .mrow { cursor: pointer; padding: 11px 14px 11px 11px; }
+  .kicon {
+    flex: none; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 21px;
+    background: color-mix(in srgb, var(--ink) 6%, var(--surface));
+  }
+  .kicon.in { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+  .kamt { flex: none; font-weight: 800; font-size: 15.5px; font-variant-numeric: tabular-nums; }
+  .kamt.in { color: var(--accent); }
+  .kamt.tr { color: var(--muted); }
+  .kempty { padding: 18px 16px; color: var(--muted); font-size: 14.5px; font-weight: 500; text-align: center; }
+  .kfab {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; pointer-events: none;
+    padding: 0 0 calc(12px + env(safe-area-inset-bottom));
+  }
+  .kfab button {
+    pointer-events: auto; width: 100%; height: 56px; border: 0; border-radius: 19px; font-weight: 800; font-size: 16.5px;
+    color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 12px 26px -10px color-mix(in srgb, var(--accent) 85%, transparent);
+  }
+  .seg { display: flex; gap: 4px; padding: 4px; border-radius: 15px; background: color-mix(in srgb, var(--ink) 6%, transparent); margin: 0 0 14px; }
+  .seg button { flex: 1; min-width: 0; height: 40px; border: 0; background: none; border-radius: 11px; font-weight: 700; font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .seg button.on { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+  .seg.kind button.on[data-v="ausgabe"] { color: var(--danger); }
+  .seg.kind button.on[data-v="einnahme"] { color: var(--accent); }
+  .edit-sheet .amount { position: relative; }
+  .edit-sheet .amount input { font-size: 26px; font-weight: 800; padding-right: 40px; height: 58px; font-variant-numeric: tabular-nums; }
+  .edit-sheet .amount::after { content: "€"; position: absolute; right: 16px; bottom: 15px; font-size: 22px; font-weight: 800; color: var(--muted); }
+  .edit-sheet input[type="date"] { appearance: none; -webkit-appearance: none; }
+  .ktoggle { display: flex !important; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: var(--bg); color: var(--ink) !important; font-size: 15px !important; }
+  .ktoggle input { width: 22px !important; height: 22px !important; accent-color: var(--accent); flex: none; }
+  .khint { margin: -4px 4px 14px; color: var(--muted); font-size: 13.5px; font-weight: 500; }
+  .edit-sheet { max-height: 92vh; max-height: 92dvh; overflow-y: auto; }
+  .link-del { display: block; margin: 14px auto 0; border: 0; background: none; color: var(--muted); font-size: 13.5px; font-weight: 600; text-decoration: underline; }
+  .link-del.armed { color: var(--danger); }
+
   /* ---------- Artikel bearbeiten ---------- */
   .edit-overlay {
     position: fixed; inset: 0; z-index: 35; display: flex; align-items: flex-end; justify-content: center;
@@ -489,6 +564,7 @@
     <div class="tabs" role="tablist">
       <button class="tab active" data-tab="liste" role="tab">🛒 Liste</button>
       <button class="tab" data-tab="kochen" role="tab">🍳 Kochen <span class="tab-badge" id="cookBadge" hidden></span></button>
+      <button class="tab" data-tab="kasse" role="tab">💶 Kasse</button>
     </div>
   </div>
   <div class="wrap progress" id="progress" hidden>
@@ -507,6 +583,7 @@
   <div id="list"></div>
   <div id="done"></div>
   <div id="cook"></div>
+  <div id="kasse"></div>
 </main>
 
 <form class="composer" id="addForm" autocomplete="off">
@@ -602,7 +679,7 @@
 
   // --- Sync zwischen den Handys ---
   const channel = sb.channel('einkaufsliste', { config: { broadcast: { self: false } } });
-  channel.on('broadcast', { event: 'changed' }, () => { load(); loadCook(); }).subscribe();
+  channel.on('broadcast', { event: 'changed' }, () => { load(); loadCook(); if (tab === 'kasse') loadMoney(); }).subscribe();
   const ping = () => channel.send({ type: 'broadcast', event: 'changed', payload: {} }).catch(() => {});
 
   async function rpc(fn, args = {}) {
@@ -967,6 +1044,8 @@
       cookAction(act.dataset.act, act).catch(() => toast('Hat nicht geklappt – bitte nochmal versuchen.'));
       return;
     }
+    const k = e.target.closest('[data-k]');
+    if (k && k.closest('#kasse')) { kasseAction(k.dataset.k, k); return; }
     const row = e.target.closest('.item');
     if (row) {
       const id = row.dataset.id;
@@ -979,7 +1058,10 @@
       const n = state.items.filter(i => i.checked).length;
       confetti();
       mutate('clear_checked', {}, () => { state.items = state.items.filter(i => !i.checked); });
-      toast(n === 1 ? 'Geschafft! 1 Artikel weggeräumt' : `Geschafft! ${n} Artikel weggeräumt`);
+      toast(n === 1 ? 'Geschafft! 1 Artikel weggeräumt' : `Geschafft! ${n} Artikel weggeräumt`, 'Betrag eintragen', () => {
+        setTab('kasse');
+        openMoneySheet(null, { title: 'Einkauf', category: 'Lebensmittel' });
+      });
       return;
     }
     if (e.target.id === 'menuBtn') { $('menu').classList.toggle('open'); return; }
@@ -1053,10 +1135,12 @@
   function setTab(t) {
     tab = t;
     document.body.classList.toggle('mode-kochen', t === 'kochen');
+    document.body.classList.toggle('mode-kasse', t === 'kasse');
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
-    history.replaceState(null, '', t === 'kochen' ? '#kochen' : location.pathname + location.search);
+    history.replaceState(null, '', t === 'liste' ? location.pathname + location.search : '#' + t);
     window.scrollTo(0, 0);
     if (t === 'kochen') { renderCook(); loadCook(); loadCatalog(); }
+    if (t === 'kasse') { renderKasse(); loadMoney(); }
   }
 
   const seen = {
@@ -1590,6 +1674,287 @@
 
   $('notesBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openNotes(); });
 
+  // --- Kasse: Haushaltskosten mit laufendem Saldo ---
+  // Saldo in Cent aus Sicht von PEOPLE[0]: positiv = PEOPLE[1] schuldet PEOPLE[0]
+  const PEOPLE = [LOVE_FROM, LOVE_FOR];
+  const MCATS = [
+    { id: 'Wohnen', icon: '🏠' }, { id: 'Lebensmittel', icon: '🛒' }, { id: 'Energie', icon: '⚡' },
+    { id: 'Haushalt', icon: '🧴' }, { id: 'Versicherung', icon: '🛡️' }, { id: 'Auto & Verkehr', icon: '🚗' },
+    { id: 'Abos', icon: '📺' }, { id: 'Freizeit', icon: '🎉' }, { id: 'Gesundheit', icon: '💊' }, { id: 'Sonstiges', icon: '📦' },
+  ];
+  let money = null;      // { entries, fixed, month }
+  let kMonth = null;     // angezeigter Monat, 'YYYY-MM-01'
+
+  const meP = () => PEOPLE.find(p => me.trim().toLowerCase().startsWith(p.toLowerCase())) || PEOPLE[0];
+  const other = p => PEOPLE[0] === p ? PEOPLE[1] : PEOPLE[0];
+  const cents = e => Math.round(Number(e.amount) * 100);
+  const euro = c => (Math.round(c) / 100).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+  const ym = d => String(d).slice(0, 7);
+  const todayIso = () => new Date().toLocaleDateString('sv');
+  const monthName = m => new Date(m + 'T12:00').toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+  const addMonths = (m, n) => { const d = new Date(m + 'T12:00'); d.setMonth(d.getMonth() + n, 1); return d.toLocaleDateString('sv').slice(0, 8) + '01'; };
+  const micon = e => e.kind === 'einnahme' ? '💰' : e.kind === 'ausgleich' ? '🤝' : (MCATS.find(c => c.id === e.category) || MCATS[MCATS.length - 1]).icon;
+  const shareLabel = s => s === 'beide' ? 'für beide' : `nur ${s}`;
+
+  function parseAmount(s) {
+    s = String(s).replace(/[\s€]/g, '');
+    // „1.000,50“ und „1.000“ sind deutsch, „12.5“ ist ein Dezimalpunkt
+    if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+    const n = Number(s);
+    return Number.isFinite(n) && n > 0 && n < 1e7 ? Math.round(n * 100) / 100 : null;
+  }
+
+  // Anteil, den eine Person trägt (Ausgabe) bzw. der ihr zusteht (Einnahme)
+  const shareOf = (e, p) => e.share === 'beide' ? cents(e) / 2 : e.share === p ? cents(e) : 0;
+  const paidOf = (e, p) => e.paid_by === p ? cents(e) : 0;
+  function effect(e) {
+    const p = PEOPLE[0];
+    return e.kind === 'einnahme' ? shareOf(e, p) - paidOf(e, p) : paidOf(e, p) - shareOf(e, p);
+  }
+
+  let moneyReq = null;
+  function loadMoney() {
+    if (!pin) return Promise.resolve();
+    return moneyReq ||= (async () => {
+      try {
+        const wasCurrent = !money || kMonth === money.month;
+        money = await rpc('get_money');
+        // Wer den laufenden Monat ansieht, wandert beim Monatswechsel mit
+        if (!kMonth || wasCurrent || kMonth > money.month) kMonth = money.month;
+        if (tab === 'kasse') renderKasse();
+      } catch {} finally { moneyReq = null; }
+    })();
+  }
+
+  async function moneyMutate(fn, args) {
+    try { await rpc(fn, args); ping(); }
+    catch { toast('Hat nicht geklappt – bitte nochmal versuchen.'); }
+    await loadMoney();
+  }
+
+  function renderKasse() {
+    const el = $('kasse');
+    if (!money) { el.innerHTML = `<div class="cook-empty"><div class="big">💶</div><strong>Lädt …</strong></div>`; return; }
+    const [A, B] = PEOPLE;
+    const bal = money.entries.reduce((s, e) => s + effect(e), 0);
+    const even = Math.abs(bal) < 1;
+    const [creditor, debtor] = bal > 0 ? [A, B] : [B, A];
+
+    const inMonth = money.entries.filter(e => ym(e.day) === ym(kMonth));
+    const costs = inMonth.filter(e => e.kind !== 'ausgleich');
+    const sum = k => costs.filter(e => e.kind === k).reduce((s, e) => s + cents(e), 0);
+    const out = sum('ausgabe'), inc = sum('einnahme');
+    const person = p => {
+      const paid = costs.reduce((s, e) => s + (e.kind === 'einnahme' ? -paidOf(e, p) : paidOf(e, p)), 0);
+      const part = costs.reduce((s, e) => s + (e.kind === 'einnahme' ? -shareOf(e, p) : shareOf(e, p)), 0);
+      const res = paid - part;
+      return `<div><h4>${esc(p)}</h4>
+        <p>Bezahlt <b>${euro(paid)}</b></p>
+        <p>Anteil <b>${euro(part)}</b></p>
+        <p class="res">Saldo <b class="${res > 0.5 ? 'plus' : res < -0.5 ? 'minus' : ''}">${res > 0.5 ? '+' : ''}${euro(res)}</b></p></div>`;
+    };
+    const row = e => {
+      const sub = e.kind === 'ausgleich' ? `${esc(e.paid_by)} → ${esc(e.share)}`
+        : e.kind === 'einnahme' ? `${esc(e.paid_by)} hat bekommen · ${shareLabel(e.share)}`
+        : `${esc(e.paid_by)} hat bezahlt · ${shareLabel(e.share)}`;
+      const day = e.fixed_id ? '' : `${new Date(e.day + 'T12:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' })} · `;
+      const cls = e.kind === 'einnahme' ? 'in' : e.kind === 'ausgleich' ? 'tr' : '';
+      return `<div class="mrow" data-k="entry" data-id="${esc(e.id)}">
+        <div class="kicon ${cls}">${micon(e)}</div>
+        <div class="mt"><b>${esc(e.title)}</b><span>${day}${sub}</span></div>
+        <div class="kamt ${cls}">${e.kind === 'einnahme' ? '+' : ''}${euro(cents(e))}</div></div>`;
+    };
+    const list = (items, empty) => items.length
+      ? `<div class="mlist klist">${items.map(row).join('')}</div>` : `<div class="mlist"><div class="kempty">${empty}</div></div>`;
+    const fixedRows = inMonth.filter(e => e.fixed_id);
+    const varRows = inMonth.filter(e => !e.fixed_id);
+    const fixedMonthly = money.fixed.filter(f => !f.until || f.until > money.month)
+      .reduce((s, f) => s + (f.kind === 'einnahme' ? -1 : 1) * cents(f), 0);
+
+    el.innerHTML = `
+      <div class="kbal${even ? ' even' : ''}">
+        <small>Stand zwischen euch</small>
+        <span class="big">${even ? '0,00 €' : euro(Math.abs(bal))}</span>
+        <span class="who">${even ? 'Ihr seid quitt ✓' : `${esc(creditor)} bekommt das von ${esc(debtor)}`}</span>
+        ${even ? '' : `<br><button class="settle" data-k="settle">🤝 Ausgleichen</button>`}
+      </div>
+
+      <div class="kmonth">
+        <button data-k="prev" aria-label="Vormonat">‹</button>
+        <h2>${monthName(kMonth)}</h2>
+        <button data-k="next" aria-label="Nächster Monat" ${kMonth >= money.month ? 'disabled' : ''}>›</button>
+      </div>
+      <div class="ksum">
+        <div class="kstats">
+          <div><small>Ausgaben</small><b>${euro(out)}</b></div>
+          <div><small>Einnahmen</small><b class="${inc ? 'plus' : ''}">${euro(inc)}</b></div>
+          <div><small>Netto</small><b>${euro(out - inc)}</b></div>
+        </div>
+        <div class="kpeople">${person(A)}${person(B)}</div>
+      </div>
+
+      <div class="section-title">📌 Fixkosten</div>
+      ${list(fixedRows, 'Noch keine Fixkosten. Beim Eintragen „Jeden Monat“ anhaken.')}
+      <div class="section-title">🧾 Weitere Einträge</div>
+      ${list(varRows, 'Noch nichts eingetragen in diesem Monat.')}
+
+      ${money.fixed.length ? `<div class="section-title">⚙️ Fixkosten verwalten</div>
+      <div class="section-sub">Pro Monat ${euro(fixedMonthly)} · Änderungen gelten ab diesem Monat</div>
+      <div class="mlist klist">${money.fixed.map(f => `
+        <div class="mrow" data-k="fixed" data-id="${esc(f.id)}">
+          <div class="kicon ${f.kind === 'einnahme' ? 'in' : ''}">${micon(f)}</div>
+          <div class="mt"><b>${esc(f.title)}</b><span>${esc(f.paid_by)} ${f.kind === 'einnahme' ? 'bekommt' : 'zahlt'} · ${shareLabel(f.share)}${f.until ? ' · endet nach diesem Monat' : ''}</span></div>
+          <div class="kamt ${f.kind === 'einnahme' ? 'in' : ''}">${euro(cents(f))}</div></div>`).join('')}</div>` : ''}
+
+      <div class="kfab"><div class="wrap"><button data-k="add">＋ Ausgabe oder Einnahme</button></div></div>`;
+  }
+
+  function kasseAction(act, t) {
+    if (act === 'prev') { kMonth = addMonths(kMonth, -1); renderKasse(); return; }
+    if (act === 'next') { kMonth = addMonths(kMonth, 1); renderKasse(); return; }
+    if (act === 'add') { openMoneySheet(null); return; }
+    if (act === 'settle') { openSettleSheet(); return; }
+    if (act === 'entry') {
+      const e = money.entries.find(x => x.id === t.dataset.id);
+      if (e) e.kind === 'ausgleich' ? openSettleSheet(e) : openMoneySheet(e);
+      return;
+    }
+    if (act === 'fixed') {
+      const f = money.fixed.find(x => x.id === t.dataset.id);
+      if (f) openMoneySheet(f, { template: true });
+    }
+  }
+
+  const seg = (name, opts, val, cls = '') => `<div class="seg ${cls}" data-seg="${name}">${opts.map(([v, l]) =>
+    `<button type="button" data-v="${esc(v)}" class="${v === val ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  const segVal = (f, name) => f.querySelector(`[data-seg="${name}"] .on`)?.dataset.v;
+  function segClicks(o, onChange) {
+    o.addEventListener('click', e => {
+      const b = e.target.closest('.seg button');
+      if (!b) return;
+      b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+      onChange?.(b.parentElement.dataset.seg, b.dataset.v);
+    });
+  }
+
+  // Ausgabe/Einnahme anlegen oder ändern; mit template = Fixkosten-Vorlage
+  function openMoneySheet(e, opt = {}) {
+    if (!money) { loadMoney().then(() => money && openMoneySheet(e, opt)); return; }
+    if (document.querySelector('.edit-overlay')) return;
+    const isNew = !e, tpl = !!opt.template;
+    const v = e || { kind: 'ausgabe', title: opt.title || '', amount: '', paid_by: meP(), share: 'beide', category: opt.category || '' };
+    const curMonth = ym(kMonth) === ym(money.month);
+    const defDay = curMonth ? todayIso() : kMonth;
+    const amountStr = v.amount ? Number(v.amount).toFixed(2).replace('.', ',') : '';
+    const { o, f, close } = openSheet(`
+      <h2>${tpl ? (isNew ? 'Neue Fixkosten' : 'Fixkosten ändern') : isNew ? 'Neuer Eintrag' : 'Eintrag ändern'}</h2>
+      ${seg('kind', [['ausgabe', '− Ausgabe'], ['einnahme', '+ Einnahme']], v.kind, 'kind')}
+      <div class="edit-row">
+        <label class="amount" style="flex:1"><span>Betrag</span><input name="amount" inputmode="decimal" placeholder="0,00" value="${esc(amountStr)}" enterkeyhint="next"></label>
+      </div>
+      <label><span>Wofür</span><input name="title" maxlength="80" value="${esc(v.title)}" placeholder="z. B. Miete, Wocheneinkauf" enterkeyhint="done"></label>
+      <label><span class="lbl-paid">${v.kind === 'einnahme' ? 'Bekommen hat' : 'Bezahlt hat'}</span></label>
+      ${seg('paid', PEOPLE.map(p => [p, esc(p)]), v.paid_by)}
+      <label><span class="lbl-share">${v.kind === 'einnahme' ? 'Steht zu' : 'Wer trägt die Kosten'}</span></label>
+      ${seg('share', [['beide', 'Beide je ½'], ...PEOPLE.map(p => [p, 'nur ' + esc(p)])], v.share)}
+      <div class="mcats" ${v.kind === 'einnahme' ? 'hidden' : ''}>
+        <label><span>Kategorie</span></label>
+        <div class="edit-cats">${MCATS.map(c => `<button type="button" class="chip${c.id === v.category ? ' on' : ''}" data-mcat="${esc(c.id)}" style="--c:#4cc27a">${c.icon} ${esc(c.id)}</button>`).join('')}</div>
+      </div>
+      ${tpl || e?.fixed_id ? '' : `<label><span>Datum</span><input name="day" type="date" value="${esc(e ? e.day : defDay)}"></label>`}
+      ${isNew && !tpl ? `<label class="ktoggle"><input type="checkbox" name="monthly"> 📌 Jeden Monat (Fixkosten)</label><div style="height:14px"></div>` : ''}
+      ${e?.fixed_id ? `<p class="khint">📌 Fixkosten: Diese Änderung gilt nur für ${monthName(kMonth)}. Dauerhaft änderst du sie unter „Fixkosten verwalten“.</p>` : ''}
+      ${tpl && !isNew ? `<p class="khint">Änderungen gelten ab ${monthName(money.month)}, frühere Monate bleiben, wie sie waren.</p>` : ''}
+      <div class="edit-actions">
+        ${isNew ? '' : `<button type="button" class="btn-line del-btn">${tpl ? 'Beenden' : 'Löschen'}</button>`}
+        <button type="submit" class="btn-line go">Speichern</button>
+      </div>
+      ${tpl && !isNew ? `<button type="button" class="link-del">Aus Versehen angelegt? Ganz löschen</button>` : ''}`);
+    let cat = v.category || '';
+    segClicks(o, (name, val) => {
+      if (name !== 'kind') return;
+      const inc = val === 'einnahme';
+      o.querySelector('.lbl-paid').textContent = inc ? 'Bekommen hat' : 'Bezahlt hat';
+      o.querySelector('.lbl-share').textContent = inc ? 'Steht zu' : 'Wer trägt die Kosten';
+      o.querySelector('.mcats').hidden = inc;
+    });
+    o.addEventListener('click', ev => {
+      const c = ev.target.closest('[data-mcat]');
+      if (c) {
+        cat = c.classList.contains('on') ? '' : c.dataset.mcat;
+        o.querySelectorAll('[data-mcat]').forEach(b => b.classList.toggle('on', b.dataset.mcat === cat));
+        if (!f.elements.title.value.trim() && cat) f.elements.title.placeholder = cat;
+        return;
+      }
+      if (ev.target.closest('.del-btn')) {
+        close();
+        if (tpl) { moneyMutate('end_fixed', { p_id: e.id, p_remove: false }); toast(`„${e.title}“ endet nach diesem Monat`); }
+        else {
+          moneyMutate('delete_entry', { p_id: e.id });
+          toast(`„${e.title}“ gelöscht`, 'Rückgängig', () => moneyMutate('delete_entry', { p_id: e.id, p_restore: true }));
+        }
+        return;
+      }
+      const ld = ev.target.closest('.link-del');
+      if (ld) {
+        if (!ld.classList.contains('armed')) { ld.classList.add('armed'); ld.textContent = 'Wirklich löschen? Auch alle früheren Monate. Nochmal tippen'; return; }
+        close();
+        moneyMutate('end_fixed', { p_id: e.id, p_remove: true });
+      }
+    });
+    f.addEventListener('submit', ev => {
+      ev.preventDefault();
+      const amount = parseAmount(f.elements.amount.value);
+      if (!amount) { f.elements.amount.focus(); toast('Bitte einen Betrag eingeben, z. B. 12,50'); return; }
+      const kind = segVal(f, 'kind');
+      const title = f.elements.title.value.trim() || (kind === 'einnahme' ? 'Einnahme' : cat || 'Ausgabe');
+      const args = { p_kind: kind, p_title: title, p_amount: amount, p_paid_by: segVal(f, 'paid'), p_share: segVal(f, 'share'), p_category: kind === 'einnahme' ? '' : cat };
+      close();
+      if (tpl || f.elements.monthly?.checked) {
+        moneyMutate('save_fixed', { p_id: tpl && !isNew ? e.id : null, ...args, p_from: kMonth });
+        if (isNew) toast(`📌 „${title}“ kommt jetzt jeden Monat`);
+      } else {
+        moneyMutate('save_entry', { p_id: e ? e.id : null, ...args, p_day: f.elements.day?.value || null, p_by: me });
+      }
+    });
+    if (isNew) setTimeout(() => f.elements.amount.focus(), 320);
+  }
+
+  // Überweisung zwischen euch eintragen
+  function openSettleSheet(e) {
+    if (document.querySelector('.edit-overlay')) return;
+    const bal = money.entries.filter(x => x !== e).reduce((s, x) => s + effect(x), 0);
+    const from = e ? e.paid_by : bal > 0 ? PEOPLE[1] : PEOPLE[0];
+    const amt = e ? cents(e) : Math.round(Math.abs(bal));
+    const { o, f, close } = openSheet(`
+      <h2>🤝 ${e ? 'Ausgleich ändern' : 'Ausgleichen'}</h2>
+      <p class="khint">Tragt hier ein, wenn einer dem anderen Geld überwiesen oder bar gegeben hat.</p>
+      ${seg('from', PEOPLE.map(p => [p, `${esc(p)} → ${esc(other(p))}`]), from)}
+      <label class="amount"><span>Betrag</span><input name="amount" inputmode="decimal" value="${amt ? (amt / 100).toFixed(2).replace('.', ',') : ''}"></label>
+      <label><span>Datum</span><input name="day" type="date" value="${esc(e ? e.day : todayIso())}"></label>
+      <div class="edit-actions">
+        ${e ? '<button type="button" class="btn-line del-btn">Löschen</button>' : ''}
+        <button type="submit" class="btn-line go">Ausgleich speichern</button>
+      </div>`);
+    segClicks(o);
+    o.addEventListener('click', ev => {
+      if (!ev.target.closest('.del-btn')) return;
+      close();
+      moneyMutate('delete_entry', { p_id: e.id });
+      toast('Ausgleich gelöscht', 'Rückgängig', () => moneyMutate('delete_entry', { p_id: e.id, p_restore: true }));
+    });
+    f.addEventListener('submit', ev => {
+      ev.preventDefault();
+      const amount = parseAmount(f.elements.amount.value);
+      if (!amount) { f.elements.amount.focus(); return; }
+      const p = segVal(f, 'from');
+      close();
+      moneyMutate('save_entry', { p_id: e ? e.id : null, p_kind: 'ausgleich', p_title: 'Ausgleich', p_amount: amount, p_paid_by: p, p_share: other(p), p_category: '', p_day: f.elements.day.value || null, p_by: me });
+      if (!e) toast(`🤝 ${p} hat ${other(p)} ${euro(amount * 100)} gegeben`);
+    });
+  }
+
   // --- Anmeldung ---
   function logout(msg) {
     pin = null;
@@ -1627,12 +1992,12 @@
   setCat('Sonstiges');
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-  if (location.hash === '#kochen') setTab('kochen');
+  if (location.hash === '#kochen' || location.hash === '#kasse') setTab(location.hash.slice(1));
 
   if (pin) { renderMenu(); load(); loadCook(); setTimeout(loveNote, 700); }
   else logout();
 
-  const refresh = () => { if (!document.hidden) { load(); loadCook(); loveNote(); } };
+  const refresh = () => { if (!document.hidden) { load(); loadCook(); loveNote(); if (tab === 'kasse') loadMoney(); } };
   setInterval(refresh, 15000);
   document.addEventListener('visibilitychange', refresh);
   window.addEventListener('focus', refresh);
