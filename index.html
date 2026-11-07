@@ -509,6 +509,14 @@
 
   /* ---------- Liebe Sprüche ---------- */
   .menu button[hidden] { display: none; }
+  .ord-list { margin: 0 0 16px; border-radius: 16px; overflow: hidden; background: var(--bg); }
+  .ord-row { --c: #888; display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 10px; }
+  .ord-row + .ord-row { border-top: 1px solid var(--line); }
+  .ord-row .n { width: 18px; color: var(--muted); font-size: 13px; font-weight: 700; text-align: right; }
+  .ord-row .b { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; font-size: 15px; background: color-mix(in srgb, var(--c) var(--tint-strong), var(--surface)); }
+  .ord-row span.t { flex: 1; font-size: 15px; font-weight: 600; }
+  .ord-row button { width: 36px; height: 34px; border: 0; border-radius: 10px; font-size: 17px; font-weight: 700; background: var(--surface); color: var(--ink); }
+  .ord-row button:disabled { opacity: .25; }
   .love-card {
     position: relative; width: 100%; max-width: 340px; border-radius: 30px; padding: 34px 24px 22px; text-align: center; overflow: hidden;
     color: #fff; background: linear-gradient(160deg, #ff8fa8, #ff4f7b 55%, #d6336c);
@@ -580,6 +588,7 @@
   </div>
   <div class="menu" id="menu">
     <div class="who" id="who"></div>
+    <button id="orderBtn">🧭 Reihenfolge im Laden</button>
     <button id="notesBtn" hidden>💌 Sprüche für Karin</button>
     <button id="reloadBtn">Neu laden</button>
     <button id="logoutBtn">Abmelden</button>
@@ -634,7 +643,7 @@
   const SUPABASE_URL = 'https://xzaanhidtjvicsbtbsvk.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_GBMxJjEZKvwsXL1T_ANSQQ_GLdFKxQs';
 
-  // Reihenfolge = Weg durch den Discounter
+  // Reihenfolge = typischer Weg durch den Discounter (Penny, Lidl, Aldi); im Menü änderbar
   const CATS = [
     { id: 'Obst & Gemüse', icon: '🥦', color: '#3f9d4b', kw: ['apfel', 'äpfel', 'banane', 'birne', 'tomate', 'gurke', 'salat', 'paprika', 'zwiebel', 'kartoffel', 'möhre', 'karotte', 'zitrone', 'limette', 'orange', 'mandarine', 'beere', 'traube', 'avocado', 'knoblauch', 'pilz', 'champignon', 'zucchini', 'brokkoli', 'spinat', 'kräuter', 'petersilie', 'basilikum', 'ingwer', 'lauch', 'kohl', 'obst', 'gemüse', 'mango', 'kiwi', 'melone', 'aubergine', 'radieschen', 'rucola', 'sellerie', 'pflaume', 'pfirsich', 'nektarine', 'ananas'] },
     { id: 'Brot & Backwaren', icon: '🥖', color: '#d08a26', kw: ['brot', 'brötchen', 'toast', 'baguette', 'croissant', 'brezel', 'laugen', 'kuchen', 'wrap', 'tortilla', 'semmel', 'knäcke'] },
@@ -642,13 +651,15 @@
     { id: 'Fleisch & Fisch', icon: '🥩', color: '#d4564a', kw: ['fleisch', 'hack', 'hähnchen', 'huhn', 'pute', 'wurst', 'schinken', 'salami', 'steak', 'schnitzel', 'lachs', 'fisch', 'speck', 'würstchen', 'bacon', 'garnelen', 'thunfisch', 'aufschnitt', 'gyros', 'bratwurst'] },
     { id: 'Vorrat', icon: '🥫', color: '#e07a2e', kw: ['nudeln', 'pasta', 'spaghetti', 'penne', 'reis', 'mehl', 'zucker', 'salz', 'öl', 'olivenöl', 'essig', 'konserve', 'dose', 'tomatenmark', 'passierte', 'dosentomaten', 'linsen', 'bohnen', 'mais', 'soße', 'sauce', 'ketchup', 'senf', 'mayo', 'brühe', 'gewürz', 'pfeffer', 'paprikapulver', 'pesto', 'backpulver', 'kokosmilch', 'kichererbsen', 'couscous', 'bulgur'] },
     { id: 'Frühstück & Süßes', icon: '🍫', color: '#d0559a', kw: ['müsli', 'cornflakes', 'haferflocken', 'marmelade', 'konfitüre', 'honig', 'nutella', 'schokolade', 'schoko', 'kekse', 'chips', 'gummibär', 'süßigkeit', 'riegel', 'kaffee', 'tee', 'kakao', 'nüsse', 'aufstrich', 'erdnuss', 'cracker', 'salzstangen', 'popcorn', 'bonbons'] },
+    { id: 'Drogerie & Haushalt', icon: '🧴', color: '#8a63d2', kw: ['klopapier', 'toilettenpapier', 'küchenrolle', 'küchenpapier', 'spüli', 'spülmittel', 'waschmittel', 'weichspüler', 'shampoo', 'duschgel', 'zahnpasta', 'zahnbürste', 'zahnseide', 'deo', 'seife', 'müllbeutel', 'müllsäcke', 'taschentücher', 'feuchttücher', 'windeln', 'schwamm', 'alufolie', 'frischhaltefolie', 'backpapier', 'batterien', 'creme', 'rasier', 'tabs', 'reiniger', 'tampons', 'binden', 'wattepads', 'gefrierbeutel', 'kerzen'] },
     { id: 'Getränke', icon: '🥤', color: '#1fa395', kw: ['wasser', 'saft', 'bier', 'wein', 'cola', 'limo', 'sprudel', 'eistee', 'sekt', 'mate', 'smoothie', 'schorle', 'radler', 'energy', 'sirup', 'hafermilch', 'sojamilch', 'mandelmilch'] },
     { id: 'Tiefkühl', icon: '🧊', color: '#5a73d6', kw: ['tk', 'tiefkühl', 'pizza', 'eis', 'pommes', 'fischstäbchen', 'kroketten', 'rahmspinat', 'eiswürfel'] },
-    { id: 'Drogerie & Haushalt', icon: '🧴', color: '#8a63d2', kw: ['klopapier', 'toilettenpapier', 'küchenrolle', 'küchenpapier', 'spüli', 'spülmittel', 'waschmittel', 'weichspüler', 'shampoo', 'duschgel', 'zahnpasta', 'zahnbürste', 'zahnseide', 'deo', 'seife', 'müllbeutel', 'müllsäcke', 'taschentücher', 'feuchttücher', 'windeln', 'schwamm', 'alufolie', 'frischhaltefolie', 'backpapier', 'batterien', 'creme', 'rasier', 'tabs', 'reiniger', 'tampons', 'binden', 'wattepads', 'gefrierbeutel', 'kerzen'] },
     { id: 'Sonstiges', icon: '📦', color: '#8a8a80', kw: [] },
   ];
   const catOf = id => CATS.find(c => c.id === id) || CATS[CATS.length - 1];
-  const catIndex = id => { const i = CATS.findIndex(c => c.id === id); return i < 0 ? CATS.length - 1 : i; };
+  // Gemeinsame Reihenfolge aus der Datenbank, sonst die Standard-Reihenfolge von oben
+  const catOrder = () => state.cat_order?.length ? state.cat_order : CATS.map(c => c.id);
+  const catIndex = id => { const i = catOrder().indexOf(id); return i < 0 ? CATS.length : i; };
 
   // Längster passender Begriff gewinnt ("Tomatenmark" → Vorrat, nicht Obst & Gemüse)
   function guessCategory(name) {
@@ -1687,6 +1698,47 @@
     $('notesBtn').hidden = isLoveFor();
   }
 
+  // Kategorien in Ladenreihenfolge bringen – gilt für beide
+  function openOrderSheet() {
+    let order = [...catOrder(), ...CATS.map(c => c.id).filter(id => !catOrder().includes(id))];
+    const { o, f, close } = openSheet(`
+      <h2>🧭 Reihenfolge im Laden</h2>
+      <p class="khint">So, wie ihr durch euren Markt lauft. Die Liste sortiert sich danach, für euch beide.</p>
+      <div class="ord-list"></div>
+      <div class="edit-actions">
+        <button type="button" class="btn-line" data-reset>Standard</button>
+        <button type="submit" class="btn-line go">Speichern</button>
+      </div>`);
+    const list = o.querySelector('.ord-list');
+    const draw = () => {
+      list.innerHTML = order.map((id, i) => {
+        const c = catOf(id);
+        return `<div class="ord-row" style="--c:${c.color}"><span class="n">${i + 1}</span><span class="b">${c.icon}</span><span class="t">${esc(c.id)}</span>
+          <button type="button" data-mv="-1" data-i="${i}" aria-label="Nach oben" ${i ? '' : 'disabled'}>↑</button>
+          <button type="button" data-mv="1" data-i="${i}" aria-label="Nach unten" ${i < order.length - 1 ? '' : 'disabled'}>↓</button></div>`;
+      }).join('');
+    };
+    draw();
+    o.addEventListener('click', e => {
+      const b = e.target.closest('[data-mv]');
+      if (b) {
+        const i = Number(b.dataset.i), j = i + Number(b.dataset.mv);
+        [order[i], order[j]] = [order[j], order[i]];
+        draw();
+        return;
+      }
+      if (e.target.closest('[data-reset]')) { order = CATS.map(c => c.id); draw(); }
+    });
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      close();
+      const def = CATS.map(c => c.id).join('|') === order.join('|');
+      mutate('set_cat_order', { p_order: def ? [] : order }, () => { state.cat_order = def ? null : order; });
+      toast('Reihenfolge gespeichert');
+    });
+  }
+
+  $('orderBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openOrderSheet(); });
   $('notesBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openNotes(); });
 
   // --- Kasse: Haushaltskosten mit laufendem Saldo ---
