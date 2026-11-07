@@ -86,25 +86,25 @@
     backdrop-filter: saturate(1.6) blur(18px);
     -webkit-backdrop-filter: saturate(1.6) blur(18px);
   }
-  .head { display: flex; align-items: flex-start; justify-content: space-between; padding-top: 20px; padding-bottom: 14px; gap: 12px; }
-  .date { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .01em; display: flex; align-items: center; gap: 7px; }
-  h1 { margin: 2px 0 0; font-size: 36px; line-height: 1.05; letter-spacing: -.035em; font-weight: 800; }
+  .head { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; padding-bottom: 8px; gap: 12px; }
+  .date { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .01em; display: flex; align-items: center; gap: 7px; }
+  h1 { margin: 1px 0 0; font-size: 26px; line-height: 1.05; letter-spacing: -.035em; font-weight: 800; }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
   .dot.off { background: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 20%, transparent); }
   .icon-btn {
-    flex: none; width: 42px; height: 42px; border-radius: 14px; border: 0; margin-top: 6px;
+    flex: none; width: 38px; height: 38px; border-radius: 13px; border: 0;
     background: var(--surface); box-shadow: var(--shadow); display: grid; place-items: center; font-size: 20px; line-height: 1;
   }
 
-  .progress { padding-bottom: 14px; }
+  .progress { padding-bottom: 8px; }
   .progress[hidden] { display: none; }
-  .progress-top { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 7px; }
+  .progress-top { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
   .progress-top b { color: var(--ink); font-weight: 700; }
-  .bar { height: 8px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 8%, transparent); overflow: hidden; }
+  .bar { height: 5px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 8%, transparent); overflow: hidden; }
   .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .5s cubic-bezier(.2, .8, .2, 1); }
 
   .menu {
-    position: absolute; right: 16px; top: calc(env(safe-area-inset-top) + 70px);
+    position: absolute; right: 16px; top: calc(env(safe-area-inset-top) + 54px);
     background: var(--surface); border-radius: 18px; box-shadow: var(--shadow-lg);
     padding: 6px; min-width: 230px; display: none; transform-origin: top right;
   }
@@ -113,32 +113,32 @@
   .menu button { display: block; width: 100%; text-align: left; padding: 11px 12px; border: 0; background: none; border-radius: 12px; font-weight: 600; }
   .menu button:active { background: color-mix(in srgb, var(--ink) 6%, transparent); }
 
-  main { padding-bottom: calc(200px + env(safe-area-inset-bottom)); }
+  main { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
 
   /* ---------- Kategorie-Karten ---------- */
   .group {
     --c: #888;
-    margin-top: 14px; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden;
+    margin-top: 8px; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-sm); overflow: hidden;
   }
   .group-head {
-    display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 10px;
+    display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 7px;
     background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
   }
   .badge {
-    width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; font-size: 18px;
+    width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; font-size: 13px;
     background: color-mix(in srgb, var(--c) var(--tint-strong), var(--surface));
   }
-  .group-head h2 { margin: 0; flex: 1; font-size: 15px; font-weight: 700; letter-spacing: -.01em; color: color-mix(in srgb, var(--c) 70%, var(--ink)); }
+  .group-head h2 { margin: 0; flex: 1; font-size: 13.5px; font-weight: 700; letter-spacing: -.01em; color: color-mix(in srgb, var(--c) 70%, var(--ink)); }
   .group-head .n {
-    min-width: 26px; height: 24px; padding: 0 8px; border-radius: 99px; display: grid; place-items: center;
-    font-size: 13px; font-weight: 700; color: color-mix(in srgb, var(--c) 75%, var(--ink));
+    min-width: 22px; height: 20px; padding: 0 7px; border-radius: 99px; display: grid; place-items: center;
+    font-size: 12px; font-weight: 700; color: color-mix(in srgb, var(--c) 75%, var(--ink));
     background: color-mix(in srgb, var(--c) var(--tint-strong), var(--surface));
   }
 
   ul { list-style: none; margin: 0; padding: 0; }
   .item { --c: #888; position: relative; overflow: hidden; }
   .item + .item .inner::before {
-    content: ""; position: absolute; top: 0; left: 54px; right: 0; height: 1px; background: var(--line);
+    content: ""; position: absolute; top: 0; left: 42px; right: 0; height: 1px; background: var(--line);
   }
   .swipe-bg {
     position: absolute; inset: 0; background: color-mix(in srgb, var(--danger) 70%, var(--surface)); color: #fff;
@@ -148,28 +148,28 @@
   .item.swiping .swipe-bg { opacity: 1; }
   .item.armed .swipe-bg { background: var(--danger); }
   .inner {
-    position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 8px 12px 14px; min-height: 58px;
+    position: relative; display: flex; align-items: center; gap: 10px; padding: 4px 12px 4px 10px; min-height: 37px;
     background: var(--surface); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: pan-y;
   }
   .check {
-    flex: none; width: 28px; height: 28px; border-radius: 50%; padding: 0;
-    border: 2.2px solid color-mix(in srgb, var(--c) 55%, var(--line)); background: none;
+    flex: none; width: 22px; height: 22px; border-radius: 50%; padding: 0;
+    border: 2px solid color-mix(in srgb, var(--c) 55%, var(--line)); background: none;
     display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s;
   }
-  .check svg { width: 15px; height: 15px; color: #fff; }
+  .check svg { width: 12px; height: 12px; color: #fff; }
   .check path { stroke-dasharray: 24; stroke-dashoffset: 24; transition: stroke-dashoffset .25s ease-out .05s; }
   .item.done .check, .item.ticking .check { background: var(--c); border-color: var(--c); }
   .item.done .check path, .item.ticking .check path { stroke-dashoffset: 0; }
   .item.ticking .check { animation: tick .32s cubic-bezier(.3, 1.6, .5, 1); }
   .item.ticking .name { color: var(--muted); }
   .text { flex: 1; min-width: 0; }
-  .name { font-size: 17px; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; transition: color .2s; }
+  .name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; transition: color .2s; }
   .qty {
-    display: inline-block; margin-left: 7px; padding: 1px 8px; border-radius: 99px; font-size: 13px; font-weight: 700; vertical-align: 1px;
+    flex: none; padding: 1px 8px; border-radius: 99px; font-size: 12.5px; font-weight: 700; white-space: nowrap;
     color: color-mix(in srgb, var(--c) 80%, var(--ink)); background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
   }
-  .by { display: block; color: var(--muted); font-size: 12.5px; font-weight: 500; margin-top: 1px; }
-  .del { flex: none; width: 36px; height: 36px; border: 0; background: none; color: var(--muted); font-size: 22px; border-radius: 12px; display: none; }
+  .by { display: inline-block; max-width: 48%; margin-left: 6px; vertical-align: -2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 12px; font-weight: 500; }
+  .del { flex: none; width: 30px; height: 30px; border: 0; background: none; color: var(--muted); font-size: 20px; border-radius: 10px; display: none; }
   @media (hover: hover) {
     .del { display: block; opacity: 0; transition: opacity .15s; }
     .item:hover .del { opacity: .7; }
@@ -178,7 +178,7 @@
   .item.enter .inner { animation: slideIn .35s cubic-bezier(.2, .8, .2, 1); }
 
   /* ---------- Im Wagen ---------- */
-  .done-head { display: flex; justify-content: space-between; align-items: center; margin: 30px 2px 10px; }
+  .done-head { display: flex; justify-content: space-between; align-items: center; margin: 20px 2px 8px; }
   .done-head h2 { margin: 0; font-size: 15px; font-weight: 700; color: var(--muted); }
   .finish {
     border: 0; padding: 10px 16px; border-radius: 99px; font-weight: 700; font-size: 14px;
@@ -206,9 +206,10 @@
   .panel {
     pointer-events: auto; background: color-mix(in srgb, var(--surface) 88%, transparent);
     backdrop-filter: saturate(1.6) blur(20px); -webkit-backdrop-filter: saturate(1.6) blur(20px);
-    border-radius: 26px; box-shadow: var(--shadow-lg); padding: 12px 10px 10px;
+    border-radius: 22px; box-shadow: var(--shadow-lg); padding: 8px;
     border: 1px solid color-mix(in srgb, var(--ink) 6%, transparent);
   }
+  .composer:not(.typing) :is(.chips, .chips-label) { display: none !important; }
   .chips-label { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 7px 6px; }
   .chips { display: flex; gap: 7px; overflow-x: auto; padding: 0 2px 10px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
@@ -227,17 +228,17 @@
   }
   .field:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
   .cat {
-    --c: #888; position: relative; flex: none; width: 40px; height: 40px; margin-left: 5px; border-radius: 13px;
+    --c: #888; position: relative; flex: none; width: 34px; height: 34px; margin-left: 5px; border-radius: 11px;
     display: grid; place-items: center; font-size: 19px; transition: background .2s;
     background: color-mix(in srgb, var(--c) var(--tint-strong), var(--surface));
   }
   .cat select { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; }
-  .field input { border: 0; background: none; outline: none; padding: 0 10px; height: 50px; min-width: 0; font-size: 17px; font-weight: 600; }
+  .field input { border: 0; background: none; outline: none; padding: 0 10px; height: 44px; min-width: 0; font-size: 17px; font-weight: 600; }
   .field input::placeholder { color: var(--muted); font-weight: 500; }
   #name { flex: 1; }
   #qty { width: 70px; flex: none; text-align: center; font-size: 15px; border-left: 1.5px solid var(--line); height: 28px; }
   .add {
-    flex: none; width: 52px; height: 52px; border-radius: 18px; border: 0; display: grid; place-items: center;
+    flex: none; width: 46px; height: 46px; border-radius: 16px; border: 0; display: grid; place-items: center;
     background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink);
     box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--accent) 80%, transparent);
     transition: transform .12s, opacity .2s, filter .2s;
@@ -274,10 +275,10 @@
   .err { color: var(--danger); font-size: 14px; font-weight: 600; min-height: 20px; margin-top: 12px; text-align: center; }
 
   /* ---------- Tabs ---------- */
-  .tabs-wrap { padding-bottom: 14px; }
+  .tabs-wrap { padding-bottom: 8px; }
   .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 15px; background: color-mix(in srgb, var(--ink) 6%, transparent); }
   .tab {
-    flex: 1; height: 38px; border: 0; background: none; border-radius: 11px; font-weight: 700; font-size: 15px; color: var(--muted);
+    flex: 1; height: 34px; border: 0; background: none; border-radius: 11px; font-weight: 700; font-size: 15px; color: var(--muted);
     display: flex; align-items: center; justify-content: center; gap: 7px; transition: background .2s, color .2s;
   }
   .tab.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
@@ -534,7 +535,7 @@
 
   /* ---------- Toast & Konfetti ---------- */
   .toast {
-    position: fixed; left: 50%; bottom: calc(165px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(16px);
+    position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(16px);
     background: var(--ink); color: var(--bg); padding: 8px 8px 8px 16px; border-radius: 16px; font-size: 14px; font-weight: 600;
     display: flex; align-items: center; gap: 12px; white-space: nowrap;
     opacity: 0; pointer-events: none; transition: all .25s cubic-bezier(.2, .8, .2, 1); z-index: 30; box-shadow: var(--shadow-lg);
@@ -746,14 +747,15 @@
 
   function itemHtml(it) {
     const c = catOf(it.category);
-    const by = it.source_recipe ? `<span class="by">für ${esc(it.source_recipe)}</span>`
-      : it.added_by && it.added_by !== me ? `<span class="by">von ${esc(it.added_by)}</span>` : '';
+    const by = it.source_recipe ? `<span class="by">${esc(it.source_recipe)}</span>`
+      : it.added_by && it.added_by !== me ? `<span class="by">${esc(it.added_by)}</span>` : '';
     const enter = justAdded.has(it.name.toLowerCase()) && !it.checked ? ' enter' : '';
     return `<li class="item${it.checked ? ' done' : ''}${enter}" data-id="${esc(it.id)}" style="--c:${c.color}">
       <div class="swipe-bg">Löschen</div>
       <div class="inner">
         <button class="check" aria-label="${it.checked ? 'Wieder offen' : 'Abhaken'}">${checkSvg}</button>
-        <div class="text"><span class="name">${esc(it.name)}</span>${it.qty ? `<span class="qty">${esc(it.qty)}</span>` : ''}${by}</div>
+        <div class="text"><span class="name">${esc(it.name)}</span>${by}</div>
+        ${it.qty ? `<span class="qty">${esc(it.qty)}</span>` : ''}
         <button class="del" aria-label="Löschen">×</button>
       </div>
     </li>`;
@@ -774,7 +776,7 @@
     if (open.length === 0) {
       $('list').innerHTML = `<div class="empty"><div class="big">${done.length ? '🎉' : '🛒'}</div>
         <strong>${done.length ? 'Alles im Wagen!' : 'Die Liste ist leer'}</strong>
-        ${done.length ? 'Nach dem Einkauf auf „Woche fertig“ tippen.' : 'Unten eintippen oder einen häufigen Artikel antippen.'}</div>`;
+        ${done.length ? 'Nach dem Einkauf auf „Woche fertig“ tippen.' : 'Unten ins Feld tippen – dort erscheinen auch eure häufigsten Artikel.'}</div>`;
     } else {
       const groups = new Map();
       open.sort((a, b) => catIndex(a.category) - catIndex(b.category) || String(a.created_at).localeCompare(String(b.created_at)))
@@ -957,6 +959,13 @@
     renderChips();
   });
   $('cat').addEventListener('change', () => { catTouched = true; setCat($('cat').value); });
+
+  // „Oft gekauft“ nur zeigen, solange jemand etwas einträgt
+  $('addForm').addEventListener('focusin', () => $('addForm').classList.add('typing'));
+  document.addEventListener('pointerdown', e => {
+    if (e.target.closest('#addForm')) $('addForm').classList.add('typing');
+    else if (!$('name').value.trim()) $('addForm').classList.remove('typing');
+  });
 
   // Chips: tippen = hinzufügen, gedrückt halten = Entfernen anbieten
   let pressTimer = null, pressed = false;
