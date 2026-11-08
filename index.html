@@ -236,7 +236,13 @@
   .field input { border: 0; background: none; outline: none; padding: 0 10px; height: 44px; min-width: 0; font-size: 17px; font-weight: 600; }
   .field input::placeholder { color: var(--muted); font-weight: 500; }
   #name { flex: 1; }
-  #qty { width: 70px; flex: none; text-align: center; font-size: 15px; border-left: 1.5px solid var(--line); height: 28px; }
+  #qty { width: 64px; flex: none; padding: 0 4px; text-align: center; font-size: 15px; border-left: 1.5px solid var(--line); height: 28px; }
+  .pin {
+    flex: none; width: 34px; height: 34px; margin-right: 5px; border: 0; border-radius: 11px; background: none; font-size: 16px;
+    filter: grayscale(1); opacity: .4; transition: opacity .15s, background .15s;
+  }
+  .pin.on { filter: none; opacity: 1; background: color-mix(in srgb, var(--danger) 14%, var(--surface)); }
+  .rem { margin-left: 5px; font-size: 12px; }
   .add {
     flex: none; width: 46px; height: 46px; border-radius: 16px; border: 0; display: grid; place-items: center;
     background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink);
@@ -509,6 +515,10 @@
 
   /* ---------- Liebe Sprüche ---------- */
   .menu button[hidden] { display: none; }
+  .steps { margin: 0 0 14px; padding-left: 22px; font-size: 14.5px; font-weight: 500; line-height: 1.45; }
+  .steps li { margin-bottom: 7px; }
+  .steps b { font-weight: 700; }
+  .steps-h { margin: 4px 0 8px 4px; font-size: 15px; font-weight: 800; }
   .ord-list { margin: 0 0 16px; border-radius: 16px; overflow: hidden; background: var(--bg); }
   .ord-row { --c: #888; display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 10px; }
   .ord-row + .ord-row { border-top: 1px solid var(--line); }
@@ -588,6 +598,7 @@
   </div>
   <div class="menu" id="menu">
     <div class="who" id="who"></div>
+    <button id="remindBtn">📍 Rossmann-Erinnerung einrichten</button>
     <button id="orderBtn">🧭 Reihenfolge im Laden</button>
     <button id="notesBtn" hidden>💌 Sprüche für Karin</button>
     <button id="reloadBtn">Neu laden</button>
@@ -612,6 +623,7 @@
           <div class="cat" id="catBox"><span id="catIcon">📦</span><select id="cat" aria-label="Kategorie"></select></div>
           <input id="name" placeholder="Was fehlt?" enterkeyhint="done" maxlength="80">
           <input id="qty" placeholder="Menge" maxlength="20">
+          <button type="button" class="pin" id="pinBtn" aria-pressed="false" aria-label="Bei Rossmann erinnern">📍</button>
         </div>
         <button class="add" id="addBtn" type="submit" aria-label="Hinzufügen" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -765,7 +777,7 @@
       <div class="swipe-bg">Löschen</div>
       <div class="inner">
         <button class="check" aria-label="${it.checked ? 'Wieder offen' : 'Abhaken'}">${checkSvg}</button>
-        <div class="text"><span class="name">${esc(it.name)}</span>${by}</div>
+        <div class="text"><span class="name">${esc(it.name)}</span>${it.remind ? '<span class="rem" title="Rossmann-Erinnerung">📍</span>' : ''}${by}</div>
         ${it.qty ? `<span class="qty">${esc(it.qty)}</span>` : ''}
         <button class="del" aria-label="Löschen">×</button>
       </div>
@@ -849,16 +861,16 @@
   }
 
   // --- Aktionen ---
-  function addItem(name, qty, category) {
+  function addItem(name, qty, category, remind = false) {
     name = cap(name.trim());
     qty = (qty || '').trim();
     if (!name) return;
     category = category || guessCategory(name) || 'Sonstiges';
     justAdded.add(name.toLowerCase());
-    mutate('add_item', { p_name: name, p_qty: qty, p_category: category, p_by: me }, () => {
+    mutate('add_item', { p_name: name, p_qty: qty, p_category: category, p_by: me, p_remind: remind }, () => {
       const ex = state.items.find(i => !i.checked && i.name.toLowerCase() === name.toLowerCase());
-      if (ex) { if (qty) ex.qty = qty; ex.category = category; }
-      else state.items.push({ id: 'tmp-' + Date.now(), name, qty, category, checked: false, added_by: me, created_at: new Date().toISOString() });
+      if (ex) { if (qty) ex.qty = qty; ex.category = category; ex.remind = ex.remind || remind; }
+      else state.items.push({ id: 'tmp-' + Date.now(), name, qty, category, remind, checked: false, added_by: me, created_at: new Date().toISOString() });
     });
     if (!store.get('ek_tip_edit')) {
       store.set('ek_tip_edit', '1');
@@ -886,7 +898,7 @@
     if (!it) return;
     mutate('delete_item', { p_id: id }, () => { state.items = state.items.filter(i => i.id !== id); });
     toast(`„${it.name}“ gelöscht`, 'Rückgängig', () => {
-      addItem(it.name, it.qty, it.category);
+      addItem(it.name, it.qty, it.category, it.remind);
     });
   }
 
@@ -922,6 +934,8 @@
       </div>
       <label><span>Kategorie</span></label>
       <div class="edit-cats">${CATS.map(c => `<button type="button" class="chip${c.id === cat ? ' on' : ''}" data-cat="${esc(c.id)}" style="--c:${c.color}">${c.icon} ${esc(c.id)}</button>`).join('')}</div>
+      <label class="ktoggle"><input type="checkbox" name="remind" ${it.remind ? 'checked' : ''}> 📍 Bei Rossmann erinnern</label>
+      <div style="height:14px"></div>
       <div class="edit-actions">
         <button type="button" class="btn-line del-btn">Löschen</button>
         <button type="submit" class="btn-line go">Speichern</button>
@@ -940,6 +954,11 @@
       const name = cap(f.elements.name.value.trim()), qty = f.elements.qty.value.trim();
       if (!name) { f.elements.name.focus(); return; }
       close();
+      const remind = f.elements.remind.checked;
+      if (remind !== !!it.remind) mutate('set_remind', { p_id: id, p_on: remind }, () => {
+        const cur = state.items.find(i => i.id === id);
+        if (cur) cur.remind = remind;
+      });
       if (name === it.name && qty === (it.qty || '') && cat === catOf(it.category).id) return;
       mutate('update_item', { p_id: id, p_name: name, p_qty: qty, p_category: cat }, () => {
         const cur = state.items.find(i => i.id === id);
@@ -950,11 +969,24 @@
     });
   }
 
+  // 📍 = beim nächsten Artikel an Rossmann erinnern
+  let remindNext = false;
+  function setRemindNext(on) {
+    remindNext = on;
+    $('pinBtn').classList.toggle('on', on);
+    $('pinBtn').setAttribute('aria-pressed', String(on));
+  }
+  $('pinBtn').addEventListener('click', () => {
+    setRemindNext(!remindNext);
+    if (remindNext) toast('📍 Wird an der Haltestelle bei Rossmann gemeldet');
+  });
+
   $('addForm').addEventListener('submit', e => {
     e.preventDefault();
-    addItem($('name').value, $('qty').value, catTouched ? $('cat').value : null);
+    addItem($('name').value, $('qty').value, catTouched ? $('cat').value : null, remindNext);
     $('name').value = '';
     $('qty').value = '';
+    setRemindNext(false);
     catTouched = false;
     setCat('Sonstiges');
     $('addBtn').disabled = true;
@@ -998,8 +1030,9 @@
     }
     delModeName = null;
     const fav = state.favorites.find(f => f.name === name);
-    addItem(name, $('qty').value, fav?.category);
+    addItem(name, $('qty').value, fav?.category, remindNext);
     $('name').value = ''; $('qty').value = ''; $('addBtn').disabled = true;
+    setRemindNext(false);
     catTouched = false; setCat('Sonstiges');
   });
 
@@ -1738,6 +1771,40 @@
     });
   }
 
+  // Anleitung für den iPhone-Kurzbefehl, der bei Ankunft an der Haltestelle die 📍-Artikel meldet
+  async function openRemindSetup() {
+    let token;
+    try { token = await rpc('remind_token'); } catch { toast('Keine Verbindung – bitte nochmal versuchen.'); return; }
+    const link = `${SUPABASE_URL}/rest/v1/rpc/erinnerung?p_token=${token}&apikey=${SUPABASE_KEY}`;
+    const { o } = openSheet(`
+      <h2>📍 Rossmann-Erinnerung</h2>
+      <p class="khint">Auf dem iPhone, das erinnert werden soll. Einmal einrichten, danach meldet das iPhone an der Haltestelle Prenzlauer Allee / Erich-Weinert-Straße alle 📍-Artikel. Ohne 📍-Artikel kommt keine Mitteilung.</p>
+      <div class="edit-actions" style="margin-bottom:16px"><button type="button" class="btn-line go" data-copy>Link kopieren</button></div>
+      <p class="steps-h">1. Kurzbefehl anlegen</p>
+      <ol class="steps">
+        <li>App <b>Kurzbefehle</b> öffnen, unten <b>Kurzbefehle</b>, oben rechts <b>+</b>. Oben als Namen <b>Rossmann</b> eintragen.</li>
+        <li>Aktion <b>Inhalte von URL abrufen</b> hinzufügen. Auf das blaue <b>URL</b> tippen und den kopierten Link einfügen.</li>
+        <li>Aktion <b>Wörterbuchwert abrufen</b> hinzufügen. Auf <b>Schlüssel</b> tippen und <b>text</b> eingeben.</li>
+        <li>Aktion <b>Wenn</b> hinzufügen. Als Bedingung <b>hat einen Wert</b> wählen.</li>
+        <li>Aktion <b>Mitteilung anzeigen</b> hinzufügen und sie zwischen <b>Wenn</b> und <b>Sonst</b> ziehen. Als Text <b>Rossmann: </b> schreiben und dahinter die Variable <b>Wörterbuchwert</b> einsetzen.</li>
+        <li>Oben rechts <b>Fertig</b>.</li>
+      </ol>
+      <p class="steps-h">2. Automation an der Haltestelle</p>
+      <ol class="steps">
+        <li>In Kurzbefehle unten <b>Automation</b>, dann <b>+</b> bzw. <b>Neue Automation</b>.</li>
+        <li><b>Ankommen</b> wählen, bei <b>Ort</b> nach <b>Prenzlauer Allee Erich-Weinert-Straße, Berlin</b> suchen und den Kreis klein ziehen (ca. 150 m).</li>
+        <li><b>Sofort ausführen</b> wählen, dann <b>Weiter</b> und den Kurzbefehl <b>Rossmann</b> auswählen.</li>
+        <li>Falls das iPhone nach dem Standort fragt: erlauben.</li>
+      </ol>
+      <p class="khint">Testen: Einen Artikel mit 📍 eintragen und den Kurzbefehl <b>Rossmann</b> einmal von Hand antippen.</p>`);
+    o.addEventListener('click', async e => {
+      if (!e.target.closest('[data-copy]')) return;
+      try { await navigator.clipboard.writeText(link); toast('Link kopiert – jetzt in Kurzbefehle einfügen'); }
+      catch { prompt('Link zum Kopieren:', link); }
+    });
+  }
+
+  $('remindBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openRemindSetup(); });
   $('orderBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openOrderSheet(); });
   $('notesBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openNotes(); });
 
