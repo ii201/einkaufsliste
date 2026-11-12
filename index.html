@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Einkaufsliste</title>
-<meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#121412" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1318" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Einkauf">
@@ -15,41 +15,60 @@
 <link rel="apple-touch-icon" href="icon-180.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  /* „Klar und kühl“: kühles Grau, weiße Karten mit feinen Linien, ein blauer Akzent, Schrift nur normal und halbfett */
   :root {
-    --bg: #f7f5f0;
+    --bg: #f3f5f8;
     --surface: #ffffff;
-    --ink: #1b1d1a;
-    --muted: #80837c;
-    --line: #ece8e0;
-    --accent: #1f9254;
-    --accent-2: #4cc27a;
+    --surface-2: #f7f9fb;
+    --ink: #1b2330;
+    --muted: #6b7685;
+    --faint: #8a94a3;
+    --line: #e3e7ec;
+    --line-soft: #eef1f4;
+    --accent: #2f6fed;
+    --accent-2: #2f6fed;
     --accent-ink: #ffffff;
-    --danger: #e0533f;
-    --shadow-sm: 0 1px 2px rgba(40, 35, 20, .05);
-    --shadow: 0 1px 2px rgba(40, 35, 20, .04), 0 10px 30px -8px rgba(40, 35, 20, .12);
-    --shadow-lg: 0 2px 6px rgba(40, 35, 20, .06), 0 24px 48px -12px rgba(40, 35, 20, .22);
-    --tint: 13%;
-    --tint-strong: 24%;
+    --accent-soft: rgba(47, 111, 237, .1);
+    --danger: #d14343;
+    --danger-soft: rgba(209, 67, 67, .1);
+    --pos: #15803d;
+    --pos-soft: rgba(21, 128, 61, .1);
+    --neg: #c2410c;
+    --heart: #e11d48;
+    --shadow-sm: 0 1px 2px rgba(16, 24, 40, .05);
+    --shadow: 0 1px 2px rgba(16, 24, 40, .05);
+    --shadow-lg: 0 16px 40px -12px rgba(16, 24, 40, .25);
+    --tint: 12%;
+    --tint-strong: 20%;
+    --tabbar: 56px;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #121412;
-      --surface: #1c1f1c;
-      --ink: #eeede8;
-      --muted: #979a93;
-      --line: #2a2e2a;
-      --accent: #43c47a;
-      --accent-2: #7fdca2;
-      --accent-ink: #0b1a10;
-      --danger: #f0705c;
+      --bg: #0f1318;
+      --surface: #171c22;
+      --surface-2: #1c222a;
+      --ink: #e6eaf0;
+      --muted: #8b95a3;
+      --faint: #6f7987;
+      --line: #262d36;
+      --line-soft: #20262e;
+      --accent: #5b8def;
+      --accent-2: #5b8def;
+      --accent-soft: rgba(91, 141, 239, .16);
+      --danger: #e06666;
+      --danger-soft: rgba(224, 102, 102, .14);
+      --pos: #4ade80;
+      --pos-soft: rgba(74, 222, 128, .12);
+      --neg: #fb923c;
+      --heart: #fb7185;
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
-      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px -8px rgba(0, 0, 0, .5);
-      --shadow-lg: 0 2px 6px rgba(0, 0, 0, .35), 0 24px 48px -12px rgba(0, 0, 0, .6);
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+      --shadow-lg: 0 18px 44px -12px rgba(0, 0, 0, .6);
       --tint: 16%;
-      --tint-strong: 30%;
+      --tint-strong: 26%;
       color-scheme: dark;
     }
   }
@@ -59,22 +78,16 @@
   body {
     background: var(--bg);
     color: var(--ink);
-    font: 500 16px/1.4 "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font: 400 15px/1.45 "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     min-height: 100dvh;
     overflow-x: hidden;
   }
-  /* weiche Farbflecken im Hintergrund */
-  body::before {
-    content: ""; position: fixed; inset: -20% -20% auto; height: 70vh; z-index: -1; pointer-events: none;
-    background:
-      radial-gradient(40% 50% at 15% 30%, color-mix(in srgb, #4cc27a 20%, transparent), transparent 70%),
-      radial-gradient(35% 45% at 85% 20%, color-mix(in srgb, #f2a93b 18%, transparent), transparent 70%),
-      radial-gradient(30% 40% at 60% 60%, color-mix(in srgb, #5aa8e6 14%, transparent), transparent 70%);
-    filter: blur(10px);
-  }
-  button, input, select { font: inherit; color: inherit; }
+  button, input, select, textarea { font: inherit; color: inherit; }
   button { cursor: pointer; }
+  b, strong { font-weight: 600; }
+  svg.i { width: 1em; height: 1em; flex: none; vertical-align: -.14em; }
+  .cdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--faint)); margin-right: 7px; vertical-align: 1px; flex: none; }
 
   .wrap { max-width: 560px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
 
@@ -82,511 +95,406 @@
   header {
     position: sticky; top: 0; z-index: 5;
     padding-top: env(safe-area-inset-top);
-    background: color-mix(in srgb, var(--bg) 80%, transparent);
-    backdrop-filter: saturate(1.6) blur(18px);
-    -webkit-backdrop-filter: saturate(1.6) blur(18px);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
   }
-  .head { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; padding-bottom: 8px; gap: 12px; }
-  .date { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .01em; display: flex; align-items: center; gap: 7px; }
-  h1 { margin: 1px 0 0; font-size: 26px; line-height: 1.05; letter-spacing: -.035em; font-weight: 800; }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
-  .dot.off { background: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 20%, transparent); }
-  .icon-btn {
-    flex: none; width: 38px; height: 38px; border-radius: 13px; border: 0;
-    background: var(--surface); box-shadow: var(--shadow); display: grid; place-items: center; font-size: 20px; line-height: 1;
-  }
+  .head { display: flex; align-items: flex-end; justify-content: space-between; padding-top: 12px; padding-bottom: 8px; gap: 12px; }
+  .date { font-size: 12px; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  h1 { margin: 2px 0 0; font-size: 22px; line-height: 1.15; letter-spacing: -.02em; font-weight: 600; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pos); display: inline-block; }
+  .dot.off { background: var(--danger); }
 
   .progress { padding-bottom: 8px; }
   .progress[hidden] { display: none; }
-  .progress-top { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
-  .progress-top b { color: var(--ink); font-weight: 700; }
-  .bar { height: 5px; border-radius: 99px; background: color-mix(in srgb, var(--ink) 8%, transparent); overflow: hidden; }
-  .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .5s cubic-bezier(.2, .8, .2, 1); }
+  .progress-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .progress-top b { color: var(--ink); font-weight: 600; }
+  .bar { height: 3px; border-radius: 99px; background: var(--line); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--accent); transition: width .5s cubic-bezier(.2, .8, .2, 1); }
 
-  .menu {
-    position: absolute; right: 16px; top: calc(env(safe-area-inset-top) + 54px);
-    background: var(--surface); border-radius: 18px; box-shadow: var(--shadow-lg);
-    padding: 6px; min-width: 230px; display: none; transform-origin: top right;
+  main { padding-bottom: calc(var(--tabbar) + 84px + env(safe-area-inset-bottom)); }
+
+  /* ---------- Navigation unten ---------- */
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 7;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
   }
-  .menu.open { display: block; animation: pop .18s ease-out; }
-  .menu .who { padding: 10px 12px 8px; color: var(--muted); font-size: 13px; font-weight: 600; }
-  .menu button { display: block; width: 100%; text-align: left; padding: 11px 12px; border: 0; background: none; border-radius: 12px; font-weight: 600; }
-  .menu button:active { background: color-mix(in srgb, var(--ink) 6%, transparent); }
-
-  main { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+  .tabbar-in { display: flex; height: var(--tabbar); }
+  .tab {
+    position: relative; flex: 1; border: 0; background: none; color: var(--faint);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    font-size: 11px; font-weight: 500; transition: color .15s;
+  }
+  .tab svg { width: 23px; height: 23px; }
+  .tab.active { color: var(--accent); }
+  .tab .tab-badge { position: absolute; top: 5px; left: calc(50% + 6px); }
+  .tab-badge { min-width: 17px; height: 17px; padding: 0 5px; border-radius: 99px; background: var(--heart); color: #fff; font-size: 10.5px; font-weight: 600; display: inline-grid; place-items: center; }
+  .tab-badge[hidden] { display: none; }
+  body:is(.mode-kochen, .mode-kasse, .mode-mehr) :is(#progress, #list, #done, .composer) { display: none !important; }
+  body:not(.mode-kochen) #cook { display: none; }
+  body:not(.mode-kasse) #kasse { display: none; }
+  body:not(.mode-mehr) #mehr { display: none; }
+  body:is(.mode-kochen, .mode-mehr) main { padding-bottom: calc(var(--tabbar) + 28px + env(safe-area-inset-bottom)); }
+  body.mode-kasse main { padding-bottom: calc(var(--tabbar) + 80px + env(safe-area-inset-bottom)); }
 
   /* ---------- Kategorie-Karten ---------- */
   .group {
     --c: #888;
-    margin-top: 8px; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-sm); overflow: hidden;
+    margin-top: 8px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--c);
+    border-radius: 12px; overflow: hidden;
   }
-  .group-head {
-    display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 7px;
-    background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
-  }
-  .badge {
-    width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; font-size: 13px;
-    background: color-mix(in srgb, var(--c) var(--tint-strong), var(--surface));
-  }
-  .group-head h2 { margin: 0; flex: 1; font-size: 13.5px; font-weight: 700; letter-spacing: -.01em; color: color-mix(in srgb, var(--c) 70%, var(--ink)); }
-  .group-head .n {
-    min-width: 22px; height: 20px; padding: 0 7px; border-radius: 99px; display: grid; place-items: center;
-    font-size: 12px; font-weight: 700; color: color-mix(in srgb, var(--c) 75%, var(--ink));
-    background: color-mix(in srgb, var(--c) var(--tint-strong), var(--surface));
-  }
+  .group-head { display: flex; align-items: baseline; gap: 8px; padding: 7px 12px 1px 11px; }
+  .group-head h2 { margin: 0; flex: 1; font-size: 12px; font-weight: 500; color: var(--muted); }
+  .group-head .n { font-size: 11.5px; color: var(--faint); }
 
   ul { list-style: none; margin: 0; padding: 0; }
   .item { --c: #888; position: relative; overflow: hidden; }
   .item + .item .inner::before {
-    content: ""; position: absolute; top: 0; left: 42px; right: 0; height: 1px; background: var(--line);
+    content: ""; position: absolute; top: 0; left: 40px; right: 0; height: 1px; background: var(--line-soft);
   }
   .swipe-bg {
-    position: absolute; inset: 0; background: color-mix(in srgb, var(--danger) 70%, var(--surface)); color: #fff;
-    display: flex; align-items: center; justify-content: flex-end; padding-right: 22px; font-weight: 700; font-size: 14px;
+    position: absolute; inset: 0; background: color-mix(in srgb, var(--danger) 75%, var(--surface)); color: #fff;
+    display: flex; align-items: center; justify-content: flex-end; padding-right: 20px; font-weight: 600; font-size: 13.5px;
     opacity: 0; transition: background .15s;
   }
   .item.swiping .swipe-bg { opacity: 1; }
   .item.armed .swipe-bg { background: var(--danger); }
   .inner {
-    position: relative; display: flex; align-items: center; gap: 10px; padding: 4px 12px 4px 10px; min-height: 37px;
+    position: relative; display: flex; align-items: center; gap: 10px; padding: 5px 12px 5px 11px; min-height: 40px;
     background: var(--surface); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: pan-y;
   }
   .check {
-    flex: none; width: 22px; height: 22px; border-radius: 50%; padding: 0;
-    border: 2px solid color-mix(in srgb, var(--c) 55%, var(--line)); background: none;
+    flex: none; width: 20px; height: 20px; border-radius: 50%; padding: 0;
+    border: 1.5px solid color-mix(in srgb, var(--c) 40%, var(--line)); background: none;
     display: grid; place-items: center; transition: background .2s, border-color .2s, transform .2s;
   }
-  .check svg { width: 12px; height: 12px; color: #fff; }
+  .check svg { width: 11px; height: 11px; color: #fff; }
   .check path { stroke-dasharray: 24; stroke-dashoffset: 24; transition: stroke-dashoffset .25s ease-out .05s; }
   .item.done .check, .item.ticking .check { background: var(--c); border-color: var(--c); }
   .item.done .check path, .item.ticking .check path { stroke-dashoffset: 0; }
   .item.ticking .check { animation: tick .32s cubic-bezier(.3, 1.6, .5, 1); }
   .item.ticking .name { color: var(--muted); }
   .text { flex: 1; min-width: 0; }
-  .name { font-size: 15px; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; transition: color .2s; }
-  .qty {
-    flex: none; padding: 1px 8px; border-radius: 99px; font-size: 12.5px; font-weight: 700; white-space: nowrap;
-    color: color-mix(in srgb, var(--c) 80%, var(--ink)); background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
-  }
-  .by { display: inline-block; max-width: 48%; margin-left: 6px; vertical-align: -2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: 12px; font-weight: 500; }
-  .del { flex: none; width: 30px; height: 30px; border: 0; background: none; color: var(--muted); font-size: 20px; border-radius: 10px; display: none; }
+  .name { font-size: 15px; font-weight: 400; overflow-wrap: anywhere; transition: color .2s; }
+  .qty { flex: none; font-size: 13px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .by { display: inline-block; max-width: 48%; margin-left: 6px; vertical-align: -2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--faint); font-size: 12px; }
+  .rem { margin-left: 5px; color: var(--accent); font-size: 12px; }
+  .del { flex: none; width: 28px; height: 28px; border: 0; background: none; color: var(--faint); font-size: 18px; border-radius: 8px; display: none; }
   @media (hover: hover) {
     .del { display: block; opacity: 0; transition: opacity .15s; }
-    .item:hover .del { opacity: .7; }
-    .del:hover { background: color-mix(in srgb, var(--ink) 6%, transparent); }
+    .item:hover .del { opacity: .8; }
+    .del:hover { background: var(--bg); }
   }
   .item.enter .inner { animation: slideIn .35s cubic-bezier(.2, .8, .2, 1); }
 
   /* ---------- Im Wagen ---------- */
-  .done-head { display: flex; justify-content: space-between; align-items: center; margin: 20px 2px 8px; }
-  .done-head h2 { margin: 0; font-size: 15px; font-weight: 700; color: var(--muted); }
-  .finish {
-    border: 0; padding: 10px 16px; border-radius: 99px; font-weight: 700; font-size: 14px;
-    color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--accent) 70%, transparent);
-  }
+  .done-head { display: flex; justify-content: space-between; align-items: center; margin: 20px 2px 6px; }
+  .done-head h2 { margin: 0; font-size: 11.5px; font-weight: 500; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+  .finish { border: 0; height: 30px; padding: 0 12px; border-radius: 9px; font-weight: 600; font-size: 13px; color: var(--accent); background: var(--accent-soft); }
   .finish:active { transform: scale(.97); }
-  .done-list { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow-sm); overflow: hidden; opacity: .85; }
-  .item.done .name { text-decoration: line-through; text-decoration-thickness: 1.5px; color: var(--muted); font-weight: 500; }
-  .item.done .qty { filter: grayscale(1); opacity: .7; }
+  .done-list { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; opacity: .7; }
+  .item.done .name { text-decoration: line-through; text-decoration-thickness: 1px; color: var(--muted); }
 
-  .empty { text-align: center; color: var(--muted); padding: 48px 20px 10px; font-weight: 500; }
-  .empty .big {
-    width: 88px; height: 88px; border-radius: 30px; margin: 0 auto 16px; display: grid; place-items: center; font-size: 42px;
-    background: var(--surface); box-shadow: var(--shadow);
+  .empty, .cook-empty { text-align: center; color: var(--muted); padding: 40px 20px 8px; font-size: 14px; }
+  .empty .big, .cook-empty .big {
+    width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 12px; display: grid; place-items: center; font-size: 24px;
+    background: var(--surface); border: 1px solid var(--line); color: var(--faint);
   }
-  .empty strong { display: block; color: var(--ink); font-size: 20px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 4px; }
+  .empty strong, .cook-empty strong { display: block; color: var(--ink); font-size: 16px; font-weight: 600; margin-bottom: 2px; }
 
   /* ---------- Eingabe unten ---------- */
   .composer {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 6;
-    padding: 0 0 calc(10px + env(safe-area-inset-bottom));
-    pointer-events: none;
+    position: fixed; left: 0; right: 0; bottom: calc(var(--tabbar) + env(safe-area-inset-bottom)); z-index: 6;
+    padding: 0 0 8px; pointer-events: none;
   }
   .panel {
-    pointer-events: auto; background: color-mix(in srgb, var(--surface) 88%, transparent);
-    backdrop-filter: saturate(1.6) blur(20px); -webkit-backdrop-filter: saturate(1.6) blur(20px);
-    border-radius: 22px; box-shadow: var(--shadow-lg); padding: 8px;
-    border: 1px solid color-mix(in srgb, var(--ink) 6%, transparent);
+    pointer-events: auto; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: var(--shadow-lg); padding: 6px;
   }
   .composer:not(.typing) :is(.chips, .chips-label) { display: none !important; }
   .composer.qtyfocus :is(.chips, .chips-label) { display: none !important; }
-  .qty-bar { display: none; gap: 6px; padding: 0 2px 8px; }
+  .qty-bar { display: none; gap: 6px; padding: 2px 2px 8px; }
   .qty-bar.on, .composer.qtyfocus .qty-bar { display: flex; }
-  .qty-bar button {
-    flex: 1; height: 38px; border: 0; border-radius: 12px; font-size: 15px; font-weight: 700;
-    color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, var(--surface));
-  }
-  .qty-bar button:first-child { flex: 1.4; color: var(--accent-ink); background: var(--accent); }
-  .chips-label { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 7px 6px; }
-  .chips { display: flex; gap: 7px; overflow-x: auto; padding: 0 2px 10px; scrollbar-width: none; }
+  .qty-bar button { flex: 1; height: 36px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-weight: 500; color: var(--ink); background: var(--surface-2); }
+  .qty-bar button:first-child { flex: 1.4; color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+  .chips-label { font-size: 11.5px; color: var(--muted); margin: 2px 0 6px 6px; }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 0 2px 8px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chip {
-    --c: #888; flex: none; border: 0; border-radius: 99px; padding: 8px 13px; font-size: 14px; font-weight: 600; white-space: nowrap;
-    user-select: none; -webkit-user-select: none;
-    color: color-mix(in srgb, var(--c) 75%, var(--ink)); background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
-    transition: transform .12s;
+    --c: #888; flex: none; display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 99px;
+    padding: 6px 11px; font-size: 14px; font-weight: 400; white-space: nowrap; color: var(--ink); background: var(--surface);
+    user-select: none; -webkit-user-select: none; transition: transform .12s;
   }
-  .chip:active { transform: scale(.95); }
-  .chip.del-mode { background: var(--danger); color: #fff; }
-  .row { display: flex; gap: 8px; align-items: center; }
-  .field {
-    flex: 1; display: flex; align-items: center; background: var(--bg); border-radius: 18px; min-width: 0;
-    border: 1.5px solid transparent; transition: border-color .15s;
-  }
-  .field:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
-  .cat {
-    --c: #888; position: relative; flex: none; width: 34px; height: 34px; margin-left: 5px; border-radius: 11px;
-    display: grid; place-items: center; font-size: 19px; transition: background .2s;
-    background: color-mix(in srgb, var(--c) var(--tint-strong), var(--surface));
-  }
-  .cat select { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; }
-  .field input { border: 0; background: none; outline: none; padding: 0 10px; height: 44px; min-width: 0; font-size: 17px; font-weight: 600; }
-  .field input::placeholder { color: var(--muted); font-weight: 500; }
+  .chip:active { transform: scale(.96); }
+  .chip.del-mode { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .row { display: flex; gap: 6px; align-items: center; }
+  .field { flex: 1; display: flex; align-items: center; background: var(--bg); border-radius: 12px; min-width: 0; border: 1px solid transparent; transition: border-color .15s; }
+  .field:focus-within { border-color: var(--accent); }
+  .cat { --c: #888; position: relative; flex: none; width: 30px; height: 30px; margin-left: 5px; border-radius: 9px; display: grid; place-items: center; background: var(--surface); }
+  .cat::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .cat select { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; font-size: 16px; }
+  .field input { border: 0; background: none; outline: none; padding: 0 9px; height: 42px; min-width: 0; font-size: 16px; font-weight: 400; }
+  .field input::placeholder { color: var(--faint); }
   #name { flex: 1; }
-  #qty { width: 64px; flex: none; padding: 0 4px; text-align: center; font-size: 15px; border-left: 1.5px solid var(--line); height: 28px; }
-  .pin {
-    flex: none; width: 34px; height: 34px; margin-right: 5px; border: 0; border-radius: 11px; background: none; font-size: 16px;
-    filter: grayscale(1); opacity: .4; transition: opacity .15s, background .15s;
-  }
-  .pin.on { filter: none; opacity: 1; background: color-mix(in srgb, var(--danger) 14%, var(--surface)); }
-  .rem { margin-left: 5px; font-size: 12px; }
-  .add {
-    flex: none; width: 46px; height: 46px; border-radius: 16px; border: 0; display: grid; place-items: center;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink);
-    box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--accent) 80%, transparent);
-    transition: transform .12s, opacity .2s, filter .2s;
-  }
-  .add svg { width: 22px; height: 22px; }
+  #qty { width: 62px; flex: none; padding: 0 4px; text-align: center; border-left: 1px solid var(--line); height: 26px; }
+  .pin { flex: none; width: 32px; height: 32px; margin-right: 4px; border: 0; border-radius: 9px; background: none; color: var(--faint); display: grid; place-items: center; }
+  .pin svg { width: 18px; height: 18px; }
+  .pin.on { color: var(--accent); background: var(--accent-soft); }
+  .add { flex: none; width: 42px; height: 42px; border-radius: 12px; border: 0; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); transition: transform .12s, opacity .2s; }
+  .add svg { width: 20px; height: 20px; }
   .add:active { transform: scale(.94); }
-  .add:disabled { opacity: .4; filter: grayscale(.6); box-shadow: none; }
+  .add:disabled { opacity: .35; }
 
-  /* ---------- Login ---------- */
+  /* ---------- Anmeldung ---------- */
   .login { position: fixed; inset: 0; z-index: 20; background: var(--bg); display: grid; place-items: center; padding: 24px 16px; }
-  .login::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background:
-      radial-gradient(45% 35% at 20% 15%, color-mix(in srgb, #4cc27a 28%, transparent), transparent 70%),
-      radial-gradient(40% 30% at 85% 30%, color-mix(in srgb, #f2a93b 24%, transparent), transparent 70%),
-      radial-gradient(45% 35% at 50% 95%, color-mix(in srgb, #d0559a 16%, transparent), transparent 70%);
-  }
   .login[hidden] { display: none; }
-  .card { position: relative; width: 100%; max-width: 380px; background: var(--surface); border-radius: 28px; box-shadow: var(--shadow-lg); padding: 30px 22px 22px; }
-  .card .logo { width: 60px; height: 60px; border-radius: 18px; display: block; margin-bottom: 18px; box-shadow: var(--shadow); }
-  .card h2 { margin: 0 0 6px; font-size: 26px; font-weight: 800; letter-spacing: -.03em; }
-  .card p { margin: 0 0 22px; color: var(--muted); font-size: 15px; }
-  .card label { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 0 6px 4px; }
-  .card input {
-    width: 100%; height: 52px; border: 1.5px solid transparent; border-radius: 16px; background: var(--bg);
-    padding: 0 16px; font-size: 17px; font-weight: 600; margin-bottom: 14px; outline: none;
-  }
-  .card input:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
-  .btn-main {
-    width: 100%; height: 54px; border: 0; border-radius: 16px; font-weight: 700; font-size: 17px; margin-top: 4px;
-    color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--accent) 80%, transparent);
-  }
-  .err { color: var(--danger); font-size: 14px; font-weight: 600; min-height: 20px; margin-top: 12px; text-align: center; }
-
-  /* ---------- Tabs ---------- */
-  .tabs-wrap { padding-bottom: 8px; }
-  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 15px; background: color-mix(in srgb, var(--ink) 6%, transparent); }
-  .tab {
-    flex: 1; height: 34px; border: 0; background: none; border-radius: 11px; font-weight: 700; font-size: 15px; color: var(--muted);
-    display: flex; align-items: center; justify-content: center; gap: 7px; transition: background .2s, color .2s;
-  }
-  .tab.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
-  .tab-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: #ff3d6e; color: #fff; font-size: 12px; display: inline-grid; place-items: center; }
-  .tab-badge[hidden] { display: none; }
-  body:is(.mode-kochen, .mode-kasse) :is(#progress, #list, #done, .composer) { display: none !important; }
-  body:not(.mode-kochen) #cook { display: none; }
-  body:not(.mode-kasse) #kasse { display: none; }
-  body.mode-kochen main { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
-  body.mode-kasse main { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+  .card { position: relative; width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-lg); padding: 26px 20px 20px; }
+  .card .logo { width: 52px; height: 52px; border-radius: 14px; display: block; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 4px; font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
+  .card p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  .card label { display: block; font-size: 12.5px; font-weight: 500; color: var(--muted); margin: 0 0 5px 2px; }
+  .card input { width: 100%; height: 46px; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); padding: 0 14px; font-size: 16px; margin-bottom: 14px; outline: none; }
+  .card input:focus { border-color: var(--accent); }
+  .btn-main { width: 100%; height: 46px; border: 0; border-radius: 11px; font-weight: 600; font-size: 15px; margin-top: 4px; color: var(--accent-ink); background: var(--accent); }
+  .err { color: var(--danger); font-size: 13.5px; font-weight: 500; min-height: 20px; margin-top: 12px; text-align: center; }
 
   /* ---------- Kochen ---------- */
-  .subtabs { display: flex; gap: 8px; margin: 2px 0 6px; }
-  .subtab {
-    border: 0; padding: 9px 16px; border-radius: 99px; font-weight: 700; font-size: 14px; color: var(--muted);
-    background: color-mix(in srgb, var(--ink) 6%, transparent); display: inline-flex; align-items: center; gap: 7px;
-  }
-  .subtab.active { color: var(--accent-ink); background: var(--ink); }
+  .subtabs { display: flex; gap: 3px; padding: 3px; margin: 2px 0 4px; border-radius: 10px; background: color-mix(in srgb, var(--ink) 6%, transparent); }
+  .subtab { flex: 1; border: 0; height: 32px; border-radius: 8px; font-weight: 500; font-size: 13.5px; color: var(--muted); background: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .subtab.active { color: var(--ink); background: var(--surface); box-shadow: var(--shadow-sm); }
 
-  /* Entscheiden */
-  .dcard { background: var(--surface); border-radius: 24px; box-shadow: var(--shadow); overflow: hidden; transition: transform .3s, opacity .3s; }
-  .dcard + .dcard { margin-top: 14px; }
-  .dcard .dimg { aspect-ratio: 16 / 10; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; display: block; }
-  .dcard .dbody { padding: 14px 16px 16px; }
-  .dcard h3 { margin: 0 0 6px; font-size: 19px; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; }
+  .dcard { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; transition: transform .3s, opacity .3s; }
+  .dcard + .dcard { margin-top: 10px; }
+  .dcard .dimg { aspect-ratio: 16 / 9; background: var(--line-soft) center / cover no-repeat; display: block; }
+  .dcard .dbody { padding: 12px 14px 14px; }
+  .dcard h3 { margin: 0 0 4px; font-size: 16px; font-weight: 600; line-height: 1.3; }
   .dcard h3 a { color: inherit; text-decoration: none; }
-  .dmeta { color: var(--muted); font-size: 13.5px; font-weight: 600; margin-bottom: 14px; }
-  .dbtns { display: flex; gap: 10px; }
-  .dbtns button { flex: 1; height: 48px; border: 0; border-radius: 15px; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-  .dbtns .nein { background: color-mix(in srgb, var(--ink) 7%, transparent); color: var(--ink); }
-  .dbtns .ja { color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--accent) 80%, transparent); }
+  .dmeta { color: var(--muted); font-size: 12.5px; margin-bottom: 12px; }
+  .dbtns { display: flex; gap: 8px; }
+  .dbtns button { flex: 1; height: 40px; border: 1px solid var(--line); border-radius: 10px; font-weight: 500; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: var(--surface); color: var(--ink); }
+  .dbtns .ja { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
   .dcard.out-yes { transform: translateX(110%) rotate(6deg); opacity: 0; }
   .dcard.out-no { transform: translateX(-110%) rotate(-6deg); opacity: 0; }
 
-  /* Stöbern */
-  .search {
-    display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 14px; margin-top: 6px;
-    background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-sm); border: 1.5px solid transparent;
-  }
-  .search:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
-  .search svg { color: var(--muted); flex: none; }
-  .search input { flex: 1; min-width: 0; border: 0; outline: none; background: none; font-size: 17px; font-weight: 600; }
-  .search input::placeholder { color: var(--muted); font-weight: 500; }
-  .fchips { display: flex; gap: 7px; overflow-x: auto; padding: 12px 2px 4px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; scrollbar-width: none; }
+  .search { display: flex; align-items: center; gap: 9px; height: 44px; padding: 0 12px; margin-top: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+  .search:focus-within { border-color: var(--accent); }
+  .search svg { color: var(--faint); flex: none; }
+  .search input { flex: 1; min-width: 0; border: 0; outline: none; background: none; font-size: 16px; }
+  .search input::placeholder { color: var(--faint); }
+  .fchips { display: flex; gap: 6px; overflow-x: auto; padding: 10px 16px 2px; margin: 0 -16px; scrollbar-width: none; }
   .fchips::-webkit-scrollbar { display: none; }
-  .fchip {
-    flex: none; border: 0; border-radius: 99px; padding: 8px 13px; font-size: 14px; font-weight: 700; white-space: nowrap;
-    color: var(--muted); background: color-mix(in srgb, var(--ink) 6%, transparent); transition: background .15s, color .15s;
-  }
-  .fchip.on { color: var(--accent-ink); background: var(--accent); }
-  .fchip.sep { margin-left: 6px; }
-  .rcount { color: var(--muted); font-size: 13px; font-weight: 600; margin: 10px 2px 10px; }
-  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .gcard { position: relative; background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+  .fchip { flex: none; border: 1px solid var(--line); border-radius: 99px; padding: 5px 11px; font-size: 13px; font-weight: 500; white-space: nowrap; color: var(--ink); background: var(--surface); transition: background .15s, color .15s; }
+  .fchip.on { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+  .fchip.sep { margin-left: 4px; }
+  .rcount { color: var(--muted); font-size: 12px; margin: 10px 2px 8px; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .gcard { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
   .gcard a { color: inherit; text-decoration: none; }
-  .gimg { display: block; aspect-ratio: 1 / 1; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; }
-  .gbody { padding: 9px 11px 12px; }
-  .gbody b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 14.5px; line-height: 1.25; font-weight: 700; min-height: 2.5em; }
-  .gmeta { margin-top: 5px; font-size: 12px; font-weight: 600; color: var(--muted); }
-  .star { color: #e8a317; }
+  .gimg { display: block; aspect-ratio: 4 / 3; background: var(--line-soft) center / cover no-repeat; }
+  .gbody { padding: 8px 10px 10px; }
+  .gbody b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 13.5px; line-height: 1.3; font-weight: 500; min-height: 2.6em; }
+  .gmeta { margin-top: 4px; font-size: 11.5px; color: var(--muted); }
+  .star { color: #d99a00; }
   .heart {
-    position: absolute; top: 9px; right: 9px; width: 40px; height: 40px; border-radius: 50%; border: 0;
-    display: grid; place-items: center; font-size: 19px; color: #ff3d6e;
-    background: color-mix(in srgb, var(--surface) 88%, transparent); box-shadow: var(--shadow-sm);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: transform .15s;
+    position: absolute; top: 8px; right: 8px; width: 34px; height: 34px; border-radius: 50%; border: 0;
+    display: grid; place-items: center; font-size: 16px; color: var(--heart);
+    background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: var(--shadow-sm); transition: transform .15s;
   }
   .heart:active { transform: scale(.88); }
-  .heart.on { color: #fff; background: linear-gradient(135deg, #ff7a93, #ff3d6e); }
-  .heart.plan { color: #fff; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .heart.on { color: #fff; background: var(--heart); }
+  .heart.plan { color: #fff; background: var(--accent); }
   .heart.pop { animation: tick .35s cubic-bezier(.3, 1.6, .5, 1); }
   .ribbon {
-    position: absolute; top: 12px; left: 9px; right: 56px; padding: 4px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 800;
-    color: #fff; background: linear-gradient(135deg, #ff7a93, #ff3d6e); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: fit-content; max-width: calc(100% - 65px);
+    position: absolute; top: 12px; left: 8px; padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: 600;
+    color: #fff; background: var(--heart); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: fit-content; max-width: calc(100% - 56px);
   }
-  .more { display: block; width: 100%; margin-top: 14px; height: 48px; border: 0; border-radius: 15px; font-weight: 700; background: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .more { display: block; width: 100%; margin-top: 12px; height: 42px; border: 1px solid var(--line); border-radius: 10px; font-weight: 500; font-size: 14px; background: var(--surface); }
 
-  .section-title { margin: 30px 2px 10px; font-size: 19px; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
-  .section-sub { margin: -6px 2px 12px; color: var(--muted); font-size: 14px; }
-  .mlist { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; }
-  .mrow { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 10px; }
-  .mrow + .mrow { border-top: 1px solid var(--line); }
-  .mthumb { flex: none; width: 62px; height: 62px; border-radius: 15px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; }
+  .section-title { margin: 22px 2px 7px; font-size: 11.5px; font-weight: 500; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+  .section-sub { margin: -3px 2px 9px; color: var(--muted); font-size: 13px; }
+  .mlist { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .mrow { display: flex; align-items: center; gap: 10px; padding: 9px 12px; }
+  .mrow + .mrow { border-top: 1px solid var(--line-soft); }
+  .mthumb { flex: none; width: 44px; height: 44px; border-radius: 9px; background: var(--line-soft) center / cover no-repeat; }
   .mt { flex: 1; min-width: 0; }
-  .mt a { color: inherit; text-decoration: none; font-weight: 700; font-size: 15.5px; line-height: 1.25; display: block; }
-  .mt span { display: block; color: var(--muted); font-size: 12.5px; font-weight: 600; margin-top: 2px; }
-  .mbtn { flex: none; border: 0; border-radius: 12px; padding: 9px 11px; font-size: 13px; font-weight: 700; background: color-mix(in srgb, var(--ink) 6%, transparent); }
-  .mbtn.go { color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
-  .mbtn.x { padding: 9px 12px; color: var(--muted); }
+  .mt a { color: inherit; text-decoration: none; font-weight: 500; font-size: 14.5px; line-height: 1.3; display: block; }
+  .mt span { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+  .mbtn { flex: none; width: 34px; height: 34px; border: 0; border-radius: 9px; display: grid; place-items: center; font-size: 15px; color: var(--muted); background: var(--bg); }
+  .mbtn.go { color: var(--accent); background: var(--accent-soft); }
 
-  .cook-empty { text-align: center; padding: 40px 20px 8px; color: var(--muted); }
-  .cook-empty .big { width: 88px; height: 88px; border-radius: 30px; margin: 0 auto 16px; display: grid; place-items: center; font-size: 42px; background: var(--surface); box-shadow: var(--shadow); }
-  .cook-empty strong { display: block; color: var(--ink); font-size: 20px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 4px; }
-
-  .scard { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 16px; }
-  .scard + .scard { margin-top: 12px; }
-  .scard h4 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
-  .scard p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
-  .pantry { display: flex; flex-wrap: wrap; gap: 7px; }
-  .pantry .chip { --c: #8a8a80; }
-  .pantry-add { display: flex; gap: 8px; margin-top: 12px; }
-  .pantry-add input { flex: 1; min-width: 0; height: 44px; border: 1.5px solid transparent; border-radius: 14px; background: var(--bg); padding: 0 14px; font-size: 16px; font-weight: 600; outline: none; }
-  .pantry-add input:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
-  .btn-line { border: 0; border-radius: 14px; padding: 0 16px; height: 44px; font-weight: 700; background: color-mix(in srgb, var(--ink) 7%, transparent); }
-  .btn-line.go { color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
-  .ok-line { color: var(--accent); font-weight: 700; font-size: 15px; }
+  .scard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .scard + .scard { margin-top: 10px; }
+  .scard p { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
+  .pantry { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .pantry-add { display: flex; gap: 8px; }
+  .pantry-add input { flex: 1; min-width: 0; height: 42px; margin: 0; }
+  .btn-line { border: 1px solid var(--line); border-radius: 10px; padding: 0 14px; height: 42px; font-weight: 500; font-size: 14px; background: var(--surface); color: var(--ink); }
+  .btn-line.go { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+  .btn-line.sm { height: 32px; padding: 0 11px; font-size: 13px; }
+  .ok-line { color: var(--pos); font-weight: 500; font-size: 13.5px; }
 
   .match-overlay {
     position: fixed; inset: 0; z-index: 35; display: grid; place-items: center; padding: 24px 16px;
-    background: color-mix(in srgb, var(--bg) 60%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    animation: pop .25s ease-out;
+    background: rgba(15, 19, 24, .35); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: pop .25s ease-out;
   }
-  .match-card { width: 100%; max-width: 360px; background: var(--surface); border-radius: 28px; box-shadow: var(--shadow-lg); overflow: hidden; text-align: center; }
-  .match-card .mimg { height: 210px; background: color-mix(in srgb, var(--ink) 6%, var(--surface)) center / cover no-repeat; }
-  .match-card .mc { padding: 18px 20px 20px; }
-  .match-kicker { display: inline-block; padding: 5px 12px; border-radius: 99px; font-weight: 800; font-size: 13px; color: #fff; background: linear-gradient(135deg, #ff7a93, #ff3d6e); margin-bottom: 10px; }
-  .match-card h2 { margin: 0 0 6px; font-size: 22px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
-  .match-card p { margin: 0 0 16px; color: var(--muted); font-size: 15px; }
-  .match-card .link { display: block; margin-top: 12px; color: var(--muted); font-size: 14px; font-weight: 600; }
+  .match-card { width: 100%; max-width: 360px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-lg); overflow: hidden; text-align: center; }
+  .match-card .mimg { height: 190px; background: var(--line-soft) center / cover no-repeat; }
+  .match-card .mc { padding: 16px 18px 18px; }
+  .match-kicker { display: inline-block; padding: 4px 11px; border-radius: 99px; font-weight: 600; font-size: 12px; color: var(--accent); background: var(--accent-soft); margin-bottom: 10px; }
+  .match-card h2 { margin: 0 0 6px; font-size: 19px; font-weight: 600; line-height: 1.25; }
+  .match-card p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  .match-card .link { display: block; margin-top: 12px; color: var(--muted); font-size: 13.5px; }
 
   /* ---------- Kasse ---------- */
-  .kbal {
-    position: relative; overflow: hidden; border-radius: 26px; padding: 18px 18px 16px; color: #fff;
-    background: linear-gradient(150deg, #353b37, #1f2321); box-shadow: var(--shadow-lg);
-  }
-  .kbal::after {
-    content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, #4cc27a 45%, transparent), transparent 70%); pointer-events: none;
-  }
-  .kbal.even::after { background: radial-gradient(circle, color-mix(in srgb, #4cc27a 70%, transparent), transparent 70%); }
-  .kbal small { display: block; font-size: 13px; font-weight: 700; opacity: .6; }
-  .kbal .big { display: block; margin: 4px 0 2px; font-size: 36px; font-weight: 800; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
-  .kbal .who { font-size: 15.5px; font-weight: 600; opacity: .9; }
-  .kbal .settle {
-    position: relative; z-index: 1; margin-top: 14px; border: 0; height: 42px; padding: 0 16px; border-radius: 13px;
-    font-weight: 700; font-size: 14.5px; color: #1f2321; background: #fff;
-  }
-  .kmonth { display: flex; align-items: center; gap: 8px; margin: 22px 0 10px; }
-  .kmonth h2 { flex: 1; margin: 0; text-align: center; font-size: 19px; font-weight: 800; letter-spacing: -.02em; }
-  .kmonth button {
-    width: 42px; height: 42px; border: 0; border-radius: 14px; font-size: 20px; font-weight: 700;
-    background: var(--surface); box-shadow: var(--shadow-sm); color: var(--ink);
-  }
-  .kmonth button:disabled { opacity: .3; box-shadow: none; }
-  .ksum { background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); padding: 14px 14px 12px; }
-  .kstats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .kstats div { background: var(--bg); border-radius: 15px; padding: 9px 8px; min-width: 0; }
-  .kstats small { display: block; color: var(--muted); font-size: 12px; font-weight: 700; }
-  .kstats b { display: block; margin-top: 2px; font-size: 14px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .plus { color: var(--accent) !important; }
-  .minus { color: var(--danger) !important; }
-  .klist .mt b { display: block; font-size: 15.5px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
-  .klist .mrow { cursor: pointer; padding: 11px 14px 11px 11px; }
-  .kicon {
-    flex: none; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 21px;
-    background: color-mix(in srgb, var(--ink) 6%, var(--surface));
-  }
-  .kicon.in { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+  .kbal { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px 12px; margin-top: 4px; }
+  .kbal small { display: block; font-size: 12.5px; color: var(--muted); }
+  .kbal .big { display: block; margin: 2px 0 1px; font-size: 26px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .kbal .who { display: block; font-size: 13px; color: var(--muted); }
+  .kbal.even .big { color: var(--pos); }
+  .kbal .settle { margin-top: 10px; height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 9px; font-weight: 500; font-size: 13px; background: var(--surface); color: var(--ink); }
+  .kmonth { display: flex; align-items: center; gap: 8px; margin: 18px 0 8px; }
+  .kmonth h2 { flex: 1; margin: 0; text-align: center; font-size: 15px; font-weight: 600; }
+  .kmonth button { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 9px; font-size: 18px; background: var(--surface); color: var(--muted); }
+  .kmonth button:disabled { opacity: .35; }
+  .kstats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .kstats div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 7px 9px; min-width: 0; }
+  .kstats small { display: block; color: var(--muted); font-size: 11.5px; }
+  .kstats b { display: block; margin-top: 1px; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .plus { color: var(--pos) !important; }
+  .minus { color: var(--neg) !important; }
+  .klist .mt b { display: block; font-size: 14.5px; font-weight: 500; line-height: 1.3; overflow-wrap: anywhere; }
+  .klist .mrow { cursor: pointer; }
+  .kicon { flex: none; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; font-size: 18px; color: var(--muted); background: var(--bg); }
+  .kicon.in { color: var(--pos); background: var(--pos-soft); }
   .kright { flex: none; text-align: right; font-variant-numeric: tabular-nums; }
-  .kright b { display: block; font-size: 15.5px; font-weight: 800; }
-  .kright small { display: block; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  .kright b { display: block; font-size: 14px; font-weight: 500; }
+  .kright small { display: block; margin-top: 1px; font-size: 11.5px; color: var(--faint); }
   .kright .zero { color: var(--muted); }
-  .kcarry {
-    display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 14px;
-    background: color-mix(in srgb, var(--ink) 4%, var(--surface)); font-size: 14px; font-weight: 700; color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
-  .kcarry b { font-size: 15.5px; color: var(--ink); }
-  .kcarry.end { border-top: 1px solid var(--line); }
-  .kcarry + .mrow, .mrow + .kcarry, .kempty + .kcarry, .kcarry + .kempty { border-top: 1px solid var(--line); }
-  .kamt { flex: none; font-weight: 800; font-size: 15.5px; font-variant-numeric: tabular-nums; }
-  .kamt.in { color: var(--accent); }
-  .kamt.tr { color: var(--muted); }
-  .kempty { padding: 18px 16px; color: var(--muted); font-size: 14.5px; font-weight: 500; text-align: center; }
-  .kfab {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; pointer-events: none;
-    padding: 0 0 calc(12px + env(safe-area-inset-bottom));
-  }
-  .kfab button {
-    pointer-events: auto; width: 100%; height: 56px; border: 0; border-radius: 19px; font-weight: 800; font-size: 16.5px;
-    color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    box-shadow: 0 12px 26px -10px color-mix(in srgb, var(--accent) 85%, transparent);
-  }
-  .seg { display: flex; gap: 4px; padding: 4px; border-radius: 15px; background: color-mix(in srgb, var(--ink) 6%, transparent); margin: 0 0 14px; }
-  .seg button { flex: 1; min-width: 0; height: 40px; border: 0; background: none; border-radius: 11px; font-weight: 700; font-size: 14px; color: var(--muted); white-space: nowrap; }
+  .kcarry { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; background: var(--surface-2); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .kcarry b { font-size: 14px; font-weight: 500; color: var(--ink); }
+  .kcarry + .mrow, .mrow + .kcarry, .kempty + .kcarry, .kcarry + .kempty { border-top: 1px solid var(--line-soft); }
+  .kamt { flex: none; font-weight: 500; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .kamt.in { color: var(--pos); }
+  .kempty { padding: 16px; color: var(--muted); font-size: 13.5px; text-align: center; }
+  .kfab { position: fixed; left: 0; right: 0; bottom: calc(var(--tabbar) + env(safe-area-inset-bottom)); z-index: 6; pointer-events: none; padding: 0 0 8px; }
+  .kfab button { pointer-events: auto; width: 100%; height: 46px; border: 0; border-radius: 12px; font-weight: 600; font-size: 15px; color: var(--accent-ink); background: var(--accent); box-shadow: var(--shadow-lg); }
+
+  /* Umschalter und Auswahl in den Fenstern */
+  .seg { display: flex; gap: 3px; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--ink) 6%, transparent); margin: 0 0 14px; }
+  .seg button { flex: 1; min-width: 0; height: 34px; border: 0; background: none; border-radius: 8px; font-weight: 500; font-size: 13.5px; color: var(--muted); white-space: nowrap; }
   .seg button.on { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
-  .seg.kind button.on[data-v="ausgabe"] { color: var(--danger); }
-  .seg.kind button.on[data-v="einnahme"] { color: var(--accent); }
+  .seg.kind button.on[data-v="ausgabe"] { color: var(--neg); }
+  .seg.kind button.on[data-v="einnahme"] { color: var(--pos); }
   .edit-sheet .amount { position: relative; }
-  .edit-sheet .amount input { font-size: 26px; font-weight: 800; padding-right: 40px; height: 58px; font-variant-numeric: tabular-nums; }
-  .edit-sheet .amount::after { content: "€"; position: absolute; right: 16px; bottom: 15px; font-size: 22px; font-weight: 800; color: var(--muted); }
+  .edit-sheet .amount input { font-size: 22px; font-weight: 600; padding-right: 38px; height: 52px; font-variant-numeric: tabular-nums; }
+  .edit-sheet .amount::after { content: "€"; position: absolute; right: 14px; bottom: 14px; font-size: 18px; font-weight: 500; color: var(--faint); }
   .edit-sheet input[type="date"] { appearance: none; -webkit-appearance: none; }
   .kwhat { position: relative; margin: 0 0 8px; }
-  .kwhat-btn {
-    width: 100%; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px;
-    border: 0; border-radius: 16px; background: var(--bg); color: var(--ink); font-size: 17px; font-weight: 600;
-  }
-  .kwhat-btn.empty .kwhat-val { color: var(--muted); font-weight: 500; }
-  .kwhat-list {
-    position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 2; padding: 6px;
-    background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-lg); animation: pop .15s ease-out;
-  }
+  .kwhat-btn { width: 100%; height: 46px; display: flex; align-items: center; justify-content: space-between; padding: 0 13px; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); color: var(--ink); font-size: 16px; }
+  .kwhat-btn .kwhat-val { display: inline-flex; align-items: center; gap: 8px; }
+  .kwhat-btn.empty .kwhat-val { color: var(--faint); }
+  .kwhat-list { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 2; padding: 5px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-lg); animation: pop .15s ease-out; }
   .kwhat-list[hidden] { display: none; }
-  .kwhat-list button { display: block; width: 100%; text-align: left; padding: 11px 12px; border: 0; background: none; border-radius: 11px; font-size: 16px; font-weight: 600; color: var(--ink); }
-  .kwhat-list button.on { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
-  .ktoggle { display: flex !important; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: var(--bg); color: var(--ink) !important; font-size: 15px !important; }
-  .ktoggle input { width: 22px !important; height: 22px !important; accent-color: var(--accent); flex: none; }
-  .khint { margin: -4px 4px 14px; color: var(--muted); font-size: 13.5px; font-weight: 500; }
-  .edit-sheet { max-height: 92vh; max-height: 92dvh; overflow-y: auto; }
-  .link-del { display: block; margin: 14px auto 0; border: 0; background: none; color: var(--muted); font-size: 13.5px; font-weight: 600; text-decoration: underline; }
+  .kwhat-list button { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 10px 11px; border: 0; background: none; border-radius: 9px; font-size: 15px; color: var(--ink); }
+  .kwhat-list button svg { color: var(--muted); }
+  .kwhat-list button.on { background: var(--accent-soft); }
+  .ktoggle { display: flex !important; align-items: center; gap: 10px; padding: 11px 13px; border-radius: 11px; background: var(--bg); color: var(--ink) !important; font-size: 14.5px !important; font-weight: 400 !important; }
+  .ktoggle input { width: 20px !important; height: 20px !important; accent-color: var(--accent); flex: none; }
+  .khint { margin: -4px 2px 14px; color: var(--muted); font-size: 13px; }
+  .link-del { display: block; margin: 14px auto 0; border: 0; background: none; color: var(--muted); font-size: 13px; text-decoration: underline; }
   .link-del.armed { color: var(--danger); }
 
-  /* ---------- Artikel bearbeiten ---------- */
+  /* ---------- Fenster von unten ---------- */
   .edit-overlay {
     position: fixed; inset: 0; z-index: 35; display: flex; align-items: flex-end; justify-content: center;
-    background: color-mix(in srgb, var(--bg) 55%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    animation: fade .2s ease-out;
+    background: rgba(15, 19, 24, .32); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); animation: fade .2s ease-out;
   }
   .edit-overlay.closing { animation: fade .18s ease-in reverse forwards; }
   .edit-sheet {
-    width: 100%; max-width: 560px; background: var(--surface); border-radius: 28px 28px 0 0; box-shadow: var(--shadow-lg);
-    padding: 10px 16px calc(16px + env(safe-area-inset-bottom)); animation: sheetUp .3s cubic-bezier(.2, .9, .3, 1);
+    width: 100%; max-width: 560px; max-height: 92vh; max-height: 92dvh; overflow-y: auto; background: var(--surface);
+    border-radius: 18px 18px 0 0; box-shadow: var(--shadow-lg);
+    padding: 8px 16px calc(16px + env(safe-area-inset-bottom)); animation: sheetUp .3s cubic-bezier(.2, .9, .3, 1);
   }
   .edit-overlay.closing .edit-sheet { animation: sheetUp .18s ease-in reverse forwards; }
-  .edit-sheet .grab { width: 40px; height: 5px; border-radius: 99px; background: var(--line); margin: 0 auto 14px; }
-  .edit-sheet h2 { margin: 0 0 16px 4px; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
-  .edit-sheet label { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 0 14px; }
-  .edit-sheet label > span { display: block; margin: 0 0 6px 4px; }
-  .edit-sheet input {
-    width: 100%; height: 50px; border: 1.5px solid transparent; border-radius: 16px; background: var(--bg);
-    padding: 0 14px; font-size: 17px; font-weight: 600; color: var(--ink); outline: none;
-  }
-  .edit-sheet input:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+  .edit-sheet .grab { width: 36px; height: 4px; border-radius: 99px; background: var(--line); margin: 0 auto 14px; }
+  .edit-sheet h2 { margin: 0 0 14px 2px; font-size: 17px; font-weight: 600; }
+  .edit-sheet label { display: block; font-size: 12.5px; font-weight: 500; color: var(--muted); margin: 0 0 14px; }
+  .edit-sheet label > span { display: block; margin: 0 0 5px 2px; }
+  .edit-sheet input { width: 100%; height: 46px; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); padding: 0 13px; font-size: 16px; color: var(--ink); outline: none; }
+  .edit-sheet input:focus { border-color: var(--accent); }
   .edit-row { display: flex; gap: 10px; }
   .edit-row label:first-child { flex: 1; min-width: 0; }
   .edit-row label.q { width: 112px; flex: none; }
-  .edit-cats { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 18px; }
-  .edit-cats .chip.on { background: var(--c); color: #fff; }
-  .edit-actions { display: flex; gap: 10px; }
-  .edit-actions .go { flex: 1; height: 52px; font-size: 16px; }
-  .edit-actions .del-btn { height: 52px; color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+  .edit-cats { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; }
+  .edit-cats .chip.on { background: var(--c); border-color: var(--c); color: #fff; }
+  .edit-cats .chip.on .cdot { background: #fff; }
+  .edit-actions { display: flex; gap: 8px; }
+  .edit-actions .go { flex: 1; height: 46px; font-size: 15px; font-weight: 600; }
+  .edit-actions .del-btn { height: 46px; color: var(--danger); background: var(--danger-soft); border-color: transparent; }
+  .edit-sheet textarea { width: 100%; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); color: var(--ink); padding: 11px 13px; font-size: 16px; resize: none; outline: none; }
+  .edit-sheet textarea:focus { border-color: var(--accent); }
 
-  /* ---------- Liebe Sprüche ---------- */
-  .menu button[hidden] { display: none; }
-  .steps { margin: 0 0 14px; padding-left: 22px; font-size: 14.5px; font-weight: 500; line-height: 1.45; }
-  .steps li { margin-bottom: 7px; }
-  .steps b { font-weight: 700; }
-  .steps-h { margin: 4px 0 8px 4px; font-size: 15px; font-weight: 800; }
-  .ord-list { margin: 0 0 16px; border-radius: 16px; overflow: hidden; background: var(--bg); }
+  /* ---------- Mehr ---------- */
+  .mitem { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 12px; border: 0; background: none; text-align: left; font-size: 15px; color: var(--ink); min-height: 46px; }
+  .mitem + .mitem { border-top: 1px solid var(--line-soft); }
+  .mitem > svg { width: 19px; height: 19px; color: var(--muted); }
+  .mitem .mtxt { flex: 1; min-width: 0; }
+  .mitem .mtxt small { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .mitem .mval { color: var(--faint); font-size: 13.5px; }
+  .mitem .chev { width: 16px; height: 16px; color: var(--faint); }
+  .mitem.danger, .mitem.danger > svg { color: var(--danger); }
+  .mfoot { text-align: center; color: var(--faint); font-size: 12px; margin: 22px 0 0; }
+
+  /* ---------- Reihenfolge, Erinnerung, Sprüche ---------- */
+  .steps { margin: 0 0 14px; padding-left: 20px; font-size: 14px; line-height: 1.5; }
+  .steps li { margin-bottom: 6px; }
+  .steps b { font-weight: 600; }
+  .steps-h { margin: 4px 0 8px 2px; font-size: 14px; font-weight: 600; }
+  .ord-list { margin: 0 0 16px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
   .ord-row { --c: #888; display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 10px; }
-  .ord-row + .ord-row { border-top: 1px solid var(--line); }
-  .ord-row .n { width: 18px; color: var(--muted); font-size: 13px; font-weight: 700; text-align: right; }
-  .ord-row .b { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; font-size: 15px; background: color-mix(in srgb, var(--c) var(--tint-strong), var(--surface)); }
-  .ord-row span.t { flex: 1; font-size: 15px; font-weight: 600; }
-  .ord-row button { width: 36px; height: 34px; border: 0; border-radius: 10px; font-size: 17px; font-weight: 700; background: var(--surface); color: var(--ink); }
+  .ord-row + .ord-row { border-top: 1px solid var(--line-soft); }
+  .ord-row .n { width: 18px; color: var(--faint); font-size: 12.5px; text-align: right; }
+  .ord-row span.t { flex: 1; font-size: 15px; }
+  .ord-row button { width: 34px; height: 32px; border: 1px solid var(--line); border-radius: 9px; font-size: 15px; background: var(--surface); color: var(--ink); }
   .ord-row button:disabled { opacity: .25; }
   .love-card {
-    position: relative; width: 100%; max-width: 340px; border-radius: 30px; padding: 34px 24px 22px; text-align: center; overflow: hidden;
+    position: relative; width: 100%; max-width: 340px; border-radius: 22px; padding: 32px 22px 20px; text-align: center; overflow: hidden;
     color: #fff; background: linear-gradient(160deg, #ff8fa8, #ff4f7b 55%, #d6336c);
     box-shadow: 0 26px 60px -20px rgba(214, 51, 108, .65); animation: pop .4s cubic-bezier(.2, 1.4, .4, 1);
   }
   .love-hearts { position: absolute; inset: 0; pointer-events: none; }
   .love-hearts i { position: absolute; bottom: -30px; font-style: normal; color: rgba(255, 255, 255, .3); animation: floatUp linear infinite; }
   .love-card > :not(.love-hearts) { position: relative; }
-  .love-big { font-size: 64px; line-height: 1; animation: beat 1.4s ease-in-out infinite; }
-  .love-hi { margin: 16px 0 6px; font-size: 15px; font-weight: 700; opacity: .85; }
-  .love-text { margin: 0 0 10px; font-size: 23px; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; overflow-wrap: anywhere; }
-  .love-by { margin: 0 0 22px; font-weight: 600; opacity: .85; }
-  .love-card .btn-main { background: #fff; color: #d6336c; box-shadow: none; }
-  .notes-hint { margin: -6px 4px 16px; color: var(--muted); font-size: 14px; }
-  .edit-sheet textarea {
-    width: 100%; border: 1.5px solid transparent; border-radius: 16px; background: var(--bg); color: var(--ink);
-    padding: 12px 14px; font: inherit; font-size: 16px; font-weight: 600; resize: none; outline: none;
-  }
-  .edit-sheet textarea:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+  .love-big { font-size: 60px; line-height: 1; animation: beat 1.4s ease-in-out infinite; }
+  .love-hi { margin: 14px 0 6px; font-size: 14px; font-weight: 500; opacity: .85; }
+  .love-text { margin: 0 0 10px; font-size: 21px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+  .love-by { margin: 0 0 20px; opacity: .85; }
+  .love-card .btn-main { background: #fff; color: #d6336c; }
+  .notes-hint { margin: -4px 2px 14px; color: var(--muted); font-size: 13.5px; }
   .notes-list { max-height: 34vh; overflow-y: auto; margin-top: 16px; }
-  .notes-list h3 { margin: 0 4px 8px; font-size: 13px; font-weight: 700; color: var(--muted); }
-  .note-row { display: flex; align-items: center; gap: 10px; padding: 8px 4px 8px 12px; border-radius: 14px; background: var(--bg); margin-bottom: 6px; font-size: 15px; font-weight: 600; }
+  .notes-list h3 { margin: 0 2px 8px; font-size: 12.5px; font-weight: 500; color: var(--muted); }
+  .note-row { display: flex; align-items: center; gap: 10px; padding: 8px 4px 8px 12px; border-radius: 11px; background: var(--bg); margin-bottom: 6px; font-size: 14.5px; }
   .note-row span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 
-  /* ---------- Toast & Konfetti ---------- */
+  /* ---------- Hinweise und Konfetti ---------- */
   .toast {
-    position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(16px);
-    background: var(--ink); color: var(--bg); padding: 8px 8px 8px 16px; border-radius: 16px; font-size: 14px; font-weight: 600;
-    display: flex; align-items: center; gap: 12px; white-space: nowrap;
+    position: fixed; left: 50%; bottom: calc(var(--tabbar) + 76px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(12px);
+    background: var(--ink); color: var(--bg); padding: 8px 8px 8px 14px; border-radius: 12px; font-size: 13.5px; font-weight: 500;
+    display: flex; align-items: center; gap: 12px; white-space: nowrap; max-width: calc(100vw - 24px);
     opacity: 0; pointer-events: none; transition: all .25s cubic-bezier(.2, .8, .2, 1); z-index: 30; box-shadow: var(--shadow-lg);
   }
+  .toast span { overflow: hidden; text-overflow: ellipsis; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
-  .toast:not(:has(button)) { padding-right: 16px; }
-  .toast button { border: 0; background: color-mix(in srgb, var(--bg) 18%, transparent); color: var(--bg); font-weight: 700; padding: 7px 12px; border-radius: 11px; }
+  .toast:not(:has(button)) { padding-right: 14px; }
+  .toast button { border: 0; background: color-mix(in srgb, var(--bg) 18%, transparent); color: var(--bg); font-weight: 600; padding: 6px 11px; border-radius: 9px; }
   .confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 40; }
 
   @keyframes tick { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
   @keyframes slideIn { from { transform: translateY(-8px); opacity: 0; } to { transform: none; opacity: 1; } }
-  @keyframes pop { from { transform: scale(.94); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes pop { from { transform: scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
   @keyframes beat { 0%, 50%, 100% { transform: scale(1); } 12% { transform: scale(1.18); } 30% { transform: scale(1.1); } }
@@ -602,28 +510,12 @@
   <div class="wrap head">
     <div>
       <div class="date"><span class="dot" id="dot"></span><span id="date"></span></div>
-      <h1>Einkauf</h1>
-    </div>
-    <button class="icon-btn" id="menuBtn" aria-label="Menü">⋯</button>
-  </div>
-  <div class="wrap tabs-wrap">
-    <div class="tabs" role="tablist">
-      <button class="tab active" data-tab="liste" role="tab">🛒 Liste</button>
-      <button class="tab" data-tab="kochen" role="tab">🍳 Kochen <span class="tab-badge" id="cookBadge" hidden></span></button>
-      <button class="tab" data-tab="kasse" role="tab">💶 Kasse</button>
+      <h1 id="title">Einkauf</h1>
     </div>
   </div>
   <div class="wrap progress" id="progress" hidden>
     <div class="progress-top"><span id="count"></span><span id="ratio"></span></div>
     <div class="bar"><i id="barFill"></i></div>
-  </div>
-  <div class="menu" id="menu">
-    <div class="who" id="who"></div>
-    <button id="remindBtn">📍 Rossmann-Erinnerung einrichten</button>
-    <button id="orderBtn">🧭 Reihenfolge im Laden</button>
-    <button id="notesBtn" hidden>💌 Sprüche für Karin</button>
-    <button id="reloadBtn">Neu laden</button>
-    <button id="logoutBtn">Abmelden</button>
   </div>
 </header>
 
@@ -632,7 +524,17 @@
   <div id="done"></div>
   <div id="cook"></div>
   <div id="kasse"></div>
+  <div id="mehr"></div>
 </main>
+
+<nav class="tabbar" role="tablist">
+  <div class="wrap tabbar-in">
+    <button class="tab active" data-tab="liste" role="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17M11 6h9M11 12h9M11 18h9"/></svg><span>Liste</span></button>
+    <button class="tab" data-tab="kochen" role="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h16v6a4 4 0 01-4 4H8a4 4 0 01-4-4z"/><path d="M2 10h20M9 6c0-1 1-1 1-2M14 6c0-1 1-1 1-2"/></svg><span>Kochen</span><span class="tab-badge" id="cookBadge" hidden></span></button>
+    <button class="tab" data-tab="kasse" role="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h14a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M4 7l11-3v3M16 13.5h2"/></svg><span>Kasse</span></button>
+    <button class="tab" data-tab="mehr" role="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg><span>Mehr</span></button>
+  </div>
+</nav>
 
 <form class="composer" id="addForm" autocomplete="off">
   <div class="wrap">
@@ -642,10 +544,10 @@
       <div class="chips" id="chips"></div>
       <div class="row">
         <div class="field">
-          <div class="cat" id="catBox"><span id="catIcon">📦</span><select id="cat" aria-label="Kategorie"></select></div>
+          <div class="cat" id="catBox"><select id="cat" aria-label="Kategorie"></select></div>
           <input id="name" placeholder="Was fehlt?" enterkeyhint="done" maxlength="80">
           <input id="qty" placeholder="Menge" maxlength="20" inputmode="decimal" enterkeyhint="done">
-          <button type="button" class="pin" id="pinBtn" aria-pressed="false" aria-label="Bei Rossmann erinnern">📍</button>
+          <button type="button" class="pin" id="pinBtn" aria-pressed="false" aria-label="Bei Rossmann erinnern"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.6-6-11a6 6 0 0112 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg></button>
         </div>
         <button class="add" id="addBtn" type="submit" aria-label="Hinzufügen" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -799,7 +701,7 @@
       <div class="swipe-bg">Löschen</div>
       <div class="inner">
         <button class="check" aria-label="${it.checked ? 'Wieder offen' : 'Abhaken'}">${checkSvg}</button>
-        <div class="text"><span class="name">${esc(it.name)}</span>${it.remind ? '<span class="rem" title="Rossmann-Erinnerung">📍</span>' : ''}${by}</div>
+        <div class="text"><span class="name">${esc(it.name)}</span>${it.remind ? `<span class="rem" title="Rossmann-Erinnerung">${IC.pin}</span>` : ''}${by}</div>
         ${it.qty ? `<span class="qty">${esc(it.qty)}</span>` : ''}
         <button class="del" aria-label="Löschen">×</button>
       </div>
@@ -819,7 +721,7 @@
     $('barFill').style.width = total ? `${Math.round(done.length / total * 100)}%` : '0';
 
     if (open.length === 0) {
-      $('list').innerHTML = `<div class="empty"><div class="big">${done.length ? '🎉' : '🛒'}</div>
+      $('list').innerHTML = `<div class="empty"><div class="big">${done.length ? IC.check : IC.cart}</div>
         <strong>${done.length ? 'Alles im Wagen!' : 'Die Liste ist leer'}</strong>
         ${done.length ? 'Nach dem Einkauf auf „Woche fertig“ tippen.' : 'Unten ins Feld tippen – dort erscheinen auch eure häufigsten Artikel.'}</div>`;
     } else {
@@ -833,13 +735,13 @@
       $('list').innerHTML = [...groups].map(([id, items]) => {
         const c = catOf(id);
         return `<section class="group" style="--c:${c.color}">
-          <div class="group-head"><span class="badge">${c.icon}</span><h2>${esc(c.id)}</h2><span class="n">${items.length}</span></div>
+          <div class="group-head"><h2>${esc(c.id)}</h2><span class="n">${items.length}</span></div>
           <ul>${items.map(itemHtml).join('')}</ul></section>`;
       }).join('');
     }
 
-    $('done').innerHTML = done.length ? `<div class="done-head"><h2>✓ Im Wagen · ${done.length}</h2>
-      <button class="finish" id="clearBtn">🎉 Woche fertig</button></div>
+    $('done').innerHTML = done.length ? `<div class="done-head"><h2>Im Wagen · ${done.length}</h2>
+      <button class="finish" id="clearBtn">Woche fertig</button></div>
       <ul class="done-list">${done.map(itemHtml).join('')}</ul>` : '';
 
     justAdded.clear();
@@ -857,7 +759,7 @@
     $('chipsLabel').textContent = favs.length ? (q ? 'Vorschläge' : 'Oft gekauft · gedrückt halten zum Entfernen') : '';
     $('chips').innerHTML = favs.map(f => {
       const c = catOf(f.category);
-      return `<button type="button" class="chip${delModeName === f.name ? ' del-mode' : ''}" data-name="${esc(f.name)}" style="--c:${c.color}">${delModeName === f.name ? '× entfernen' : c.icon + ' ' + esc(f.name)}</button>`;
+      return `<button type="button" class="chip${delModeName === f.name ? ' del-mode' : ''}" data-name="${esc(f.name)}" style="--c:${c.color}">${delModeName === f.name ? '× entfernen' : '<span class="cdot"></span>' + esc(f.name)}</button>`;
     }).join('');
     $('chips').style.display = favs.length ? '' : 'none';
     $('chipsLabel').style.display = favs.length ? '' : 'none';
@@ -866,7 +768,6 @@
   function setCat(id) {
     const c = catOf(id);
     $('cat').value = c.id;
-    $('catIcon').textContent = c.icon;
     $('catBox').style.setProperty('--c', c.color);
   }
 
@@ -956,8 +857,8 @@
       </div>
       <div class="qty-bar on" style="margin:-6px 0 14px"></div>
       <label><span>Kategorie</span></label>
-      <div class="edit-cats">${CATS.map(c => `<button type="button" class="chip${c.id === cat ? ' on' : ''}" data-cat="${esc(c.id)}" style="--c:${c.color}">${c.icon} ${esc(c.id)}</button>`).join('')}</div>
-      <label class="ktoggle"><input type="checkbox" name="remind" ${it.remind ? 'checked' : ''}> 📍 Bei Rossmann erinnern</label>
+      <div class="edit-cats">${CATS.map(c => `<button type="button" class="chip${c.id === cat ? ' on' : ''}" data-cat="${esc(c.id)}" style="--c:${c.color}"><span class="cdot"></span>${esc(c.id)}</button>`).join('')}</div>
+      <label class="ktoggle"><input type="checkbox" name="remind" ${it.remind ? 'checked' : ''}> Bei Rossmann erinnern</label>
       <div style="height:14px"></div>
       <div class="edit-actions">
         <button type="button" class="btn-line del-btn">Löschen</button>
@@ -1002,7 +903,7 @@
   }
   $('pinBtn').addEventListener('click', () => {
     setRemindNext(!remindNext);
-    if (remindNext) toast('📍 Wird an der Haltestelle bei Rossmann gemeldet');
+    if (remindNext) toast('Wird an der Haltestelle bei Rossmann gemeldet');
   });
 
   $('addForm').addEventListener('submit', e => {
@@ -1142,6 +1043,8 @@
     if (held) { held = false; return; }
     const tabBtn = e.target.closest('.tab');
     if (tabBtn) { setTab(tabBtn.dataset.tab); return; }
+    const m = e.target.closest('[data-m]');
+    if (m) { mehrAction(m.dataset.m); return; }
     const act = e.target.closest('[data-act]');
     if (act && act.tagName !== 'FORM' && act.closest('#cook')) {
       cookAction(act.dataset.act, act).catch(() => toast('Hat nicht geklappt – bitte nochmal versuchen.'));
@@ -1167,13 +1070,9 @@
       });
       return;
     }
-    if (e.target.id === 'menuBtn') { $('menu').classList.toggle('open'); return; }
-    if (!e.target.closest('.menu')) $('menu').classList.remove('open');
     if (delModeName && !e.target.closest('.chip')) { delModeName = null; renderChips(); }
   });
 
-  $('reloadBtn').addEventListener('click', () => { $('menu').classList.remove('open'); load(); });
-  $('logoutBtn').addEventListener('click', () => { $('menu').classList.remove('open'); logout(); });
 
   function confetti() {
     if (reducedMotion) return;
@@ -1232,18 +1131,52 @@
     search: svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>', 2.4),
   };
 
+  // Linien-Symbole statt Emojis
+  const ln = d => svg(d, 1.8);
+  const IC = {
+    home: ln('<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>'),
+    cart: ln('<circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.4 11h11L21 7H6.2"/>'),
+    bolt: ln('<path d="M13 3L5 14h6l-1 7 8-11h-6l1-7z"/>'),
+    bottle: ln('<path d="M10 3h4v4h-4zM9 7h6l1 3v10a1 1 0 01-1 1H9a1 1 0 01-1-1V10z"/>'),
+    shield: ln('<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>'),
+    car: ln('<path d="M5 16v-4l2-5h10l2 5v4"/><path d="M3 16h18"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/>'),
+    tv: ln('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 21h8M9 3l3 3 3-3"/>'),
+    star: ln('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>'),
+    pulse: ln('<path d="M3 12h4l2-5 4 10 2-5h6"/>'),
+    box: ln('<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>'),
+    cutlery: ln('<path d="M7 3v8M5 3v5a2 2 0 004 0V3M7 11v10M17 3c-2 1.5-2.5 5-2.5 8H17v10"/>'),
+    plusCircle: ln('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
+    swap: ln('<path d="M4 8h14l-3-3M20 16H6l3 3"/>'),
+    pin: ln('<path d="M12 21s-6-5.6-6-11a6 6 0 0112 0c0 5.4-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>'),
+    route: ln('<circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6.5a3.5 3.5 0 000-7h-5a3.5 3.5 0 010-7H16"/>'),
+    jar: ln('<rect x="6" y="8" width="12" height="13" rx="2"/><path d="M8 4h8v4H8z"/>'),
+    bell: ln('<path d="M6 16v-5a6 6 0 0112 0v5l2 2H4z"/><path d="M10 21h4"/>'),
+    heart: ln('<path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 3.7 4.5 7.1 4.5c2.1 0 3.6 1.2 4.9 3 1.3-1.8 2.8-3 4.9-3 3.4 0 5.5 3.3 4.3 6.7-1.7 4.7-9.2 9.3-9.2 9.3z"/>'),
+    refresh: ln('<path d="M20 11a8 8 0 10-2.3 5.7"/><path d="M20 5v6h-6"/>'),
+    logout: ln('<path d="M14 4h4a2 2 0 012 2v12a2 2 0 01-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h10"/>'),
+    user: ln('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'),
+    chev: ln('<path d="M9 6l6 6-6 6"/>'),
+    check: ln('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+    pot: ln('<path d="M4 10h16v6a4 4 0 01-4 4H8a4 4 0 01-4-4z"/><path d="M2 10h20M9 6c0-1 1-1 1-2M14 6c0-1 1-1 1-2"/>'),
+    wallet: ln('<path d="M4 7h14a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M4 7l11-3v3M16 13.5h2"/>'),
+  };
+
   const isMine = p => p.proposed_by.toLowerCase() === me.toLowerCase();
   const toDecide = () => kochen ? kochen.open.filter(p => !isMine(p)) : [];
 
+  const TITLES = { liste: 'Einkauf', kochen: 'Kochen', kasse: 'Kasse', mehr: 'Mehr' };
   function setTab(t) {
     tab = t;
     document.body.classList.toggle('mode-kochen', t === 'kochen');
     document.body.classList.toggle('mode-kasse', t === 'kasse');
+    document.body.classList.toggle('mode-mehr', t === 'mehr');
+    $('title').textContent = TITLES[t];
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
     history.replaceState(null, '', t === 'liste' ? location.pathname + location.search : '#' + t);
     window.scrollTo(0, 0);
     if (t === 'kochen') { renderCook(); loadCook(); loadCatalog(); }
     if (t === 'kasse') { renderKasse(); loadMoney(); }
+    if (t === 'mehr') { renderMehr(); loadCook(); }
   }
 
   const seen = {
@@ -1268,6 +1201,7 @@
       kochen = fresh;
       updateBadge();
       if (tab === 'kochen') renderCook();
+      if (tab === 'mehr') renderMehr();
     } catch {} finally { cookLoading = false; }
   }
 
@@ -1304,16 +1238,15 @@
     html += cookView === 'planen' ? planHtml() : browseHtml();
     el.innerHTML = html;
     if (cookView === 'stoebern') renderGrid();
-    else renderPushState();
   }
 
   function planHtml() {
-    if (!kochen) return `<div class="cook-empty"><div class="big">🍳</div><strong>Lädt …</strong></div>`;
+    if (!kochen) return `<div class="cook-empty"><div class="big">${IC.pot}</div><strong>Lädt …</strong></div>`;
     let html = '';
     const decide = toDecide();
     if (decide.length) {
       const who = [...new Set(decide.map(p => p.proposed_by))].join(' & ');
-      html += `<div class="section-title">💌 ${esc(who)} schlägt vor</div>
+      html += `<div class="section-title">${esc(who)} schlägt vor</div>
         <div class="section-sub">Kochen wir das diese Woche?</div>
         ${decide.map(p => `
         <div class="dcard" data-pid="${esc(p.id)}">
@@ -1329,17 +1262,17 @@
         </div>`).join('')}`;
     }
 
-    html += `<div class="section-title">🍽️ Wir kochen</div>`;
+    html += `<div class="section-title">Wir kochen</div>`;
     if (kochen.plan.length) {
       html += `<div class="mlist">${kochen.plan.map(p => `
         <div class="mrow">
           <div class="mthumb" ${bg(p.thumb)}></div>
           <div class="mt"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a><span>${minutes(p.total_time) || '&nbsp;'}</span></div>
-          <button class="mbtn go" data-act="cooked" data-id="${esc(p.id)}" aria-label="Gekocht">✓</button>
-          <button class="mbtn" data-act="readd" data-id="${esc(p.id)}" aria-label="Zutaten nochmal auf die Liste">🛒</button>
-          <button class="mbtn x" data-act="unplan" data-id="${esc(p.id)}" aria-label="Vom Plan nehmen">✕</button>
+          <button class="mbtn go" data-act="cooked" data-id="${esc(p.id)}" aria-label="Gekocht">${IC.check}</button>
+          <button class="mbtn" data-act="readd" data-id="${esc(p.id)}" aria-label="Zutaten nochmal auf die Liste">${IC.cart}</button>
+          <button class="mbtn x" data-act="unplan" data-id="${esc(p.id)}" aria-label="Vom Plan nehmen">${ICONS.no}</button>
         </div>`).join('')}</div>
-        <div class="section-sub" style="margin-top:8px">✓ = gekocht · 🛒 = Zutaten nochmal auf die Liste</div>`;
+        <div class="section-sub" style="margin-top:8px">Haken = gekocht · Wagen = Zutaten nochmal auf die Liste</div>`;
     } else {
       html += `<div class="scard" style="text-align:center"><p style="margin:0 0 12px">Noch nichts geplant. Stöbert durch die Top-Rezepte und schlagt euch gegenseitig was vor.</p>
         <button class="btn-line go" data-act="view" data-v="stoebern">Jetzt stöbern</button></div>`;
@@ -1347,27 +1280,15 @@
 
     const mine = kochen.open.filter(isMine);
     if (mine.length) {
-      html += `<div class="section-title">⏳ Deine Vorschläge</div><div class="section-sub">Warten auf eine Entscheidung.</div>
+      html += `<div class="section-title">Deine Vorschläge</div><div class="section-sub">Warten auf eine Entscheidung.</div>
         <div class="mlist">${mine.map(p => `
         <div class="mrow">
           <div class="mthumb" ${bg(p.thumb)}></div>
           <div class="mt"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a><span>${metaLine(p)}</span></div>
-          <button class="mbtn x" data-act="withdraw" data-id="${esc(p.id)}" aria-label="Zurückziehen">✕</button>
+          <button class="mbtn x" data-act="withdraw" data-id="${esc(p.id)}" aria-label="Zurückziehen">${ICONS.no}</button>
         </div>`).join('')}</div>`;
     }
 
-    html += `<div class="section-title">⚙️ Einstellungen</div>
-      <div class="scard">
-        <h4>Immer im Haus</h4>
-        <p>Diese Zutaten kommen nicht auf die Einkaufsliste.</p>
-        <div class="pantry">${(kochen.pantry || []).map(p => `<button class="chip" data-act="pantry-del" data-name="${esc(p)}">${esc(p)} ×</button>`).join('')}</div>
-        <form class="pantry-add"><input id="pantryInput" placeholder="z. B. Knoblauch" maxlength="40"><button class="btn-line">Dazu</button></form>
-      </div>
-      <div class="scard">
-        <h4>Sonntags-Erinnerung</h4>
-        <p>Eine Mitteilung am Sonntag, damit ihr die Woche plant.</p>
-        <div id="pushState"></div>
-      </div>`;
     return html;
   }
 
@@ -1376,9 +1297,9 @@
     return `<label class="search">${ICONS.search}<input id="catSearch" type="search" placeholder="Suchen, z. B. Lasagne" value="${esc(filter.q)}" autocomplete="off"></label>
       <div class="fchips">
         ${CHIP_FILTERS.map(c => chip(c, filter.chip === c, 'fchip')).join('')}
-        ${chip('🌱 Vegetarisch', filter.veg, 'fveg', 'sep')}
-        ${chip('⏱ bis 30 Min', filter.time === 30, 'ftime')}
-        ${chip('⏱ bis 45 Min', filter.time === 45, 'ftime')}
+        ${chip('Vegetarisch', filter.veg, 'fveg', 'sep')}
+        ${chip('bis 30 Min', filter.time === 30, 'ftime')}
+        ${chip('bis 45 Min', filter.time === 45, 'ftime')}
       </div>
       <div class="rcount" id="rcount"></div>
       <div class="grid" id="grid"></div>
@@ -1587,42 +1508,27 @@
       toast(n ? `${n} Zutaten auf die Liste gesetzt` : 'Alles schon im Haus');
       return;
     }
-    if (act === 'pantry-del') {
-      kochen.pantry = kochen.pantry.filter(p => p !== t.dataset.name);
-      renderCook();
-      await rpc('set_pantry', { p_names: kochen.pantry });
-      return;
-    }
-    if (act === 'push') return enablePush();
   }
-
-  $('cook').addEventListener('submit', async e => {
-    e.preventDefault();
-    const v = cap(($('pantryInput')?.value || '').trim());
-    if (!v || kochen.pantry.some(p => p.toLowerCase() === v.toLowerCase())) return;
-    kochen.pantry = [...kochen.pantry, v].sort((a, b) => a.localeCompare(b, 'de'));
-    renderCook();
-    await rpc('set_pantry', { p_names: kochen.pantry });
-  });
 
   // --- Push ---
   const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 
   async function renderPushState() {
-    const el = $('pushState');
+    const el = $('pushState'), sub = $('pushSub');
     if (!el) return;
+    // Längere Hinweise stehen klein unter dem Titel, rechts nur Status oder Knopf
+    const note = t => { el.innerHTML = ''; if (sub) sub.textContent = t; };
     if (!pushSupported()) {
-      el.innerHTML = `<p style="margin:0">${/iPhone|iPad/.test(navigator.userAgent) && !isStandalone()
-        ? 'Auf dem iPhone geht das nur, wenn die App auf dem Home-Bildschirm liegt: Teilen → „Zum Home-Bildschirm“, dann von dort öffnen.'
-        : 'Dieser Browser kann keine Mitteilungen.'}</p>`;
+      note(/iPhone|iPad/.test(navigator.userAgent) && !isStandalone()
+        ? 'Geht nur, wenn die App auf dem Home-Bildschirm liegt: Teilen → „Zum Home-Bildschirm“, dann von dort öffnen.'
+        : 'Dieser Browser kann keine Mitteilungen.');
       return;
     }
     let on = false;
     try { on = Notification.permission === 'granted' && !!(await (await navigator.serviceWorker.ready).pushManager.getSubscription()); } catch {}
-    el.innerHTML = on ? '<span class="ok-line">✓ Ist eingeschaltet</span>'
-      : Notification.permission === 'denied' ? '<p style="margin:0">Mitteilungen sind blockiert. Erlaube sie in den Einstellungen deines Handys für diese App.</p>'
-      : '<button class="btn-line go" data-act="push">Erinnerung einschalten</button>';
+    if (Notification.permission === 'denied' && !on) { note('Mitteilungen sind blockiert. Erlaube sie in den Handy-Einstellungen für diese App.'); return; }
+    el.innerHTML = on ? '<span class="ok-line">An</span>' : '<button class="btn-line go sm" data-m="push">Einschalten</button>';
   }
 
   async function enablePush() {
@@ -1733,7 +1639,7 @@
   // Für Brian: eigene Sprüche vormerken
   async function openNotes() {
     const { o, f } = openSheet(`
-      <h2>💌 Sprüche für ${LOVE_FOR}</h2>
+      <h2>Sprüche für ${LOVE_FOR}</h2>
       <p class="notes-hint">${LOVE_FOR} sieht jeden Tag beim ersten Öffnen einen Spruch. Deine eigenen kommen vor den vorbereiteten dran.</p>
       <label><span>Neuer Spruch</span><textarea name="text" maxlength="200" rows="3" placeholder="z. B. Du bist mein Lieblingsmensch"></textarea></label>
       <div class="edit-actions"><button type="submit" class="btn-line go">Spruch speichern</button></div>
@@ -1770,16 +1676,78 @@
     refreshList();
   }
 
-  function renderMenu() {
-    $('who').textContent = `Angemeldet als ${me}`;
-    $('notesBtn').hidden = isLoveFor();
+  function renderMenu() { renderMehr(); }
+
+  // „Mehr“: alles, was man selten braucht, nach Bereichen sortiert
+  function renderMehr() {
+    const row = (m, icon, label, val = '') => `<button class="mitem" data-m="${m}">${icon}<span class="mtxt">${label}</span>${val ? `<span class="mval">${val}</span>` : ''}${IC.chev.replace('<svg', '<svg class="chev"')}</button>`;
+    const n = kochen?.pantry?.length;
+    $('mehr').innerHTML = `
+      <div class="section-title">Konto</div>
+      <div class="mlist"><div class="mitem">${IC.user}<span class="mtxt">Angemeldet als <b>${esc(me)}</b></span></div></div>
+      <div class="section-title">Einkauf</div>
+      <div class="mlist">${row('order', IC.route, 'Reihenfolge im Laden')}${row('remind', IC.pin, 'Rossmann-Erinnerung')}</div>
+      <div class="section-title">Kochen</div>
+      <div class="mlist">
+        ${row('pantry', IC.jar, 'Immer im Haus', n ? `${n} Zutaten` : '')}
+        <div class="mitem">${IC.bell}<span class="mtxt">Sonntags-Erinnerung<small id="pushSub">Mitteilung am Sonntag zum Planen</small></span><span id="pushState"></span></div>
+      </div>
+      ${isLoveFor() ? '' : `<div class="section-title">Für ${LOVE_FOR}</div><div class="mlist">${row('notes', IC.heart, 'Sprüche')}</div>`}
+      <div class="section-title">App</div>
+      <div class="mlist">
+        <button class="mitem" data-m="reload">${IC.refresh}<span class="mtxt">Neu laden</span></button>
+        <button class="mitem danger" data-m="logout">${IC.logout}<span class="mtxt">Abmelden</span></button>
+      </div>
+      <p class="mfoot">Unsere Einkaufsliste</p>`;
+    renderPushState();
+  }
+
+  function mehrAction(m) {
+    if (m === 'order') openOrderSheet();
+    else if (m === 'remind') openRemindSetup();
+    else if (m === 'pantry') openPantrySheet();
+    else if (m === 'notes') openNotes();
+    else if (m === 'push') enablePush();
+    else if (m === 'reload') { load(); loadCook(); loadMoney(); toast('Aktualisiert'); }
+    else if (m === 'logout') logout();
+  }
+
+  // Zutaten, die beim Kochen nicht auf die Liste sollen
+  function openPantrySheet() {
+    if (!kochen) { toast('Lädt noch – gleich nochmal versuchen.'); loadCook(); return; }
+    const { o, f } = openSheet(`
+      <h2>Immer im Haus</h2>
+      <p class="khint">Diese Zutaten kommen beim Kochen nicht auf die Einkaufsliste. Antippen entfernt eine Zutat.</p>
+      <div class="pantry"></div>
+      <div class="pantry-add"><input name="p" placeholder="z. B. Knoblauch" maxlength="40" enterkeyhint="done"><button class="btn-line go">Dazu</button></div>`);
+    const draw = () => { o.querySelector('.pantry').innerHTML = kochen.pantry.map(x => `<button type="button" class="chip" data-pdel="${esc(x)}">${esc(x)} ×</button>`).join(''); };
+    const save = () => {
+      draw();
+      renderMehr();
+      rpc('set_pantry', { p_names: kochen.pantry }).catch(() => toast('Hat nicht geklappt – bitte nochmal versuchen.'));
+    };
+    draw();
+    o.addEventListener('click', e => {
+      const b = e.target.closest('[data-pdel]');
+      if (!b) return;
+      kochen.pantry = kochen.pantry.filter(x => x !== b.dataset.pdel);
+      save();
+    });
+    f.addEventListener('submit', e => {
+      e.preventDefault();
+      const v = cap(f.elements.p.value.trim());
+      f.elements.p.value = '';
+      if (!v || kochen.pantry.some(x => x.toLowerCase() === v.toLowerCase())) return;
+      kochen.pantry = [...kochen.pantry, v].sort((a, b) => a.localeCompare(b, 'de'));
+      save();
+    });
   }
 
   // Kategorien in Ladenreihenfolge bringen – gilt für beide
   function openOrderSheet() {
     let order = [...catOrder(), ...CATS.map(c => c.id).filter(id => !catOrder().includes(id))];
     const { o, f, close } = openSheet(`
-      <h2>🧭 Reihenfolge im Laden</h2>
+      <h2>Reihenfolge im Laden</h2>
       <p class="khint">So, wie ihr durch euren Markt lauft. Die Liste sortiert sich danach, für euch beide.</p>
       <div class="ord-list"></div>
       <div class="edit-actions">
@@ -1790,7 +1758,7 @@
     const draw = () => {
       list.innerHTML = order.map((id, i) => {
         const c = catOf(id);
-        return `<div class="ord-row" style="--c:${c.color}"><span class="n">${i + 1}</span><span class="b">${c.icon}</span><span class="t">${esc(c.id)}</span>
+        return `<div class="ord-row" style="--c:${c.color}"><span class="n">${i + 1}</span><span class="cdot"></span><span class="t">${esc(c.id)}</span>
           <button type="button" data-mv="-1" data-i="${i}" aria-label="Nach oben" ${i ? '' : 'disabled'}>↑</button>
           <button type="button" data-mv="1" data-i="${i}" aria-label="Nach unten" ${i < order.length - 1 ? '' : 'disabled'}>↓</button></div>`;
       }).join('');
@@ -1821,8 +1789,8 @@
     try { token = await rpc('remind_token'); } catch { toast('Keine Verbindung – bitte nochmal versuchen.'); return; }
     const link = `${SUPABASE_URL}/rest/v1/rpc/erinnerung?p_token=${token}&apikey=${SUPABASE_KEY}`;
     const { o } = openSheet(`
-      <h2>📍 Rossmann-Erinnerung</h2>
-      <p class="khint">Auf dem iPhone, das erinnert werden soll. Einmal einrichten, danach meldet das iPhone an der Haltestelle Prenzlauer Allee / Erich-Weinert-Straße alle 📍-Artikel. Ohne 📍-Artikel kommt keine Mitteilung.</p>
+      <h2>Rossmann-Erinnerung</h2>
+      <p class="khint">Auf dem iPhone, das erinnert werden soll. Einmal einrichten, danach meldet das iPhone an der Haltestelle Prenzlauer Allee / Erich-Weinert-Straße alle markierten Artikel. Ohne markierte Artikel kommt keine Mitteilung.</p>
       <div class="edit-actions" style="margin-bottom:16px"><button type="button" class="btn-line go" data-copy>Link kopieren</button></div>
       <p class="steps-h">1. Kurzbefehl anlegen</p>
       <ol class="steps">
@@ -1840,7 +1808,7 @@
         <li><b>Sofort ausführen</b> wählen, dann <b>Weiter</b> und den Kurzbefehl <b>Rossmann</b> auswählen.</li>
         <li>Falls das iPhone nach dem Standort fragt: erlauben.</li>
       </ol>
-      <p class="khint">Testen: Einen Artikel mit 📍 eintragen und den Kurzbefehl <b>Rossmann</b> einmal von Hand antippen.</p>`);
+      <p class="khint">Testen: Einen Artikel mit dem Pin-Knopf eintragen und den Kurzbefehl <b>Rossmann</b> einmal von Hand antippen.</p>`);
     o.addEventListener('click', async e => {
       if (!e.target.closest('[data-copy]')) return;
       try { await navigator.clipboard.writeText(link); toast('Link kopiert – jetzt in Kurzbefehle einfügen'); }
@@ -1848,23 +1816,20 @@
     });
   }
 
-  $('remindBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openRemindSetup(); });
-  $('orderBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openOrderSheet(); });
-  $('notesBtn').addEventListener('click', () => { $('menu').classList.remove('open'); openNotes(); });
 
   // --- Kasse: Haushaltskosten mit laufendem Saldo ---
   // Saldo in Cent aus Sicht von PEOPLE[0]: positiv = PEOPLE[1] schuldet PEOPLE[0]
   const PEOPLE = [LOVE_FROM, LOVE_FOR];
   const MCATS = [
-    { id: 'Wohnen', icon: '🏠' }, { id: 'Lebensmittel', icon: '🛒' }, { id: 'Energie', icon: '⚡' },
-    { id: 'Haushalt', icon: '🧴' }, { id: 'Versicherung', icon: '🛡️' }, { id: 'Auto & Verkehr', icon: '🚗' },
-    { id: 'Abos', icon: '📺' }, { id: 'Freizeit', icon: '🎉' }, { id: 'Gesundheit', icon: '💊' }, { id: 'Sonstiges', icon: '📦' },
+    { id: 'Wohnen', icon: IC.home }, { id: 'Lebensmittel', icon: IC.cart }, { id: 'Energie', icon: IC.bolt },
+    { id: 'Haushalt', icon: IC.bottle }, { id: 'Versicherung', icon: IC.shield }, { id: 'Auto & Verkehr', icon: IC.car },
+    { id: 'Abos', icon: IC.tv }, { id: 'Freizeit', icon: IC.star }, { id: 'Gesundheit', icon: IC.pulse }, { id: 'Sonstiges', icon: IC.box },
   ];
   // Auswahl für „Wofür“ – setzt passende Kategorie, der Text bleibt frei ergänzbar
   const WHAT = [
-    { id: 'Miete', icon: '🏠', cat: 'Wohnen' }, { id: 'Einkauf', icon: '🛒', cat: 'Lebensmittel' },
-    { id: 'Restaurant', icon: '🍽️', cat: 'Freizeit' }, { id: 'Freizeit', icon: '🎉', cat: 'Freizeit' },
-    { id: 'Auto', icon: '🚗', cat: 'Auto & Verkehr' }, { id: 'Sonstiges', icon: '📦', cat: '' },
+    { id: 'Miete', icon: IC.home, cat: 'Wohnen' }, { id: 'Einkauf', icon: IC.cart, cat: 'Lebensmittel' },
+    { id: 'Restaurant', icon: IC.cutlery, cat: 'Freizeit' }, { id: 'Freizeit', icon: IC.star, cat: 'Freizeit' },
+    { id: 'Auto', icon: IC.car, cat: 'Auto & Verkehr' }, { id: 'Sonstiges', icon: IC.box, cat: '' },
   ];
   let money = null;      // { entries, fixed, month }
   let kMonth = null;     // angezeigter Monat, 'YYYY-MM-01'
@@ -1877,7 +1842,7 @@
   const todayIso = () => new Date().toLocaleDateString('sv');
   const monthName = m => new Date(m + 'T12:00').toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
   const addMonths = (m, n) => { const d = new Date(m + 'T12:00'); d.setMonth(d.getMonth() + n, 1); return d.toLocaleDateString('sv').slice(0, 8) + '01'; };
-  const micon = e => e.kind === 'einnahme' ? '💰' : e.kind === 'ausgleich' ? '🤝' : (MCATS.find(c => c.id === e.category) || MCATS[MCATS.length - 1]).icon;
+  const micon = e => e.kind === 'einnahme' ? IC.plusCircle : e.kind === 'ausgleich' ? IC.swap : (MCATS.find(c => c.id === e.category) || MCATS[MCATS.length - 1]).icon;
   const shareLabel = s => s === 'beide' ? 'für beide' : `nur ${s}`;
 
   function parseAmount(s) {
@@ -1923,7 +1888,7 @@
 
   function renderKasse() {
     const el = $('kasse');
-    if (!money) { el.innerHTML = `<div class="cook-empty"><div class="big">💶</div><strong>Lädt …</strong></div>`; return; }
+    if (!money) { el.innerHTML = `<div class="cook-empty"><div class="big">${IC.wallet}</div><strong>Lädt …</strong></div>`; return; }
     const bal = money.entries.reduce((s, e) => s + effect(e), 0);
     const even = Math.abs(bal) < 1;
     // Alles aus Sicht dessen, der gerade Guthaben hat
@@ -1944,7 +1909,7 @@
       const part = e.share === 'beide' ? 'je ½' : `nur ${esc(e.share)}`;
       const what = e.kind === 'ausgleich' ? `Geldübergabe ${esc(e.paid_by)} → ${esc(e.share)}`
         : `${euro(cents(e))} · ${esc(e.paid_by)} hat ${e.kind === 'einnahme' ? 'bekommen' : 'bezahlt'}, ${part}`;
-      const day = e.fixed_id ? '📌' : new Date(e.day + 'T12:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' }) + ' ·';
+      const day = e.fixed_id ? 'Fix ·' : new Date(e.day + 'T12:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric' }) + ' ·';
       return `<div class="mrow" data-k="entry" data-id="${esc(e.id)}">
         <div class="kicon ${e.kind === 'einnahme' ? 'in' : ''}">${micon(e)}</div>
         <div class="mt"><b>${esc(e.title)}</b><span>${day} ${what}</span></div>
@@ -1957,10 +1922,10 @@
 
     el.innerHTML = `
       <div class="kbal${even ? ' even' : ''}">
-        <small>${even ? 'Stand zwischen euch' : `Guthaben von ${esc(P)}`}</small>
+        <small>${even ? 'Stand zwischen euch' : `Guthaben von ${esc(P)} bei ${esc(O)}`}</small>
         <span class="big">${even ? '0,00 €' : euro(Math.abs(bal))}</span>
-        <span class="who">${even ? 'Ihr seid quitt ✓' : `${esc(P)} hat das bei ${esc(O)} gut. ${esc(O)} verrechnet damit ${esc(P)}s Anteile.`}</span>
-        <br><button class="settle" data-k="settle">🤝 Geld übergeben</button>
+        <span class="who">${even ? 'Ihr seid quitt' : `${esc(O)} verrechnet damit ${esc(P)}s Anteile`}</span>
+        <button class="settle" data-k="settle">Geld übergeben</button>
       </div>
 
       <div class="kmonth">
@@ -1968,13 +1933,13 @@
         <h2>${monthName(kMonth)}</h2>
         <button data-k="next" aria-label="Nächster Monat" ${isNow ? 'disabled' : ''}>›</button>
       </div>
-      <div class="ksum"><div class="kstats">
+      <div class="kstats">
         <div><small>Ausgaben</small><b>${euro(sum('ausgabe'))}</b></div>
         <div><small>Einnahmen</small><b>${euro(sum('einnahme'))}</b></div>
         <div><small>Übergeben</small><b>${euro(sum('ausgleich'))}</b></div>
-      </div></div>
+      </div>
 
-      <div class="section-title">🧾 Kontoauszug</div>
+      <div class="section-title">Kontoauszug</div>
       <div class="section-sub">So ändert sich ${esc(P)}s Guthaben bei ${esc(O)}. Rechts steht der neue Stand nach jedem Eintrag.</div>
       <div class="mlist klist">
         <div class="kcarry"><span>Übertrag aus ${monthName(addMonths(kMonth, -1)).split(' ')[0]}</span><b class="${cls(opening)}">${fmt(opening)}</b></div>
@@ -1982,7 +1947,7 @@
         <div class="kcarry end"><span>${isNow ? 'Stand heute' : `Stand Ende ${monthName(kMonth).split(' ')[0]}`}</span><b class="${cls(run)}">${fmt(run)}</b></div>
       </div>
 
-      ${money.fixed.length ? `<div class="section-title">⚙️ Fixkosten verwalten</div>
+      ${money.fixed.length ? `<div class="section-title">Fixkosten verwalten</div>
       <div class="section-sub">Pro Monat ${euro(fixedMonthly)} · Änderungen gelten ab diesem Monat</div>
       <div class="mlist klist">${money.fixed.map(f => `
         <div class="mrow" data-k="fixed" data-id="${esc(f.id)}">
@@ -1990,7 +1955,7 @@
           <div class="mt"><b>${esc(f.title)}</b><span>${esc(f.paid_by)} ${f.kind === 'einnahme' ? 'bekommt' : 'zahlt'} · ${shareLabel(f.share)}${f.until ? ' · endet nach diesem Monat' : ''}</span></div>
           <div class="kamt ${f.kind === 'einnahme' ? 'in' : ''}">${euro(cents(f))}</div></div>`).join('')}</div>` : ''}
 
-      <div class="kfab"><div class="wrap"><button data-k="add">＋ Ausgabe oder Einnahme</button></div></div>`;
+      <div class="kfab"><div class="wrap"><button data-k="add">+ Ausgabe oder Einnahme</button></div></div>`;
   }
 
   function kasseAction(act, t) {
@@ -2049,11 +2014,11 @@
       ${seg('share', [['beide', 'Beide je ½'], ...PEOPLE.map(p => [p, 'nur ' + esc(p)])], v.share)}
       <div class="mcats" ${v.kind === 'einnahme' ? 'hidden' : ''}>
         <label><span>Kategorie</span></label>
-        <div class="edit-cats">${MCATS.map(c => `<button type="button" class="chip${c.id === v.category ? ' on' : ''}" data-mcat="${esc(c.id)}" style="--c:#4cc27a">${c.icon} ${esc(c.id)}</button>`).join('')}</div>
+        <div class="edit-cats">${MCATS.map(c => `<button type="button" class="chip${c.id === v.category ? ' on' : ''}" data-mcat="${esc(c.id)}" style="--c:var(--accent)">${esc(c.id)}</button>`).join('')}</div>
       </div>
       ${tpl || e?.fixed_id ? '' : `<label><span>Datum</span><input name="day" type="date" value="${esc(e ? e.day : defDay)}"></label>`}
-      ${isNew && !tpl ? `<label class="ktoggle"><input type="checkbox" name="monthly"> 📌 Jeden Monat (Fixkosten)</label><div style="height:14px"></div>` : ''}
-      ${e?.fixed_id ? `<p class="khint">📌 Fixkosten: Diese Änderung gilt nur für ${monthName(kMonth)}. Dauerhaft änderst du sie unter „Fixkosten verwalten“.</p>` : ''}
+      ${isNew && !tpl ? `<label class="ktoggle"><input type="checkbox" name="monthly"> Jeden Monat (Fixkosten)</label><div style="height:14px"></div>` : ''}
+      ${e?.fixed_id ? `<p class="khint">Fixkosten: Diese Änderung gilt nur für ${monthName(kMonth)}. Dauerhaft änderst du sie unter „Fixkosten verwalten“.</p>` : ''}
       ${tpl && !isNew ? `<p class="khint">Änderungen gelten ab ${monthName(money.month)}, frühere Monate bleiben, wie sie waren.</p>` : ''}
       <div class="edit-actions">
         ${isNew ? '' : `<button type="button" class="btn-line del-btn">${tpl ? 'Beenden' : 'Löschen'}</button>`}
@@ -2080,7 +2045,7 @@
         list.hidden = true;
         const btn = o.querySelector('.kwhat-btn');
         btn.classList.remove('empty');
-        btn.querySelector('.kwhat-val').textContent = `${w.icon} ${w.id}`;
+        btn.querySelector('.kwhat-val').innerHTML = `${w.icon} ${w.id}`;
         list.querySelectorAll('[data-what]').forEach(b => b.classList.toggle('on', b === ev.target.closest('[data-what]')));
         if (w.cat) setCatChip(w.cat);
         // „Sonstiges“: gleich selbst schreiben, sonst Vorschlag eintragen (bleibt ergänzbar)
@@ -2121,7 +2086,7 @@
       close();
       if (tpl || f.elements.monthly?.checked) {
         moneyMutate('save_fixed', { p_id: tpl && !isNew ? e.id : null, ...args, p_from: kMonth });
-        if (isNew) toast(`📌 „${title}“ kommt jetzt jeden Monat`);
+        if (isNew) toast(`„${title}“ kommt jetzt jeden Monat`);
       } else {
         moneyMutate('save_entry', { p_id: e ? e.id : null, ...args, p_day: f.elements.day?.value || null, p_by: me });
       }
@@ -2137,7 +2102,7 @@
     const amt = e ? cents(e) : 0;
     const zeroFrom = bal > 0 ? PEOPLE[1] : PEOPLE[0];
     const { o, f, close } = openSheet(`
-      <h2>🤝 ${e ? 'Geldübergabe ändern' : 'Geld übergeben'}</h2>
+      <h2>${e ? 'Geldübergabe ändern' : 'Geld übergeben'}</h2>
       <p class="khint">Tragt hier ein, wenn einer dem anderen Geld überwiesen oder bar gegeben hat, z. B. als Guthaben für kommende Kosten.</p>
       ${seg('from', PEOPLE.map(p => [p, `${esc(p)} → ${esc(other(p))}`]), from)}
       <label class="amount"><span>Betrag</span><input name="amount" inputmode="decimal" placeholder="0,00" value="${amt ? (amt / 100).toFixed(2).replace('.', ',') : ''}"></label>
@@ -2166,7 +2131,7 @@
       const p = segVal(f, 'from');
       close();
       moneyMutate('save_entry', { p_id: e ? e.id : null, p_kind: 'ausgleich', p_title: `${p} gibt ${other(p)} Geld`, p_amount: amount, p_paid_by: p, p_share: other(p), p_category: '', p_day: f.elements.day.value || null, p_by: me });
-      if (!e) toast(`🤝 ${p} hat ${other(p)} ${euro(amount * 100)} gegeben`);
+      if (!e) toast(`${p} hat ${other(p)} ${euro(amount * 100)} gegeben`);
     });
   }
 
@@ -2203,11 +2168,11 @@
 
   // --- Start ---
   $('date').textContent = new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
-  $('cat').innerHTML = CATS.map(c => `<option value="${esc(c.id)}">${c.icon} ${esc(c.id)}</option>`).join('');
+  $('cat').innerHTML = CATS.map(c => `<option value="${esc(c.id)}">${esc(c.id)}</option>`).join('');
   setCat('Sonstiges');
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-  if (location.hash === '#kochen' || location.hash === '#kasse') setTab(location.hash.slice(1));
+  if (['#kochen', '#kasse', '#mehr'].includes(location.hash)) setTab(location.hash.slice(1));
 
   if (pin) { renderMenu(); load(); loadCook(); setTimeout(loveNote, 700); }
   else logout();
