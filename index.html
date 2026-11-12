@@ -210,6 +210,14 @@
     border: 1px solid color-mix(in srgb, var(--ink) 6%, transparent);
   }
   .composer:not(.typing) :is(.chips, .chips-label) { display: none !important; }
+  .composer.qtyfocus :is(.chips, .chips-label) { display: none !important; }
+  .qty-bar { display: none; gap: 6px; padding: 0 2px 8px; }
+  .qty-bar.on, .composer.qtyfocus .qty-bar { display: flex; }
+  .qty-bar button {
+    flex: 1; height: 38px; border: 0; border-radius: 12px; font-size: 15px; font-weight: 700;
+    color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, var(--surface));
+  }
+  .qty-bar button:first-child { flex: 1.4; color: var(--accent-ink); background: var(--accent); }
   .chips-label { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 7px 6px; }
   .chips { display: flex; gap: 7px; overflow-x: auto; padding: 0 2px 10px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
@@ -476,6 +484,19 @@
   .edit-sheet .amount input { font-size: 26px; font-weight: 800; padding-right: 40px; height: 58px; font-variant-numeric: tabular-nums; }
   .edit-sheet .amount::after { content: "€"; position: absolute; right: 16px; bottom: 15px; font-size: 22px; font-weight: 800; color: var(--muted); }
   .edit-sheet input[type="date"] { appearance: none; -webkit-appearance: none; }
+  .kwhat { position: relative; margin: 0 0 8px; }
+  .kwhat-btn {
+    width: 100%; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px;
+    border: 0; border-radius: 16px; background: var(--bg); color: var(--ink); font-size: 17px; font-weight: 600;
+  }
+  .kwhat-btn.empty .kwhat-val { color: var(--muted); font-weight: 500; }
+  .kwhat-list {
+    position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 2; padding: 6px;
+    background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-lg); animation: pop .15s ease-out;
+  }
+  .kwhat-list[hidden] { display: none; }
+  .kwhat-list button { display: block; width: 100%; text-align: left; padding: 11px 12px; border: 0; background: none; border-radius: 11px; font-size: 16px; font-weight: 600; color: var(--ink); }
+  .kwhat-list button.on { background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
   .ktoggle { display: flex !important; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 16px; background: var(--bg); color: var(--ink) !important; font-size: 15px !important; }
   .ktoggle input { width: 22px !important; height: 22px !important; accent-color: var(--accent); flex: none; }
   .khint { margin: -4px 4px 14px; color: var(--muted); font-size: 13.5px; font-weight: 500; }
@@ -616,13 +637,14 @@
 <form class="composer" id="addForm" autocomplete="off">
   <div class="wrap">
     <div class="panel">
+      <div class="qty-bar" id="qtyBar"></div>
       <div class="chips-label" id="chipsLabel"></div>
       <div class="chips" id="chips"></div>
       <div class="row">
         <div class="field">
           <div class="cat" id="catBox"><span id="catIcon">📦</span><select id="cat" aria-label="Kategorie"></select></div>
           <input id="name" placeholder="Was fehlt?" enterkeyhint="done" maxlength="80">
-          <input id="qty" placeholder="Menge" maxlength="20">
+          <input id="qty" placeholder="Menge" maxlength="20" inputmode="decimal" enterkeyhint="done">
           <button type="button" class="pin" id="pinBtn" aria-pressed="false" aria-label="Bei Rossmann erinnern">📍</button>
         </div>
         <button class="add" id="addBtn" type="submit" aria-label="Hinzufügen" disabled>
@@ -930,8 +952,9 @@
       <h2>Artikel bearbeiten</h2>
       <div class="edit-row">
         <label><span>Name</span><input name="name" value="${esc(it.name)}" maxlength="80" enterkeyhint="done"></label>
-        <label class="q"><span>Menge</span><input name="qty" value="${esc(it.qty || '')}" maxlength="40" placeholder="z. B. 2" enterkeyhint="done"></label>
+        <label class="q"><span>Menge</span><input name="qty" value="${esc(it.qty || '')}" maxlength="40" placeholder="z. B. 2" inputmode="decimal" enterkeyhint="done"></label>
       </div>
+      <div class="qty-bar on" style="margin:-6px 0 14px"></div>
       <label><span>Kategorie</span></label>
       <div class="edit-cats">${CATS.map(c => `<button type="button" class="chip${c.id === cat ? ' on' : ''}" data-cat="${esc(c.id)}" style="--c:${c.color}">${c.icon} ${esc(c.id)}</button>`).join('')}</div>
       <label class="ktoggle"><input type="checkbox" name="remind" ${it.remind ? 'checked' : ''}> 📍 Bei Rossmann erinnern</label>
@@ -940,6 +963,7 @@
         <button type="button" class="btn-line del-btn">Löschen</button>
         <button type="submit" class="btn-line go">Speichern</button>
       </div>`);
+    wireQtyBar(o.querySelector('.qty-bar'), f.elements.qty);
     o.addEventListener('click', e => {
       const chip = e.target.closest('[data-cat]');
       if (chip) {
@@ -1002,6 +1026,26 @@
     renderChips();
   });
   $('cat').addEventListener('change', () => { catTouched = true; setCat($('cat').value); });
+
+  // Menge: Zahlentastatur hat kein Minus – darum eine Leiste mit „bis“ (1–2) und Einheiten.
+  // Die Knöpfe nehmen dem Feld den Fokus nicht weg, die Tastatur bleibt offen.
+  const QTY_KEYS = ['–', 'g', 'kg', 'l', 'Pck.'];
+  function wireQtyBar(bar, input) {
+    bar.innerHTML = QTY_KEYS.map(t => `<button type="button" data-q="${t}">${t === '–' ? '– bis' : t}</button>`).join('');
+    const press = e => {
+      const b = e.target.closest('[data-q]');
+      if (!b) return;
+      e.preventDefault();
+      const v = input.value.replace(/[\s–-]+$/, '');
+      input.value = b.dataset.q === '–' ? (v || '1') + '–' : (v ? v + ' ' : '') + b.dataset.q;
+      input.focus();
+    };
+    bar.addEventListener('touchstart', press, { passive: false });
+    bar.addEventListener('mousedown', press);
+  }
+  wireQtyBar($('qtyBar'), $('qty'));
+  $('qty').addEventListener('focus', () => $('addForm').classList.add('qtyfocus'));
+  $('qty').addEventListener('blur', () => $('addForm').classList.remove('qtyfocus'));
 
   // „Oft gekauft“ nur zeigen, solange jemand etwas einträgt
   $('addForm').addEventListener('focusin', () => $('addForm').classList.add('typing'));
@@ -1816,6 +1860,12 @@
     { id: 'Haushalt', icon: '🧴' }, { id: 'Versicherung', icon: '🛡️' }, { id: 'Auto & Verkehr', icon: '🚗' },
     { id: 'Abos', icon: '📺' }, { id: 'Freizeit', icon: '🎉' }, { id: 'Gesundheit', icon: '💊' }, { id: 'Sonstiges', icon: '📦' },
   ];
+  // Auswahl für „Wofür“ – setzt passende Kategorie, der Text bleibt frei ergänzbar
+  const WHAT = [
+    { id: 'Miete', icon: '🏠', cat: 'Wohnen' }, { id: 'Einkauf', icon: '🛒', cat: 'Lebensmittel' },
+    { id: 'Restaurant', icon: '🍽️', cat: 'Freizeit' }, { id: 'Freizeit', icon: '🎉', cat: 'Freizeit' },
+    { id: 'Auto', icon: '🚗', cat: 'Auto & Verkehr' }, { id: 'Sonstiges', icon: '📦', cat: '' },
+  ];
   let money = null;      // { entries, fixed, month }
   let kMonth = null;     // angezeigter Monat, 'YYYY-MM-01'
 
@@ -1980,13 +2030,19 @@
     const curMonth = ym(kMonth) === ym(money.month);
     const defDay = curMonth ? todayIso() : kMonth;
     const amountStr = v.amount ? Number(v.amount).toFixed(2).replace('.', ',') : '';
+    const what = WHAT.find(w => v.title === w.id || v.title.startsWith(w.id + ' '))?.id || (v.title ? 'Sonstiges' : '');
     const { o, f, close } = openSheet(`
       <h2>${tpl ? (isNew ? 'Neue Fixkosten' : 'Fixkosten ändern') : isNew ? 'Neuer Eintrag' : 'Eintrag ändern'}</h2>
       ${seg('kind', [['ausgabe', '− Ausgabe'], ['einnahme', '+ Einnahme']], v.kind, 'kind')}
       <div class="edit-row">
         <label class="amount" style="flex:1"><span>Betrag</span><input name="amount" inputmode="decimal" placeholder="0,00" value="${esc(amountStr)}" enterkeyhint="next"></label>
       </div>
-      <label><span>Wofür</span><input name="title" maxlength="80" value="${esc(v.title)}" placeholder="z. B. Miete, Wocheneinkauf" enterkeyhint="done"></label>
+      <label><span>Wofür</span></label>
+      <div class="kwhat">
+        <button type="button" class="kwhat-btn${what ? '' : ' empty'}"><span class="kwhat-val">${what ? `${WHAT.find(w => w.id === what).icon} ${what}` : 'Bitte auswählen'}</span><span aria-hidden="true">▾</span></button>
+        <div class="kwhat-list" hidden>${WHAT.map(w => `<button type="button" data-what="${w.id}" class="${w.id === what ? 'on' : ''}">${w.icon} ${w.id}</button>`).join('')}</div>
+      </div>
+      <label><input name="title" maxlength="80" value="${esc(v.title)}" placeholder="Bezeichnung, frei ergänzbar" enterkeyhint="done"></label>
       <label><span class="lbl-paid">${v.kind === 'einnahme' ? 'Bekommen hat' : 'Bezahlt hat'}</span></label>
       ${seg('paid', PEOPLE.map(p => [p, esc(p)]), v.paid_by)}
       <label><span class="lbl-share">${v.kind === 'einnahme' ? 'Steht zu' : 'Wer trägt die Kosten'}</span></label>
@@ -2012,11 +2068,30 @@
       o.querySelector('.lbl-share').textContent = inc ? 'Steht zu' : 'Wer trägt die Kosten';
       o.querySelector('.mcats').hidden = inc;
     });
+    const setCatChip = c => {
+      cat = c;
+      o.querySelectorAll('[data-mcat]').forEach(b => b.classList.toggle('on', b.dataset.mcat === cat));
+    };
     o.addEventListener('click', ev => {
+      const list = o.querySelector('.kwhat-list');
+      if (ev.target.closest('.kwhat-btn')) { list.hidden = !list.hidden; return; }
+      const w = WHAT.find(x => x.id === ev.target.closest('[data-what]')?.dataset.what);
+      if (w) {
+        list.hidden = true;
+        const btn = o.querySelector('.kwhat-btn');
+        btn.classList.remove('empty');
+        btn.querySelector('.kwhat-val').textContent = `${w.icon} ${w.id}`;
+        list.querySelectorAll('[data-what]').forEach(b => b.classList.toggle('on', b === ev.target.closest('[data-what]')));
+        if (w.cat) setCatChip(w.cat);
+        // „Sonstiges“: gleich selbst schreiben, sonst Vorschlag eintragen (bleibt ergänzbar)
+        f.elements.title.value = w.id === 'Sonstiges' ? '' : w.id;
+        if (w.id === 'Sonstiges') f.elements.title.focus();
+        return;
+      }
+      if (!ev.target.closest('.kwhat')) list.hidden = true;
       const c = ev.target.closest('[data-mcat]');
       if (c) {
-        cat = c.classList.contains('on') ? '' : c.dataset.mcat;
-        o.querySelectorAll('[data-mcat]').forEach(b => b.classList.toggle('on', b.dataset.mcat === cat));
+        setCatChip(c.classList.contains('on') ? '' : c.dataset.mcat);
         if (!f.elements.title.value.trim() && cat) f.elements.title.placeholder = cat;
         return;
       }
